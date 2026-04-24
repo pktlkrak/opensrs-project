@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title></title>
+    <link rel="stylesheet" media="screen"
+        href="assets/application-9bcb6abc8647c5e79b96f38c958be7e9ee0758f5299fb53f.css" />
+    <link rel="stylesheet" media="screen"
+        href="assets/application-be8fec0c87a2d6cf9afb39f298ad7f72f89c7f1d741153bd.css" />
+    <link rel="stylesheet" media="screen" href="assets/application-4707e46c.css" />
+    <meta content="8958" name="subject_id">
+    </meta>
+
+    <meta name="application-name" content="WaniKani">
+    <meta name="author" content="tofugu.com">
+    <meta name="description"
+        content="WaniKani is a Japanese radicals, kanji, and vocabulary learning web app that uses mnemonics and SRS to make kanji learning simple.">
+    <meta name="keywords"
+        content="japanese kanji, japanese language, japanese learning, kanji, radicals, kanji radicals, japanese vocabulary, vocabulary, srs, spaced repetition, mnemonics, memory tricks, web app">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="google" value="notranslate">
+    <!-- Open Graph data -->
+    <meta content='Learn Japanese kanji the effective way!' property='og:description'>
+    <meta content='en_US' property='og:locale'>
+    <meta content='WaniKani' property='og:site_name'>
+    <meta content='WaniKani, a kanji learning application by Tofugu' property='og:title'>
+    <meta content='website' property='og:type'>
+    <meta content='https://wanikani.com/' property='og:url'>
+    <meta content='https://www.tofugu.com' property='og:see_also'>
+    <!-- Twitter Card data -->
+    <meta content='summary_large_image' name='twitter:card'>
+    <meta content='@tofugu' name='twitter:creator'>
+    <meta content='Learn Japanese kanji the effective way!' name='twitter:description'>
+    <meta content='@wanikaniapp' name='twitter:site'>
+    <meta content='WaniKani, a kanji learning application by Tofugu' name='twitter:title'>
+    <link rel="shortcut icon" type="image/png" href="assets/wanikani-icon-196x.png" sizes="196x196" />
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans+JP:400,700&display=swap&subset=japanese"
+        rel="stylesheet">
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Ubuntu:300,700,300italic,700italic' rel='stylesheet'
+        type='text/css'>
+    <link href='https://maxcdn.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css' rel='stylesheet'
+        type='text/css'>
+
+    <script src="/osrs.js"></script>
+    <script src="assets/wanakana.js"></script>
+
+    <style>
+        body, .row{
+            margin: 0;
+        }
+    </style>
+
+    <script defer>
+        //Let the shitshow begin
+        (async () => {
+            const fillIn = (n, v) => document.querySelectorAll(`[data-insertValue='${n}']`).forEach(n => n
+                .innerText = v);
+            const capitalizeFirstLetter = e => e.substring(0, 1).toUpperCase() + e.substring(1);
+            const doOnlyIfs = type => {
+                const objects = document.querySelectorAll("[data-onlyif]");
+                for (let object of objects) {
+                    const content = object.getAttribute("data-onlyif");
+                    const setid = object.getAttribute("data-onlyif-setid");
+                    if (!content.includes(type)) {
+                        object.remove();
+                    } else if (setid) {
+                        object.id = setid;
+                    }
+                }
+            }
+    
+            const createTile = (family, query, infos, locked) => {
+                const liRoot = document.createElement("li");
+                liRoot.classList.add(family + "-item");
+                liRoot.classList.add("character-item");
+                if (locked) liRoot.classList.add("locked");
+    
+                const spanBadge = document.createElement("span");
+                spanBadge.className = "item-badge";
+                spanBadge.lang = "ja";
+                liRoot.appendChild(spanBadge);
+    
+                const link = document.createElement("a");
+                link.href = `/${OSRS.getCurrentSetName()}/${family}/${query}`;
+    
+                const characterSpan = document.createElement("span");
+                characterSpan.className = "character";
+                characterSpan.lang = "ja";
+                characterSpan.innerText = query;
+    
+                const ul = document.createElement("ul");
+                infos.forEach(n => {
+                    const a = document.createElement("li");
+                    a.innerText = n;
+                    ul.appendChild(a);
+                })
+    
+                liRoot.append(spanBadge);
+                link.appendChild(characterSpan);
+                link.appendChild(ul);
+                liRoot.append(link);
+                return liRoot;
+            };
+    
+
+            const explode = (parentElement, content) => {
+                //TODO
+                parentElement.innerText = content;
+            }
+    
+            const fillAndExplode = (name, compacted) => {
+                const target = document.querySelector(`[data-compacted='${name}']`);
+                explode(target, compacted)
+            };
+    
+            const createHint = hint => {
+                const hintField = document.createElement("aside");
+                hintField.className = "additional-info";
+                hintField.innerHTML = '<h3><i class="icon-question-sign"></i> Hints</h3>';
+                const p = document.createElement("p");
+                explode(p, hint);
+                hintField.appendChild(p);
+                return hintField;
+            }
+    
+            const pathElements = new URL(window.location.href).pathname.split("/");
+            const family = decodeURIComponent(pathElements[3]),
+                query = decodeURIComponent(pathElements[4]);
+            
+            document.title = `OpenSRS / ${capitalizeFirstLetter(family)} / ${capitalizeFirstLetter(query)}`;
+            const itemInfo = (await OSRS.getInfoByFamily(family, query))[0];
+            if (!itemInfo) {
+                OSRS.redirectToSetHome();
+            }
+            doOnlyIfs(family);
+            fillIn("meaningName", {
+                radicals: 'Name',
+                kanji: 'Meaning',
+                vocabulary: 'Meaning'
+            } [family]);
+    
+            fillIn("mnemonicName", {
+                radicals: 'Mnemonic',
+                kanji: 'Explanation',
+                vocabulary: 'Explanation'
+            } [family]);
+    
+            fillIn("compositionName", {
+                kanji: "Radical Combination",
+                vocabulary: "Kanji Composition"
+            } [family]);
+    
+            const queryElement = document.querySelector("#queryIcon");
+            queryElement.innerText = itemInfo.query;
+            queryElement.className = ({
+                radicals: 'radical'
+            } [family] ?? family) + "-icon";
+    
+            fillIn("literalName", capitalizeFirstLetter(itemInfo.reviewable[{
+                radicals: 'name',
+                kanji: 'meaning',
+                vocabulary: 'meaning'
+            } [family]][0]));
+    
+            fillAndExplode("mainMnemonic", itemInfo.clientData.mnemonic);
+    
+            if (itemInfo.clientData.hints) {
+                document.querySelector("#meaning > .mnemonic-content").appendChild(createHint(itemInfo.clientData.hints));
+            }
+    
+            const meanings = document.querySelector("#meanings");
+            for (const type of Object.keys(itemInfo.clientData.meanings)) {
+                const meaning = itemInfo.clientData.meanings[type];
+                const element = document.createElement("div");
+                element.className = "alternative-meaning";
+                const head = document.createElement("h2");
+                head.innerText = type;
+                element.appendChild(head);
+                const content = document.createElement("p");
+                content.innerText = meaning;
+                element.appendChild(content);
+                meanings.appendChild(element);
+            }
+    
+            if(itemInfo.dependencies.length){
+                const components = document.querySelector("#components ul");
+                function getInfos(n){
+                    if(n.family == "radicals"){
+                        return [capitalizeFirstLetter(n.reviewable['name'][0])];
+                    }else{
+                        return [
+                            wanakana.toHiragana(n.reviewable['reading'][0]),
+                            capitalizeFirstLetter(n.reviewable['meaning'][0]),
+                        ];
+                    }
+                }
+                itemInfo.dependencies.forEach(n => {
+                    components.appendChild(createTile(n.family, n.query, getInfos(n), false));
+                });
+    
+            }
+    
+            if(family === "radicals" || family == "kanji"){
+                const foundInKanji = document.querySelector("#amalgamations ul");
+                itemInfo.itemsDependent.forEach(dep => foundInKanji.appendChild(createTile(dep.family, dep
+                    .query, [wanakana.toHiragana(dep.reviewable['reading'][0]),
+                        capitalizeFirstLetter(dep.reviewable['meaning'][0])
+                    ], !dep.phase)));
+            }
+    
+            if (family == "kanji") { //Specific parameters
+                const kanjiReadings = document.querySelector("#kanjiReadings");
+                for(let reading of itemInfo.clientData.readings.readings){
+                    const div = document.createElement("div");
+                    div.className = "span4 " + (reading.primary ? "" : "muted-content");
+                    const h3 = document.createElement("h3");
+                    h3.innerText = reading.name;
+                    div.appendChild(h3);
+                    const p = document.createElement("p");
+                    p.lang = "ja";
+                    p.innerText = reading.reading;
+                    div.appendChild(p);
+                    kanjiReadings.appendChild(div);
+                }
+                fillAndExplode("kanjiReadingMnemonic", itemInfo.clientData.readings.mnemonic);
+                if (itemInfo.clientData.readings.hints) {
+                    document.querySelector("#reading > .mnemonic-content").appendChild(createHint(itemInfo.clientData.readings.hints));
+                }
+            }else if(family == "vocabulary"){
+                const contexts = document.querySelector("#context");
+                for(const sentence of itemInfo.clientData.contextSentences){
+                    const div = document.createElement("div");
+                    div.className = "context-sentence-group";
+                    let p = document.createElement("p");
+                    p.lang = "ja";
+                    p.innerText = sentence.ja;
+                    div.appendChild(p);
+                    p = document.createElement("p");
+                    p.innerText = sentence.en;
+                    div.appendChild(p)
+                    contexts.appendChild(div);
+                }
+    
+                let i = 0;
+                const readingsList = document.querySelector("#reading .readings-component");
+    
+                const sanitize = e => e.toLowerCase().replace(/\s/g, '');
+    
+    
+                for(const reading of itemInfo.clientData.vocabReading.readings){
+                    const audios = itemInfo.clientData.vocabReading.pronunciationAudios.filter(n => n.pronunciation === reading.reading);
+                    const group = document.createElement("pronunciation-group");
+                    const p = document.createElement("p");
+                    p.lang = "ja";
+                    p.innerText = reading.reading;
+                    const ul = document.createElement("ul");
+                    for(let audio of audios){
+                        const li = document.createElement("li");
+                        const span = document.createElement("span");
+                        span.className = "audio-player";
+                        const audioNode = document.createElement("audio");
+                        audioNode.controls = true;
+                        const source = document.createElement("source");
+                        source.src = `/${OSRS.getCurrentSetName()}/assets/audio/${audio.file}`;
+                        audioNode.appendChild(source);
+                        span.appendChild(audioNode);
+                        li.appendChild(span);
+    
+                        const label = document.createElement("label");
+                        label.for = `${sanitize(audio.voiceActorName)}-${sanitize(audio.voiceDescription)}-${sanitize(audio.gender)}-${i++}`;
+                        const spanName = document.createElement("span");
+                        const spanDesc = document.createElement("span");
+                        spanName.innerText = audio.voiceActorName;
+                        spanDesc.innerText = `(${audio.voiceDescription}, ${audio.gender})`;
+                        label.appendChild(spanName);
+                        label.appendChild(spanDesc);
+                        li.appendChild(label);
+                        ul.appendChild(li);
+                    }
+                    group.appendChild(p);
+                    group.appendChild(ul);
+    
+                    readingsList.appendChild(group);
+                }
+    
+                fillAndExplode("vocabReadingMnemonic", itemInfo.clientData.vocabReading.mnemonic);
+            }
+    
+        })();
+    </script>
+</head>
+<body>
+    <div class="">
+        <div class="row">
+            <div class="">
+                <nav>
+                    <ul class="pager">
+                        <!--<li class="previous"><a href="/vocabulary/%E4%B8%8A"><i
+                                    class="icon-circle-arrow-left"></i>&nbsp;上</a></li>
+                        <li class="next"><a href="/vocabulary/%E5%A5%B3">女&nbsp;<i
+                                    class="icon-circle-arrow-right"></i></a></li>-->
+                    </ul>
+                </nav>
+                <header>
+                    <h1>
+                        <a id="levelLink" class="level-icon" href="/level/1">1</a>
+                        <span class="vocabulary-icon" lang="ja" id="queryIcon">Fetching...</span>
+                        <span data-insertValue="literalName"></span>
+                    </h1>
+                    <div class="page-list remove-margin-bottom">
+                        <ul>
+                            <li class="page-list-header"><span>Go to</span></li>
+                            <li><a href="#meaning" data-insertValue="meaningName">Meaning</a></li>
+                            <li><a href="#amalgamations" data-onlyif="radicals">Found in Kanji</a></li>
+                            <li><a href="#reading" data-onlyif="vocabulary|kanji">Reading</a></li>
+                            <li><a href="#context" data-onlyif="vocabulary">Context</a></li>
+                            <li><a href="#components" data-insertValue="compositionName"
+                                    data-onlyif="vocabulary">Kanji Composition</a></li>
+                        </ul>
+                    </div>
+                </header>
+    
+                <section data-onlyif="kanji" data-onlyif-setid="components">
+                    <h2>Radical Composition</h2>
+                    <ul class="single-character-grid multi-character-grid-extra-styling-767px">
+    
+                    </ul>
+                </section>
+    
+                <section id="meaning" class="remove-margin-bottom">
+                    <h2 data-insertValue="meaningName">Meaning</h2>
+                    <span id="meanings">
+                        <!--Data goes here-->
+                    </span>
+                    <h3 data-insertValue="mnemonicName">Explanation</h3>
+                    <section class="mnemonic-content mnemonic-content--new">
+                        <p data-compacted="mainMnemonic"></p>
+                    </section>
+                </section>
+    
+                <section data-onlyif="radicals" data-onlyif-setid="amalgamations">
+                    <h2 data-insertValue="amalgamationsName">Found In Kanji</h2>
+                    <ul class="single-character-grid multi-character-grid-extra-styling-767px">
+    
+                    </ul>
+                </section>
+    
+    
+                <section class="vocabulary-reading" data-onlyif="vocabulary" data-onlyif-setid="reading">
+                    <h2>Reading</h2>
+                    <div>
+                        <div class="readings-component" data-reactroot="">
+                        </div>
+                    </div>
+                    <h3>Explanation</h3>
+                    <section class="mnemonic-content mnemonic-content--new">
+                        <p data-compacted="vocabReadingMnemonic"></p>
+                    </section>
+                </section>
+    
+                <section data-onlyif="kanji" data-onlyif-setid="reading">
+                    <h2>Readings</h2>
+                    <div class="row row--collapsed" id="kanjiReadings">
+                        
+                    </div>
+                    <h3>Mnemonic</h3>
+                    <section class="mnemonic-content mnemonic-content--new">
+                        <p data-compacted="kanjiReadingMnemonic"></p>
+                    </section>
+                </section>
+    
+                <section data-onlyif="kanji" data-onlyif-setid="amalgamations">
+                    <h2>Found In Vocabulary</h2>
+                      <ul class="multi-character-grid multi-character-grid-extra-styling">
+                      </ul>
+                  </section>
+    
+                <section id="context" class="context-sentence" data-onlyif="vocabulary">
+                    <h2>Context</h2>
+                    <h3>Context Sentences</h3>
+                </section>
+    
+                <section data-onlyif="vocabulary" data-onlyif-setid="components">
+                    <h2>Kanji Composition</h2>
+                    <ul class="single-character-grid multi-character-grid-extra-styling-767px">
+                    </ul>
+                  </section>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

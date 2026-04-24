@@ -1,0 +1,457 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package opensrs.database.implementation;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import opensrs.dataobjects.User;
+import opensrs.database.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import opensrs.Log;
+import opensrs.dataobjects.Result;
+import opensrs.dataobjects.Review;
+import opensrs.dataobjects.SRSObjectState;
+import opensrs.sets.GlobalStore;
+import opensrs.sets.Set;
+import org.autumn.Utils;
+
+/**
+ *
+ * @author piotr
+ */
+public class SQLiteDatabase extends Database {
+
+    private static final String TAG = "SQLiteDatabase";
+    private final Supplier<Review> REVIEW_FACTORY = () -> new Review() {
+        @Override
+        protected Object fetchObject(Review.Parameter param) {
+            switch ((Review.Parameter) param) {
+                case RESULTS:
+                    return fetchResults(new Filter<>(Result.Parameter.REVIEW_ID, Filters.EqOnly.EQUAL, getId()), null, -1);
+            }
+            throw new RuntimeException("Invalid parameter");
+        }
+    };
+
+    private Connection connection;
+    
+    /* CURSES BEGIN */
+    
+    public void snapshot(){
+        try {
+            //End me
+            //Please I beg you
+
+            connection.close();
+            int ender = 0;
+            while(new File(fileName + "." + ender).exists()) ++ender;
+            FileOutputStream fos = new FileOutputStream(new File(fileName + "." + ender));
+            FileInputStream fis = new FileInputStream(new File(fileName));
+            Utils.copyStream(fis, fos, 4096);
+            fos.close();
+            fis.close();
+            connection = DriverManager.getConnection("jdbc:sqlite:" + fileName);
+        } catch (SQLException | IOException ex) {
+            Log.handleException(TAG, ex);
+        }
+        
+    }
+    private String fileName;
+    /*CURSES END*/
+
+    public SQLiteDatabase(String fileName) throws SQLException {
+        this.fileName = fileName;
+        connection = DriverManager.getConnection("jdbc:sqlite:" + fileName);
+        createSchema();
+    }
+    private final Object mutex = new Object();
+
+    private void createSchema() throws SQLException {
+        try {
+            execute("select 'a' from userdata");
+        } catch (SQLException ex) {
+            execute("create table userdata (uid integer primary key autoincrement, name text, hash text, salt text)");
+            execute("create table results (uid integer, set_code integer, id integer primary key autoincrement, review_id integer, item_suid integer, item_param integer, tries_amount integer)");
+            execute("create table reviews (uid integer, set_code integer, id integer primary key autoincrement, item_suid integer, queued_date integer, unlock_date integer, srs_weight integer, review_session_id integer, type integer)");
+            execute("create trigger results_cleanup after delete on reviews for each row begin delete from results where review_id = old.id; end;");
+        }
+    }
+
+    private ResultSet query(String sql, Object... parameters) throws SQLException {
+        Log.log(Log.DEBUG, TAG, "Query: " + sql);
+        PreparedStatement statement = connection.prepareStatement(sql);
+        for (int i = 0; i < parameters.length; i++) {
+            statement.setObject(i + 1, parameters[i]);
+        }
+        synchronized(mutex){
+            return statement.execute() ? statement.getResultSet() : null;
+        }
+    }
+
+    private void execute(String sql) throws SQLException {
+        Log.log(Log.DEBUG, TAG, "Execute: " + sql);
+        synchronized(mutex){
+            connection.createStatement().execute(sql);
+        }
+    }
+
+    @Override
+    public User getUserByName(String name) {
+        try {
+            User ret = new User();
+            ResultSet set = query("select uid, hash, salt from userdata where name = ?", name);
+            if (set.next()) {
+                ret.setUid(set.getInt(1));
+                ret.setName(name);
+                ret.setSalt(set.getString(3));
+                ret.setHash(set.getString(2));
+                return ret;
+            }
+        } catch (SQLException ex) {
+
+        }
+        return null;
+    }
+
+    @Override
+    public User getUserById(int uid) {
+        try {
+            User ret = new User();
+            ResultSet set = query("select name, hash, salt from userdata where uid = ?", uid);
+            if (set.next()) {
+                ret.setUid(uid);
+                ret.setName(set.getString(1));
+                ret.setSalt(set.getString(3));
+                ret.setHash(set.getString(2));
+                return ret;
+            }
+        } catch (SQLException ex) {
+
+        }
+        return null;
+    }
+
+    @Override
+    public void createUser(User user) {
+        try {
+            query("insert into userdata (name, hash, salt) values (?, ?, ?)", user.getName(), user.getHash(), user.getSalt());
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private class FiltersIntermediate<T extends GenericParameter> {
+
+        int currentArrayPointer;
+        String outputSQL;
+        List<T> parametersUsed = new LinkedList<>();
+    }
+
+    private <T extends GenericParameter> String getFilterString(Filter<T> f) {
+        switch (f.getFilter().getType()) {
+            case TEXT:
+            case EQ_ONLY:
+            case NUMBER:
+                return f.getFilteredValue().name() + " " + f.getFilter().getSymbol() + " ?";
+            case ARRAY:
+                return "? " + f.getFilter().getSymbol() + " " + f.getFilteredValue().name();
+            default:
+                throw new RuntimeException("Cannot filter by type: " + f.getFilter().getType().name());
+        }
+    }
+
+    private <T extends GenericParameter> FiltersIntermediate<T> parseFilters(FilterChain<T> filters, Object array[], int i) {
+        if (filters.getFilters().isEmpty()) {
+            FiltersIntermediate<T> fi = new FiltersIntermediate<>();
+            fi.outputSQL = "";
+            fi.currentArrayPointer = i;
+            return fi;
+        }
+        String SQL = "";
+        FiltersIntermediate<T> fi = new FiltersIntermediate<>();
+        for (Filter<T> x : filters.getFilters()) {
+            if (x instanceof FilterChain) {
+                if(((FilterChain<T>) x).getFilters().isEmpty()) continue;
+                FiltersIntermediate<T> im = parseFilters((FilterChain<T>) x, array, i);
+                SQL += "(" + im.outputSQL + ") " + filters.getJunction().name() + " ";
+                i = im.currentArrayPointer;
+                fi.parametersUsed.addAll(im.parametersUsed);
+            } else {
+                SQL += getFilterString(x) + (" " + filters.getJunction().name() + " ");
+                fi.parametersUsed.add(x.getFilteredValue());
+                array[i++] = x.getValue();
+            }
+        }
+        SQL = SQL.substring(0, SQL.length() - (filters.getJunction().name().length() + 2)); //remove the last 'OR' / 'AND'
+        fi.currentArrayPointer = i;
+        fi.outputSQL = SQL;
+        return fi;
+    }
+
+    private int getTotalFiltersAmount(Filter<?> filter) {
+        if (filter == null) {
+            return 0;
+        } else if (filter instanceof FilterChain) {
+            return ((FilterChain<?>) filter).getFilters().stream().map((subFilter) -> getTotalFiltersAmount(subFilter)).reduce(0, Integer::sum);
+        } else {
+            return 1;
+        }
+    }
+
+    private <T extends DataObject<R>, R extends GenericParameter> List<T> fetch(Class<R> parameterClass, Filter<R> filter, int limit, String tableName, Sorter<R> sorter, Supplier<T> factory, Function<R, String> nameMapper) {
+        StringBuilder SQL = new StringBuilder("SELECT ");
+
+        try {
+            R allParams[] = Arrays.asList(parameterClass.getEnumConstants()).stream().filter(n -> n.getSetter() != null).toArray(n -> (R[]) Array.newInstance(parameterClass, n));
+            //Selection
+            for (R p : allParams) {
+                SQL.append(nameMapper.apply(p)).append(", ");
+            }
+            SQL.delete(SQL.length() - 2, SQL.length());
+            SQL.append(" FROM ").append(tableName).append(" ");
+
+            StringBuilder sqlForFiltering = new StringBuilder();
+
+            int i = 0;
+            Object array[] = new Object[getTotalFiltersAmount(filter)];
+            if (filter != null && (filter instanceof FilterChain ? ((FilterChain) filter).getFilters().size() > 0 : true)) {
+                if (filter instanceof FilterChain) {
+                    FiltersIntermediate fi = parseFilters((FilterChain<R>) filter, array, i);
+
+                    sqlForFiltering.append(fi.outputSQL);
+                    i = fi.currentArrayPointer;
+                } else {
+                    sqlForFiltering.append(getFilterString(filter));
+                    array[i++] = filter.getValue();
+                }
+            }
+            if (sqlForFiltering.length() != 0) {
+                SQL.append(" WHERE ").append(sqlForFiltering);
+            }
+
+            SQL.append(" GROUP BY ").append(nameMapper.apply(factory.get().getIdField()));
+            
+            //Sorting
+            if (sorter != null) {
+                SQL.append(" ORDER BY ").append(nameMapper.apply(sorter.getSortedValue())).append(" ").append(sorter.getSorter().getOperator());
+            }
+
+            //Limiting
+            if (limit != -1) {
+                SQL.append(" LIMIT ").append(limit);
+            }
+            ResultSet allResults = query(SQL.toString(), array);
+
+            //Finalizing
+            List<T> objects = new LinkedList<>();
+            try {
+                while (allResults.next()) {
+                    T newDataObject = factory.get();
+                    for (R parameter : allParams) {
+                        Object o = allResults.getObject(nameMapper.apply(parameter));
+                        parameter.getSetter().accept(newDataObject, o);
+                    }
+                    objects.add(newDataObject);
+                }
+            } catch (RuntimeException ex) {
+                Log.handleException(TAG, ex);
+            }
+            return objects;
+        } catch (SQLException ex) {
+            Log.handleException(TAG, ex);
+        }
+        return null;
+    }
+
+    @Override
+    public List<Result> fetchResults(Filter<Result.Parameter> filter, Sorter<Result.Parameter> sorter, int limit) {
+        return fetch(Result.Parameter.class, filter, limit, "RESULTS", sorter, Result::new, Result.Parameter::name);
+    }
+
+    @Override
+    public List<Review> fetchReviews(Filter<Review.Parameter> filter, Sorter<Review.Parameter> sorter, int limit) {
+        return fetch(Review.Parameter.class, filter, limit, "REVIEWS", sorter, REVIEW_FACTORY, Review.Parameter::name);
+    }
+    
+    @Override
+    public List<SRSObjectState> fetchState(Filter<SRSObjectState.Parameter> filter, int limit) {
+        return fetch(SRSObjectState.Parameter.class, filter, limit, "REVIEWS", null, SRSObjectState::new, parameter -> {
+            switch(parameter){
+                case ITEM_SUID: return Review.Parameter.ITEM_SUID.name();
+                case UID: return Review.Parameter.UID.name();
+                case SET_CODE: return Review.Parameter.SET_CODE.name();
+                case WEIGHT: return "sum(srs_weight)";
+                default: return null;
+            }
+        });
+    }
+    
+    @Override public void close(){
+        try {
+            connection.close();
+        } catch (SQLException ex) {
+            Log.handleException(TAG, ex);
+        }
+    }
+
+
+    private <T extends DataObject, R extends GenericParameter> void create(String tableName, Class<R> parameter, T... objects) {
+        if (objects.length == 0) {
+            return;
+        }
+        List<R> params = Arrays.asList(parameter.getEnumConstants())
+                .stream()
+                .filter(n -> n.insert())
+                .collect(Collectors.toList());
+        List<R> paramsReturning = Arrays.asList(parameter.getEnumConstants())
+                .stream()
+                .filter(n -> !n.insert() && n.getSetter() != null)
+                .collect(Collectors.toList());
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("insert into ").append(tableName).append(" (");
+        StringBuilder valueFormat = new StringBuilder("(");
+        params.forEach(p -> {
+            sql.append(p.name()).append(", ");
+            valueFormat.append("?, ");
+        });
+        valueFormat.delete(valueFormat.length() - 2, valueFormat.length());
+        valueFormat.append(")");
+
+        sql.delete(sql.length() - 2, sql.length());
+        sql.append(") VALUES ");
+
+        Object sqlParams[] = new Object[objects.length * params.size()];
+        int i = 0;
+
+        for (T t : objects) {
+            sql.append(valueFormat);
+            sql.append(", ");
+            for (R param : params) {
+                sqlParams[i++] = ((Function<DataObject, Object>) param.getGetter()).apply(t);
+            }
+        }
+        sql.delete(sql.length() - 2, sql.length());
+        if (!paramsReturning.isEmpty()) {
+            sql.append(" returning ");
+            paramsReturning.forEach(n -> sql.append(n.name()).append(", "));
+            sql.delete(sql.length() - 2, sql.length());
+        }
+        try {
+            ResultSet results = query(sql.toString(), sqlParams);
+            i = 0;
+            while (results.next()) {
+                for (int inRow = 0; inRow < paramsReturning.size(); inRow++) {
+                    ((BiConsumer<DataObject, Object>) paramsReturning.get(inRow).getSetter()).accept(objects[i], results.getObject(inRow + 1));
+                }
+                ++i;
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public void createReviews(Review... reviews) {
+        create("REVIEWS", Review.Parameter.class, reviews);
+        for (Review r : reviews) {
+            r.getResults().forEach(n -> n.setReviewID(r.getId()));
+            createResults(r.getResults().toArray(new Result[0]));
+        }
+    }
+
+    @Override
+    public void createResults(Result... results) {
+        create("RESULTS", Result.Parameter.class, results);
+    }
+
+    private <T extends DataObject, R extends GenericParameter> List<T> update(Class<R> parameterClass, Filter<R> filter, String tableName, Supplier<T> factory, Update<R>... updates) {
+        try {
+            if (updates.length == 0) {
+                return Arrays.asList();
+            }
+            StringBuilder sql = new StringBuilder("update ");
+            sql.append(tableName).append(" set ");
+            Object array[] = new Object[updates.length + getTotalFiltersAmount(filter)];
+            int arrayI = 0;
+            for (Update<R> update : updates) {
+                sql.append(update.getParameter().name()).append(" = ?, ");
+                array[arrayI++] = update.getNewValue();
+            }
+            sql.delete(sql.length() - 2, sql.length());
+            if (filter != null && (filter instanceof FilterChain ? ((FilterChain) filter).getFilters().size() > 0 : true)) {
+                if (filter instanceof FilterChain) {
+                    FiltersIntermediate fi = parseFilters((FilterChain) filter, array, arrayI);
+
+                    sql.append(" where ").append(fi.outputSQL);
+                    arrayI = fi.currentArrayPointer;
+                } else {
+                    sql.append(" where ").append(getFilterString(filter));
+                    array[arrayI++] = filter.getValue();
+                }
+            }
+
+            //And now the fetch statement....
+            List<R> allParams = Arrays.asList(parameterClass.getEnumConstants())
+                    .stream()
+                    .filter(n -> n.getSetter() != null)
+                    .collect(Collectors.toList());
+            sql.append(" returning ");
+            allParams.forEach(n -> sql.append(n.name()).append(", "));
+            sql.delete(sql.length() - 2, sql.length());
+
+            ResultSet allResults = query(sql.toString(), array);
+
+            //Finalizing
+            List<T> objects = new LinkedList<>();
+            try {
+                while (allResults.next()) {
+                    T newDataObject = factory.get();
+                    for (GenericParameter parameter : allParams) {
+                        Object o = allResults.getObject(parameter.name());
+                        ((BiConsumer<DataObject, Object>) parameter.getSetter()).accept(newDataObject, o);
+                    }
+                    objects.add(newDataObject);
+                }
+            } catch (RuntimeException ex) {
+                Log.handleException(TAG, ex);
+            }
+            return objects;
+        } catch (SQLException ex) {
+            Log.handleException(TAG, ex);
+        }
+        return null;
+    }
+
+    @Override
+    public List<Review> updateReviews(Filter<Review.Parameter> filter, Update<Review.Parameter>... updates) {
+        return update(Review.Parameter.class, filter, "REVIEWS", REVIEW_FACTORY, updates);
+    }
+
+    @Override
+    public List<Result> updateResults(Filter<Result.Parameter> filter, Update<Result.Parameter>... updates) {
+        return update(Result.Parameter.class, filter, "RESULTS", Result::new, updates);
+    }
+
+}

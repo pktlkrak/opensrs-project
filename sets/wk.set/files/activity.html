@@ -1,0 +1,1245 @@
+<html lang="en">
+
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>WaniKani / Reviews</title>
+
+    <link rel="stylesheet" media="screen"
+        href="assets/application-147c13d8f8493ebd0be2b6e5f2f83b9f95f8fcdfe207b77f81574450a1395fca.css">
+        <link rel="stylesheet" media="screen" href="assets/application-44ebe0b19e1ef0219c7fb2bd256bab0fc01c004312a7c73da60e726b408564c8.css">
+    <link rel="stylesheet" media="screen" href="assets/lesson-3189d49d.css">
+    <link rel="stylesheet" href="assets/osrs-overrides.css">
+    <meta name="application-name" content="WaniKani">
+    <meta name="author" content="tofugu.com">
+    <meta name="description"
+        content="WaniKani is a Japanese radicals, kanji, and vocabulary learning web app that uses mnemonics and SRS to make kanji learning simple.">
+    <meta name="keywords"
+        content="japanese kanji, japanese language, japanese learning, kanji, radicals, kanji radicals, japanese vocabulary, vocabulary, srs, spaced repetition, mnemonics, memory tricks, web app">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="google" value="notranslate">
+    <!-- Open Graph data -->
+    <meta content="Learn Japanese kanji the effective way!" property="og:description">
+    <meta content="en_US" property="og:locale">
+    <meta content="WaniKani" property="og:site_name">
+    <meta content="WaniKani, a kanji learning application by Tofugu" property="og:title">
+    <meta content="website" property="og:type">
+    <meta content="https://wanikani.com/" property="og:url">
+    <meta content="https://www.tofugu.com" property="og:see_also">
+    <!-- Twitter Card data -->
+    <meta content="summary_large_image" name="twitter:card">
+    <meta content="@tofugu" name="twitter:creator">
+    <meta content="Learn Japanese kanji the effective way!" name="twitter:description">
+    <meta content="@wanikaniapp" name="twitter:site">
+    <meta content="WaniKani, a kanji learning application by Tofugu" name="twitter:title">
+    <link rel="shortcut icon" type="image/png" href="assets/wanikani-icon-196x.png" sizes="196x196">
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans+JP:400,700&amp;display=swap&amp;subset=japanese"
+        rel="stylesheet">
+
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700" rel="stylesheet" type="text/css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet"
+        type="text/css">
+
+    <script src="/osrs.js"></script>
+    <script src="assets/wanakana.js"></script>
+    <script src="/explode.js"></script>
+    <script src="assets/explodemodules.js"></script>
+    <style>
+        .english-sentence{
+            color: grey;
+            background-color: grey;
+            display: inline-block;
+        }
+        .english-sentence:hover{
+            color: black;
+            background-color: white;
+        }
+    </style>
+<body>
+
+    <div id="loading" style="display: none;"></div>
+
+    <div id="timeout"><a href="/review/session">
+            <div id="timeout-idle"><i class="icon-refresh"></i><br>Session has timed out<br>Refresh?</div>
+            <div id="timeout-session-end"><i class="icon-refresh"></i><br>You have lost connection with
+                WaniKani<br>Refresh?</div>
+        </a></div>
+
+    <div id="screen-quiz-ready" class="screen-overlay hidden noSwipe">
+        <div>
+            <div>
+                <h1>Now that you have learned <span></span> new items, it is time to quiz you on the material</h1>
+                <ul class="btn-set">
+                    <li id="quiz-ready-read-lessons"><i class="icon-arrow-left"></i> Need more time</li>
+                    <li id="quiz-ready-continue" class="dominant">Start the quiz<i class="icon-arrow-right"></i></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div id="screen-lesson-ready" class="screen-overlay hidden noSwipe">
+        <div>
+            <div>
+                <h1>Good job! The items you have just finished quizzing on have been moved to your review
+                    queue.<br><br>Do you
+                    wish to continue on with the lessons?</h1>
+                <ul class="btn-set">
+                    <li id="lesson-ready-done"><i class="icon-arrow-left"></i>I'm done for now</li>
+                    <li id="lesson-ready-continue" class="dominant">Continue with new lessons<i
+                            class="icon-arrow-right"></i>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div id="screen-lesson-done" class="screen-overlay hidden noSwipe">
+        <div>
+            <div>
+                <h1>Good job! The items you have just finished quizzing on have been moved to your review
+                    queue.<br><br>And it
+                    looks like you have completed all your lessons. Congrats!</h1>
+                <ul class="btn-set">
+                    <li id="lesson-ready-end"><i class="icon-arrow-left dominant"></i>View summary</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="lessons" style="display: none;">
+        <div class="pure-u-1">
+            <div id="lesson-stats">
+                <ul>
+                    <li id="lesson-radical-count" title="Number of radical lessons">R<span class="vocabulary">0</span></li>
+                    <li id="lesson-kanji-count" title="Number of kanji lessons">K<span class="vocabulary">0</span></li>
+                    <li id="lesson-vocabulary-count" title="Number of vocabulary lessons">V<span class="vocabulary">7</span>
+                    </li>
+                    <li id="lesson-completed-count" title="Number of completed lessons this session">0</li>
+                </ul>
+            </div>
+            <header>
+                <div id="main-info" class="vocabulary">
+                    <div id="lesson-character" lang="ja">フェチング...</div>
+                    <div id="meaning">Fetching...</div>
+                </div>
+            </header>
+            <div id="lesson">
+                <div id="supplement-nav" class="noSwipe">
+                    <ul>
+                    </ul>
+                </div>
+                <div id="supplement-info">
+                    <div id="prev-btn" class="noSwipe"></div>
+                    <div id="next-btn" class="noSwipe"></div>
+                    <div id="supplement-voc">
+                        <div id="supplement-voc-breakdown">
+
+                        </div>
+                    </div>
+                </div>
+                <div id="batch-items" class="noSwipe bottom">
+                    <ul>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="reviews" class="pure-g-r" style="display: none;">
+        <div class="pure-u-1">
+            <div id="question">
+                <div id="summary-button"><a title="Go to summary page" href="/review"><i class="icon-home"></i></a>
+                </div>
+                <div id="review-stats-l">
+                    <i class="icon-thumbs-up"></i><span id="review-correct-rate">?</span> <i class="icon-ok"></i><span
+                        id="review-completed-count">?</span> <i class="icon-inbox"></i><span id="review-available-count">?</span>
+                </div>
+                <div id="review-character" class="vocabulary" lang="ja">
+                    <span lang="ja">フェチング...</span>
+                </div>
+                <div id="question-type" class="reading">
+                    <h1>Fetching...</h1>
+                </div>
+                <div id="answer-form">
+                    <form>
+                        <fieldset class="">
+                            <input autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false"
+                                id="user-response" name="user-response" placeholder="答え" type="text" lang="ja">
+                            <button><i class="icon-chevron-right"></i></button>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+            <div data-react-class="AdditionalInformation/Options"
+                data-react-props="{&quot;audioAutoPlay&quot;:false,&quot;preferredVoiceActor&quot;:1,&quot;isReview&quot;:true}"
+                data-hydrate="t" data-react-cache-id="AdditionalInformation/Options-0" id="additional-content">
+                <ul data-reactroot="">
+                    <li id="option-wrap-up"><span title="Wrap Up"><strong id="wrap-up-countdown"></strong><i
+                                class="icon-time"></i></span></li>
+                    <li id="option-last-items"><span title="Last 10"><i class="icon-ok"></i></span></li>
+                    <li id="option-item-info" class="disabled"><span title="Item Info"><i
+                                class="icon-eye-open"></i></span></li>
+                    <li id="option-kana-chart"><span title="Kana Chart"><i class="icon-hkana-list"></i></span></li>
+                    <li id="option-audio" class="new-audio disabled"><span title="Pronunciation"><button
+                                id="option-audio-player" disabled="" type="button" class="audio-btn audio-idle"
+                                title="Audio unavailable"></button></span></li>
+                </ul>
+            </div>
+            <div id="information">
+                <div id="additional-content-load"></div>
+
+                <div id="information-offline">
+                    <i class="icon-warning-sign"></i> Can't retrieve data due to connection issues. Refresh by
+                    reaccessing this tab.
+                </div>
+
+                <div id="kana-chart">
+                    <ol>
+                        <li id="a-chart-option" class="active">
+                            <span lang="ja">あ</span>
+                        </li>
+                        <li id="k-chart-option">
+                            <span lang="ja">か</span>
+                        </li>
+                        <li id="s-chart-option">
+                            <span lang="ja">さ</span>
+                        </li>
+                        <li id="t-chart-option">
+                            <span lang="ja">た</span>
+                        </li>
+                        <li id="h-chart-option">
+                            <span lang="ja">は</span>
+                        </li>
+                        <li id="n-chart-option">
+                            <span lang="ja">な</span>
+                        </li>
+                        <li id="m-chart-option">
+                            <span lang="ja">ま</span>
+                        </li>
+                        <li id="r-chart-option">
+                            <span lang="ja">ら</span>
+                        </li>
+                        <li id="x-chart-option">
+                            <span lang="ja">雑多</span>
+                        </li>
+                        <li class="backspace">
+                            <span><i class="icon-chevron-left"></i></span>
+                        </li>
+                    </ol>
+                    <ul id="chart-a">
+                        <li>
+                            <span lang="ja">あ</span>a
+                        </li>
+                        <li>
+                            <span lang="ja">い</span>i
+                        </li>
+                        <li>
+                            <span lang="ja">う</span>u
+                        </li>
+                        <li>
+                            <span lang="ja">え</span>e
+                        </li>
+                        <li>
+                            <span lang="ja">お</span>o
+                        </li>
+                        <li class="empty">
+                            <span lang="ja">&nbsp;</span>&nbsp;
+                        </li>
+                        <li class="empty">
+                            <span lang="ja">&nbsp;</span>&nbsp;
+                        </li>
+                        <li class="empty">
+                            <span lang="ja">&nbsp;</span>&nbsp;
+                        </li>
+                    </ul>
+                    <ul id="chart-k">
+                        <li>
+                            <span lang="ja">か</span>ka
+                        </li>
+                        <li>
+                            <span lang="ja">き</span>ki
+                        </li>
+                        <li>
+                            <span lang="ja">く</span>ku
+                        </li>
+                        <li>
+                            <span lang="ja">け</span>ke
+                        </li>
+                        <li>
+                            <span lang="ja">こ</span>ko
+                        </li>
+                        <li>
+                            <span lang="ja">きゃ</span>kya
+                        </li>
+                        <li>
+                            <span lang="ja">きゅ</span>kyu
+                        </li>
+                        <li>
+                            <span lang="ja">きょ</span>kyo
+                        </li>
+                        <li>
+                            <span lang="ja">が</span>ga
+                        </li>
+                        <li>
+                            <span lang="ja">ぎ</span>gi
+                        </li>
+                        <li>
+                            <span lang="ja">ぐ</span>gu
+                        </li>
+                        <li>
+                            <span lang="ja">げ</span>ge
+                        </li>
+                        <li>
+                            <span lang="ja">ご</span>go
+                        </li>
+                        <li>
+                            <span lang="ja">ぎゃ</span>gya
+                        </li>
+                        <li>
+                            <span lang="ja">ぎゅ</span>gyu
+                        </li>
+                        <li>
+                            <span lang="ja">ぎょ</span>gyo
+                        </li>
+                    </ul>
+                    <ul id="chart-s">
+                        <li>
+                            <span lang="ja">さ</span>sa
+                        </li>
+                        <li>
+                            <span lang="ja">し</span>shi
+                        </li>
+                        <li>
+                            <span lang="ja">す</span>su
+                        </li>
+                        <li>
+                            <span lang="ja">せ</span>se
+                        </li>
+                        <li>
+                            <span lang="ja">そ</span>so
+                        </li>
+                        <li>
+                            <span lang="ja">しゃ</span>sha
+                        </li>
+                        <li>
+                            <span lang="ja">しゅ</span>shu
+                        </li>
+                        <li>
+                            <span lang="ja">しょ</span>sho
+                        </li>
+                        <li>
+                            <span lang="ja">ざ</span>za
+                        </li>
+                        <li>
+                            <span lang="ja">じ</span>ji
+                        </li>
+                        <li>
+                            <span lang="ja">ず</span>zu
+                        </li>
+                        <li>
+                            <span lang="ja">ぜ</span>ze
+                        </li>
+                        <li>
+                            <span lang="ja">ぞ</span>zo
+                        </li>
+                        <li>
+                            <span lang="ja">じゃ</span>jya
+                        </li>
+                        <li>
+                            <span lang="ja">じゅ</span>jyu
+                        </li>
+                        <li>
+                            <span lang="ja">じょ</span>jyo
+                        </li>
+                    </ul>
+                    <ul id="chart-t">
+                        <li>
+                            <span lang="ja">た</span>ta
+                        </li>
+                        <li>
+                            <span lang="ja">ち</span>chi
+                        </li>
+                        <li>
+                            <span lang="ja">つ</span>tsu
+                        </li>
+                        <li>
+                            <span lang="ja">て</span>te
+                        </li>
+                        <li>
+                            <span lang="ja">と</span>to
+                        </li>
+                        <li>
+                            <span lang="ja">ちゃ</span>cha
+                        </li>
+                        <li>
+                            <span lang="ja">ちゅ</span>chu
+                        </li>
+                        <li>
+                            <span lang="ja">ちょ</span>cho
+                        </li>
+                        <li>
+                            <span lang="ja">だ</span>da
+                        </li>
+                        <li>
+                            <span lang="ja">ぢ</span>di
+                        </li>
+                        <li>
+                            <span lang="ja">づ</span>du
+                        </li>
+                        <li>
+                            <span lang="ja">で</span>de
+                        </li>
+                        <li>
+                            <span lang="ja">ど</span>do
+                        </li>
+                        <li>
+                            <span lang="ja">ぢゃ</span>dya
+                        </li>
+                        <li>
+                            <span lang="ja">ぢゅ</span>dyu
+                        </li>
+                        <li>
+                            <span lang="ja">ぢょ</span>dyo
+                        </li>
+                    </ul>
+                    <ul id="chart-h">
+                        <li>
+                            <span lang="ja">は</span>ha
+                        </li>
+                        <li>
+                            <span lang="ja">ひ</span>hi
+                        </li>
+                        <li>
+                            <span lang="ja">ふ</span>hu
+                        </li>
+                        <li>
+                            <span lang="ja">へ</span>he
+                        </li>
+                        <li>
+                            <span lang="ja">ほ</span>ho
+                        </li>
+                        <li>
+                            <span lang="ja">ひゃ</span>hya
+                        </li>
+                        <li>
+                            <span lang="ja">ひゅ</span>hyu
+                        </li>
+                        <li>
+                            <span lang="ja">ひょ</span>hyo
+                        </li>
+                        <li>
+                            <span lang="ja">ば</span>ba
+                        </li>
+                        <li>
+                            <span lang="ja">び</span>bi
+                        </li>
+                        <li>
+                            <span lang="ja">ぶ</span>bu
+                        </li>
+                        <li>
+                            <span lang="ja">べ</span>be
+                        </li>
+                        <li>
+                            <span lang="ja">ぼ</span>bo
+                        </li>
+                        <li>
+                            <span lang="ja">びゃ</span>bya
+                        </li>
+                        <li>
+                            <span lang="ja">びゅ</span>byu
+                        </li>
+                        <li>
+                            <span lang="ja">びょ</span>byo
+                        </li>
+                        <li>
+                            <span lang="ja">ぱ</span>pa
+                        </li>
+                        <li>
+                            <span lang="ja">ぴ</span>pi
+                        </li>
+                        <li>
+                            <span lang="ja">ぷ</span>pu
+                        </li>
+                        <li>
+                            <span lang="ja">ぺ</span>pe
+                        </li>
+                        <li>
+                            <span lang="ja">ぽ</span>po
+                        </li>
+                        <li>
+                            <span lang="ja">ぴゃ</span>pya
+                        </li>
+                        <li>
+                            <span lang="ja">ぴゅ</span>pyu
+                        </li>
+                        <li>
+                            <span lang="ja">ぴょ</span>pyo
+                        </li>
+                    </ul>
+                    <ul id="chart-n">
+                        <li>
+                            <span lang="ja">な</span>na
+                        </li>
+                        <li>
+                            <span lang="ja">に</span>ni
+                        </li>
+                        <li>
+                            <span lang="ja">ぬ</span>nu
+                        </li>
+                        <li>
+                            <span lang="ja">ね</span>ne
+                        </li>
+                        <li>
+                            <span lang="ja">の</span>no
+                        </li>
+                        <li>
+                            <span lang="ja">にゃ</span>nya
+                        </li>
+                        <li>
+                            <span lang="ja">にゅ</span>nyu
+                        </li>
+                        <li>
+                            <span lang="ja">にょ</span>nyo
+                        </li>
+                    </ul>
+                    <ul id="chart-m">
+                        <li>
+                            <span lang="ja">ま</span>ma
+                        </li>
+                        <li>
+                            <span lang="ja">み</span>mi
+                        </li>
+                        <li>
+                            <span lang="ja">む</span>mu
+                        </li>
+                        <li>
+                            <span lang="ja">め</span>me
+                        </li>
+                        <li>
+                            <span lang="ja">も</span>mo
+                        </li>
+                        <li>
+                            <span lang="ja">みゃ</span>mya
+                        </li>
+                        <li>
+                            <span lang="ja">みゅ</span>myu
+                        </li>
+                        <li>
+                            <span lang="ja">みょ</span>myo
+                        </li>
+                    </ul>
+                    <ul id="chart-r">
+                        <li>
+                            <span lang="ja">ら</span>ra
+                        </li>
+                        <li>
+                            <span lang="ja">り</span>ri
+                        </li>
+                        <li>
+                            <span lang="ja">る</span>ru
+                        </li>
+                        <li>
+                            <span lang="ja">れ</span>re
+                        </li>
+                        <li>
+                            <span lang="ja">ろ</span>ro
+                        </li>
+                        <li>
+                            <span lang="ja">りゃ</span>rya
+                        </li>
+                        <li>
+                            <span lang="ja">りゅ</span>ryu
+                        </li>
+                        <li>
+                            <span lang="ja">りょ</span>ryo
+                        </li>
+                    </ul>
+                    <ul id="chart-x">
+                        <li>
+                            <span lang="ja">や</span>ya
+                        </li>
+                        <li>
+                            <span lang="ja">ゆ</span>yu
+                        </li>
+                        <li>
+                            <span lang="ja">よ</span>yo
+                        </li>
+                        <li>
+                            <span lang="ja">わ</span>wa
+                        </li>
+                        <li>
+                            <span lang="ja">を</span>wo
+                        </li>
+                        <li>
+                            <span lang="ja">ん</span>nn
+                        </li>
+                        <li>
+                            <span lang="ja">ー</span>-
+                        </li>
+                        <li>
+                            <span lang="ja">っ</span>ltsu
+                        </li>
+                    </ul>
+                </div>
+
+                <div id="item-info">
+                    <!--<div class="pure-g-r">
+                        <div class="pure-u-1-4" id="item-info-col1"></div>
+                        <div class="pure-u-3-4" id="item-info-col2"></div>
+                    </div>
+                    <div id="all-info">
+                        <i class="icon-chevron-down"></i> Show All Information
+                    </div>-->
+                </div>
+
+                <div id="last-items">
+                    <div id="last-items-list" class="pure-g-r">
+                        <div class="pure-u-1">
+                            <ul></ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <footer>
+                <div id="hotkeys" title="Keyboard Shortcuts" class="pure-hidden-tablet">
+                    <div id="hotkeys-header">
+                        <a href="#"><i class="icon-keyboard"></i> <span>Hotkeys</span></a>
+                    </div>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td><span>F</span></td>
+                                <td>Item Info</td>
+                            </tr>
+                            <tr>
+                                <td><span>SPACEBAR</span></td>
+                                <td>Display Hidden Item Info</td>
+                            </tr>
+                            <tr>
+                                <td><span>J</span></td>
+                                <td>Audio Pronunciation</td>
+                            </tr>
+                            <tr>
+                                <td><span>/</span></td>
+                                <td>Hiragana IME Chart</td>
+                            </tr>
+                            <tr>
+                                <td><span>,</span></td>
+                                <td>Last Session Data</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        (async () => {
+
+            const inform = alert; //TODO: this
+            const shuffle = array => array.sort(() => Math.random() - 0.5);
+            const capitalizeFirstLetter = e => e.substring(0, 1).toUpperCase() + e.substring(1);
+
+            function updateReviewStats() {
+                document.querySelector("#review-available-count").innerText = window.review.statHelpers.itemCount - window.review.statHelpers.sent;
+                const rate = parseInt((100 * window.review.statHelpers.correct) / (window.review.statHelpers.correct + window.review.statHelpers.incorrect));
+                document.querySelector("#review-correct-rate").innerText = isNaN(rate) ? 100 : rate;
+                document.querySelector("#review-completed-count").innerText = window.review.statHelpers.sent;
+            }
+
+            function loadReviewItemFromList() {
+                const placeholders = {
+                    'reading': '答え',
+                }
+
+                const langs = {
+                    'reading': 'ja',
+                    'meaning': 'en'
+                }
+                const infoButton = document.querySelector("#option-item-info");
+                const infoField = document.querySelector("#item-info");
+                const infoParent = document.querySelector("#information");
+
+                infoButton.classList.add("disabled");
+                infoButton.onclick = null;
+                infoField.innerHTML = "";
+                infoParent.style.display = "none";
+
+                const itemToDisplay = window.review.itemList.splice(0, 1)[0];
+                const character = document.querySelector("#review-character");
+                character.className = itemToDisplay.family;
+                character.innerHTML = "";
+                if(itemToDisplay.query.includes("images/")){
+                    const img = document.createElement("img");
+                    img.src = itemToDisplay.query;
+                    img.alt = itemToDisplay.query;
+                    character.appendChild(img);
+                }else{
+                    character.innerText = itemToDisplay.query;
+                }
+		window.review.currentId = itemToDisplay.id;
+
+                const questionType = document.querySelector("#question-type");
+                questionType.innerHTML =
+                    `<h1>${capitalizeFirstLetter(itemToDisplay.family)} <strong>${itemToDisplay.reviewable}</strong></h1>`;
+                questionType.className = ['reading', 'meaning'].includes(itemToDisplay.reviewable) ?
+                    itemToDisplay.reviewable : "meaning";
+
+                const userResponse = document.querySelector("#user-response");
+                userResponse.lang = langs[itemToDisplay.reviewable] ?? 'en';
+                userResponse.placeholder = placeholders[itemToDisplay.reviewable] ?? "Your Response";
+
+                const fieldSet = document.querySelector("#answer-form > form > fieldset");
+
+                const useIME = itemToDisplay.reviewable === "reading";
+
+                document.querySelector("#answer-form > form").onsubmit = () => {
+                    if (fieldSet.className != "") {
+                        if (window.review.itemList.length == 0) window.review.afterReviews();
+                        else loadReviewItemFromList();
+                        userResponse.value = "";
+                        fieldSet.className = "";
+                    } else {
+                        let value = userResponse.value;
+
+                        if (useIME) {
+                            value = wanakana.toRomaji(value).replace(/\-/g, 'ー').replace(/'/g, '');
+                        }
+
+                        value = value.trim()
+
+                        if (itemToDisplay.coerce.hasOwnProperty(value)) {
+                            inform(itemToDisplay.coerce[value]);
+                            userResponse.value = "";
+                            return false;
+                        }
+
+                        if (useIME) {
+                            wanakana.unbind(userResponse);
+                        }
+
+                        const correct = itemToDisplay.answers.includes(value.toLowerCase());
+
+                        if (!window.review.itemUserResponses.hasOwnProperty(itemToDisplay.id)) {
+                            window.review.itemUserResponses[itemToDisplay.id] = Array(itemToDisplay.allReviewables)
+                                .fill(-1);
+                        }
+                        
+                        if(window.review.itemUserResponses[itemToDisplay.id][itemToDisplay.thisReviewableIndex] === -1){
+                            window.review.itemUserResponses[itemToDisplay.id][itemToDisplay.thisReviewableIndex] = 0;
+                        }
+                        if (correct) {
+                            //Check if every reviewable of this item has been reviewed
+                            window.review.statHelpers.correct++;
+                            if (!window.review.itemUserResponses[itemToDisplay.id].filter(n => n == -1).length) {
+                                //Every aspect checked, send to the server
+                                window.review.endpoint(itemToDisplay);
+                                delete window.review.itemUserResponses[itemToDisplay.id];
+                                window.review.statHelpers.sent++;
+                            }
+                            fieldSet.className = "correct";
+                        } else {
+                            window.review.statHelpers.incorrect++;
+                            window.review.itemList.push(itemToDisplay); //Redo it
+                            shuffle(window.review.itemList);
+                            fieldSet.className = "incorrect";
+                            window.review.itemUserResponses[itemToDisplay.id][itemToDisplay.thisReviewableIndex] += 1;
+                        }
+
+                        infoButton.classList.remove("disabled");
+                        infoButton.onclick = () => {
+                            const aifr = document.createElement("iframe");
+                            aifr.src = `/${OSRS.getCurrentSetName()}/${itemToDisplay.family}/${itemToDisplay.query}?raw`;
+                            infoField.appendChild(aifr);
+                            infoParent.style.display = "block";
+                            infoButton.onclick = null;
+                        };
+                        updateReviewStats();
+                    }
+
+                    return false;
+                };
+
+                if (useIME) {
+                    wanakana.bind(userResponse);
+                }
+            }
+
+            function doReview(items, endpoint, then) {
+                document.querySelector("#lessons").style.display = "none";
+                document.querySelector("#reviews").style.display = "block";
+                //Every item follows a template
+                /*
+                    {
+                        id: numeric osrs id,
+                        family: family of elements this belongs to
+                        query: the thing it shows,
+                        reviewable: type of check, like reading or meaning,
+                        allReviewables: amount of all reviewables,
+                        thisReviewableIndex: index of this reviewable
+                        answers: [correct answers],
+                        coerce: {incorrect value => message for user}
+                    }
+                */
+                shuffle(items);
+                window.review = {
+                        itemList: items,
+                        itemUserResponses: {},
+                        statHelpers: {
+                            correct: 0,
+                            incorrect: 0,
+                            sent: 0,
+                            itemCount: new Set(items.map(n => n.id)).size
+                        },
+                        afterReviews: then,
+                        endpoint: endpoint
+                };
+                updateReviewStats();
+                loadReviewItemFromList();
+            }
+
+            const user = await OSRS.getUser();
+            
+            setInterval(() => OSRS.getUser(), 60000); // Eh... Session logout prevention. Hopefully temporary...
+            
+            if (user.uid == -1) {
+                OSRS.redirectToLogin();
+                return;
+            }
+            const lessonMode = window.location.href.includes("lesson");
+            if (lessonMode) {
+                await OSRS.startNewLessonSession();
+                doLesson();
+            } else {
+                //Review
+                await OSRS.startNewReviewSession();
+                const reviewQueue = await OSRS.getReviewsQueue();
+                const items = reviewItemsFromQueue(reviewQueue.queue);
+                
+                doReview(items, 
+                    async (itemToDisplay) => {
+                        let e = await OSRS.sendReviewProgress(itemToDisplay.id, window.review.itemUserResponses[itemToDisplay.id]);
+                        if(e.errorCode) window.location.reload();
+                    }, 
+                    () => window.location.href = `/${OSRS.getCurrentSetName()}/review`);
+            }
+
+            function reviewItemsFromQueue(queue){
+                let items = [];
+                for (let item of queue) {
+                    let i = 0;
+                    for (let reviewable of Object.keys(item.reviewable)) {
+                        items.push({
+                            id: item.id,
+                            family: item.family,
+                            query: item.query,
+                            reviewable: reviewable,
+                            allReviewables: Object.keys(item.reviewable).length,
+                            thisReviewableIndex: i,
+                            answers: item.reviewable[reviewable].map(n => n.toLowerCase()),
+                            coerce: item.coerce
+                        });
+                        i += 1;
+                    }
+                }
+                return items;
+            }
+
+            //**********************REVIEW CODE DONE, LESSONS BELOW**************************/
+
+            function updateLessonStats() {
+                document.querySelector("#lesson-completed-count").innerText = window.lesson.statHelpers.completed;
+                document.querySelector("#lesson-vocabulary-count span").innerText = window.lesson.statHelpers.vocabRemain;
+                document.querySelector("#lesson-kanji-count span").innerText = window.lesson.statHelpers.kanjiRemain;
+                document.querySelector("#lesson-radical-count span").innerText = window.lesson.statHelpers.radicalsRemain;
+
+                document.querySelectorAll("#lesson-stats span").forEach(n => n.className = window.lesson.itemList[window.lesson.currentItem]?.family ?? "");
+            }
+
+            async function doLesson() {
+                document.querySelector("#lessons").style.display = "block";
+                document.querySelector("#reviews").style.display = "none";
+
+                const lessonQueueAll = (await OSRS.getLessonsQueue()).queue;
+                const lessonQueue = lessonQueueAll.slice(0, 5);
+
+                function getMeaning(item){
+                    return capitalizeFirstLetter(item.family === "radical" ? item.reviewable['name'][0] : item.reviewable['meaning'][0]);
+                }
+
+                function createTile(family, query, title){
+                    const li = document.createElement("li");
+                    if(query.includes("images/")){
+                        query = `<img src="${query}" alt="${query}">`;
+                    }
+                    li.className = "pure-u-1";
+                    li.innerHTML = `<a href="/${OSRS.getCurrentSetName()}/${family}/${query}" target="_blank" rel="noreferrer noopener"><span
+                            class="${family}" lang="ja">${query}</span>
+                          <div>${title}</div>
+                        </a>`;
+                    return li;
+                }
+
+                function jumpToLessonItemPage(page){
+                    page = parseInt(page);
+                    const pageE = document.querySelector("#supplement-voc-breakdown");
+                    document.querySelector(`#supplement-nav li[data-index='${window.lesson.currentPage}']`)?.classList.remove("active");
+                    document.querySelector(`#supplement-nav li[data-index='${page}']`).classList.add("active");
+                    window.lesson.currentPage = page;
+                    pageE.innerHTML = "";
+                    pageE.appendChild(window.lesson.itemList[window.lesson.currentItem].pages[page].page);
+                }
+
+                function jumpToLessonItem(item){
+                    if(item === "quiz"){
+                        //Switch modes
+                        doReview(reviewItemsFromQueue(window.lesson.rawToPassToReview), 
+                            (item) => {
+                                OSRS.sendLessonProgress(item.id);
+                            },
+                            () => {
+                                //Are we done?
+                                if(window.lesson.statHelpers.vocabRemain + 
+                                   window.lesson.statHelpers.kanjiRemain + 
+                                   window.lesson.statHelpers.radicalsRemain === 0){
+                                       //Yes
+                                       window.location.href = "lesson";
+                                   }else{
+                                       //Nope
+                                       doLesson();
+                                   }
+                            });
+                    }else{
+                        item = parseInt(item);
+                        const toc = document.querySelector("#supplement-nav ul");
+                        toc.innerHTML = "";
+                        window.lesson.currentItem = item;
+                        
+                        let i = 0;
+                        for(const page of window.lesson.itemList[item].pages){
+                            const link = document.createElement("li");
+                            link.className = i === 0 ? "active" : "";
+                            link.setAttribute("data-index", i++);
+                            link.innerText = page.name;
+                            link.onclick = (e) => jumpToLessonItemPage(e.target.getAttribute("data-index"));
+                            toc.appendChild(link);
+                        }
+                        const char = window.lesson.itemList[item].character;
+                        if(char.includes("images/")){
+                            const img = document.createElement("img");
+                            img.src = char;
+                            document.querySelector("#lesson-character").appendChild(img);
+                        }else{
+                            document.querySelector("#lesson-character").innerText = window.lesson.itemList[item].character;
+                        }
+                        document.querySelector("#meaning").innerText = window.lesson.itemList[item].meaning;
+                        document.querySelector("#main-info").className = window.lesson.itemList[item].family;
+                        jumpToLessonItemPage(0);
+                    }
+                }
+
+                function numberToWord(n){
+                    return ["zero", "one", "two", "three", "four", "five"][n];
+                }
+
+                function createPages(item){
+                    if(item.family === "radical"){
+                        const namePage = document.createElement("div");
+                        namePage.innerHTML = `<div class="pure-u-1 col1"><h2>Name Mnemonic</h2><p></p></div>`;
+                        namePage.class = "pure-g-r";
+                        explode(namePage.querySelector("p"), item.clientData.mnemonic);
+
+                        const examplesPage = document.createElement("div");
+                        examplesPage.innerHTML = `<div class="pure-u-1 col1"><h2>Kanji Examples</h2><p>Here's a glympse of some of the kanji you will be learning that utilize <strong>${getMeaning(item)}</strong></p><ul class="pure-g-r"></ul></div>`;
+                        examplesPage.class = "pure-g-r";
+                        const examplesList = examplesPage.querySelector("ul");
+                        item.itemsDependent.splice(0, 3).forEach(n => examplesList.appendChild(createTile(n.family, n.query, getMeaning(n))))
+                        return [
+                            {
+                                name: "Name",
+                                page: namePage
+                            }, {
+                                name: "Kanji Examples",
+                                page: examplesPage
+                            }
+                        ];
+                    }else if(item.family === "kanji"){
+                        const radicalPage = document.createElement("div");
+                        radicalPage.className = "pure-g-r";
+                        radicalPage.innerHTML = `<div class="pure-u-1 col1"><h2>Radical Composition</h2><p>The kanji is composed of <span class="supplement-kan-count">${numberToWord(item.dependencies.length)} radical(s)</span>. Can you see where the radical fits<span class="supplement-kan-question"></span> in the kanji?</p><ul class="pure-g-r"></ul></div>`;
+                        const radicalsList = radicalPage.querySelector("ul");
+                        item.dependencies.forEach(n => radicalsList.appendChild(createTile(n.family, n.query, getMeaning(n))));
+
+                        const meaningPage = document.createElement("div");
+                        meaningPage.className = "pure-g-r";
+                        meaningPage.innerHTML = `
+                        <div class="pure-u-1-4 col1">
+                            <h2>Synonyms</h2>
+                            <div id="synonym">(None)</div>
+                        </div>
+                        <div class="pure-u-3-4 col2">
+                            <h2>Meaning Mnemonic</h2>
+                            <div id="supplement-kan-meaning-mne"></div>
+                            <blockquote>
+                                <h3><i class="icon-question-sign"></i> HINT</h3>
+                                <div id="supplement-kan-meaning-hnt"></div>
+                            </blockquote>
+                        </div>`;
+                        meaningPage.querySelector("#synonym").innerText = item.clientData.meanings["Alternative"] ?? "(None)";
+                        explode(meaningPage.querySelector("#supplement-kan-meaning-mne"), item.clientData.mnemonic);
+                        explode(meaningPage.querySelector("#supplement-kan-meaning-hnt"), item.clientData.hints);
+
+                        const readingsData = item.clientData.kanjiReadings.readings.filter(n => n.primary)[0];
+                        const readingsPage = document.createElement("div");
+                        readingsPage.className = "pure-g-r";
+                        readingsPage.innerHTML = `
+                        <div class="pure-u-1-4 col1">
+                            <h2>Readings (${readingsData.name})</h2>
+                            <div><span lang="ja">${readingsData.reading}</span></div>
+                        </div>
+                        <div class="pure-u-3-4 col2">
+                            <h2>Reading Mnemonic</h2>
+                            <div id="supplement-kan-reading-mne"></div>
+                            <blockquote>
+                                <h3><i class="icon-question-sign"></i> HINT</h3>
+                                <div id="supplement-kan-reading-hnt"></div>
+                            </blockquote>
+                        </div>`;
+                        explode(readingsPage.querySelector("#supplement-kan-reading-mne"), item.clientData.kanjiReadings.mnemonic);
+                        explode(readingsPage.querySelector("#supplement-kan-reading-hnt"), item.clientData.kanjiReadings.hints);
+
+                        const examplesPage = document.createElement("div");
+                        examplesPage.className = "pure-g-r";
+                        examplesPage.innerHTML = `
+                        <div class="pure-u-1 col1">
+                            <h2>Vocabulary Examples</h2>
+                            <p>Here is a glimpse of some of the vocabulary you will be learning in the future that utilize the kanji:
+                            </p>
+                            <ul class="pure-g-r">
+                                
+                            </ul>
+                        </div>`;
+                        const list = examplesPage.querySelector("ul");
+                        item.itemsDependent.slice(0, 3).forEach(n => list.appendChild(createTile(n.family, n.query, getMeaning(n))));
+
+                        return [
+                            {
+                                name: "Radicals",
+                                page: radicalPage
+                            }, {
+                                name: "Meaning",
+                                page: meaningPage
+                            }, {
+                                name: "Readings",
+                                page: readingsPage
+                            }, {
+                                name: "Examples",
+                                page: examplesPage
+                            }
+                        ]
+                    }else if(item.family === "vocabulary"){
+                        const kanjiPage = document.createElement("div");
+                        kanjiPage.className = "pure-g-r";
+                        kanjiPage.innerHTML = `
+                        <div class="pure-u-1 col1">
+                            <h2>Kanji Composition</h2>
+                            <p>The vocabulary is composed of <span>${numberToWord(item.dependencies.length)} kanji:</span></p>
+                            <ul class="pure-g-r"></ul>
+                            <p>Does the combination of the kanji meanings somewhat relate
+                                to the vocabulary meaning?</p>
+                            <p>Based on the kanji composition, can you guess the reading of
+                                the vocabulary?</p>
+                        </div>`;
+                        const kanjiList = kanjiPage.querySelector("ul");
+                        item.dependencies.forEach(n => kanjiList.appendChild(createTile(n.family, n.query, getMeaning(n))));
+
+                        const meaningsPage = document.createElement("div");
+                        meaningsPage.className = "pure-g-r";
+                        meaningsPage.innerHTML = `
+                        <div class="pure-u-1-4 col1">
+                            <h2>Synonyms</h2>
+                            <div id="supplement-voc-synonyms"></div>
+                            <h2>Word Type</h2>
+                            <div id="supplement-voc-meaning-part-of-speech"></div>
+                        </div>
+                        <div class="pure-u-3-4 col2">
+                            <h2>Meaning Explanation</h2>
+                            <div id="supplement-voc-meaning-exp"></div>
+                        </div>`;
+                        explode(meaningsPage.querySelector("#supplement-voc-meaning-exp"), item.clientData.mnemonic);
+                        meaningsPage.querySelector("#supplement-voc-synonyms").innerText = item.clientData.meanings["Alternative"] ?? "(None)";
+                        meaningsPage.querySelector("#supplement-voc-meaning-part-of-speech").innerText = item.clientData.meanings["Word Type"] ?? "(None)";
+
+                        const readingPage = document.createElement('div');
+                        readingPage.className = "pure-g-r";
+                        readingPage.innerHTML = `
+                        <div class="pure-u-1-4 col1">
+                            <h2>Vocab Reading</h2>
+                            <div class="readings-component">
+                            </div>
+                        </div>
+                        <div class="pure-u-3-4 col2">
+                            <h2>Reading Explanation</h2>
+                            <div id="supplement-voc-reading-exp"></div>
+                        </div>`;
+                        explode(readingPage.querySelector("#supplement-voc-reading-exp"), item.clientData.vocabReadings.mnemonic);
+                        const root = readingPage.querySelector(".readings-component");
+                        item.clientData.vocabReadings.readings.forEach(e => {
+                            const pgr = document.createElement("div");
+                            pgr.className = "pronunciation-group";
+                            const p = document.createElement("p");
+                            p.className = "pronunciation-variant";
+                            p.innerText = e.reading;
+                            pgr.appendChild(p);
+                            root.appendChild(pgr);
+                        });
+
+                        const contextPage = document.createElement("div");
+                        contextPage.className = "pure-g-r";
+                        contextPage.innerHTML = `
+                        <div class="pure-u-1 col1">
+                            <h2>Context Sentences</h2>
+                        </div>`;
+                        const contextDiv = contextPage.querySelector("div");
+                        item.clientData.contextSentences.forEach(n => {
+                            const ja = document.createElement("p");
+                            ja.lang = "ja";
+                            ja.innerText = n.ja;
+                            const en = document.createElement("p");
+                            en.className = "english-sentence";
+                            en.innerText = n.en;
+                            const e = document.createElement("div");
+                            e.className = "context-sentence-group";
+                            e.appendChild(ja);
+                            e.appendChild(en);
+                            contextDiv.appendChild(e);
+                        })
+
+                        return [
+                            {
+                                name: "Kanji Composition",
+                                page: kanjiPage
+                            }, {
+                                name: "Meaning",
+                                page: meaningsPage
+                            }, {
+                                name: "Reading",
+                                page: readingPage
+                            }, {
+                                name: "Context",
+                                page: contextPage
+                            }
+                        ]
+                    }
+                }
+                window.lesson = {
+                    rawToPassToReview: lessonQueue,
+                    itemList: lessonQueue.map(item => ({
+                        character: item.query,
+                        meaning: getMeaning(item),
+                        pages: createPages(item),
+                        family: item.family
+                    })),
+                    statHelpers: {
+                        completed: window.lesson?.statHelpers?.completed ?? 0, //Copy value from previous batch
+                        vocabRemain: lessonQueueAll.filter(n => n.family === "vocabulary").length,
+                        kanjiRemain: lessonQueueAll.filter(n => n.family === "kanji").length,
+                        radicalsRemain: lessonQueueAll.filter(n => n.family === "radical").length,
+                    },
+                    currentItem: 0,
+                    currentPage: 0,
+                    doneItems: []
+                };
+                updateLessonStats();
+                const batch = document.querySelector("#batch-items > ul");
+                batch.innerHTML = "";
+                let i = 0;
+                const onclickForBatch = (e) => {
+                    jumpToLessonItem(e.currentTarget.getAttribute("data-index"));
+                }
+                for(const item of window.lesson.itemList){
+                    const elem = document.createElement("li");
+                    elem.setAttribute("data-index", i++);
+                    elem.onclick = onclickForBatch;
+                    
+                    const span = document.createElement("span");
+                    span.className = item.family;
+                    span.lang = "ja";
+                    span.innerText = item.character;
+                    elem.appendChild(span);
+                    batch.appendChild(elem);
+                }
+                const elem = document.createElement("li");
+                elem.onclick = onclickForBatch;
+                elem.setAttribute("data-index", "quiz");
+                const span = document.createElement("span");
+                span.innerHTML = 'Quiz<i class="icon-arrow-right"></i>';
+                elem.appendChild(span);
+                batch.appendChild(elem);
+
+                document.querySelector("#prev-btn").onclick = () => {
+                    let page = window.lesson.currentPage;
+                    let item = window.lesson.currentItem;
+                    if(item === 0 && page == 0){
+                        item = window.lesson.itemList.length;
+                    }
+                    if(page === 0){
+                        item--;
+                        page = window.lesson.itemList[item].pages.length;
+                    }
+                    page--;
+                    jumpToLessonItem(item);
+                    jumpToLessonItemPage(page);
+                    updateLessonStats();
+                };
+
+                document.querySelector("#next-btn").onclick = () => {
+                    let page = window.lesson.currentPage;
+                    let item = window.lesson.currentItem;
+                    let itemC = window.lesson.itemList.length;
+                    let pageC = window.lesson.itemList[item].pages.length;
+                    if(page === pageC - 1){
+                        //Last page - next item
+                        page = -1;
+                        if(!window.lesson.doneItems.includes(item)){
+                            window.lesson.doneItems.push(item);
+                            document.querySelector(`#batch-items li[data-index='${item}']`).className = "read";
+                            window.lesson.statHelpers.completed += 1;
+                            window.lesson.statHelpers[{
+                                radical: "radicalsRemain",
+                                kanji: "kanjiRemain",
+                                vocabulary: "vocabRemain"
+                            }[window.lesson.itemList[item].family]]--;
+                        }
+                        window.lesson.currentItem = item+1;
+                        updateLessonStats();
+                        item++;
+                    }
+                    if(item === itemC){
+                        //Last page of last item - go to quiz
+                        if(window.lesson.doneItems.length != itemC){
+                            jumpToLessonItem(0);
+                            jumpToLessonItemPage(0);
+                            return;
+                        }
+                        jumpToLessonItem("quiz");
+                        return;
+                    }
+                    
+                    page++;
+                    jumpToLessonItem(item);
+                    jumpToLessonItemPage(page);
+                };
+
+                jumpToLessonItem(0);
+            }
+
+        })();
+    </script>
+
+</body>
+
+</html>

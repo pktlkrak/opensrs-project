@@ -1,0 +1,19 @@
+from os import listdir
+from os.path import isdir, join as pjoin
+import re
+def sedButRetarded(dir, allowedExts, fromD, to):
+    for subinode in listdir(dir):
+        subinode = pjoin(dir, subinode)
+        if isdir(subinode):
+            sedButRetarded(subinode, allowedExts, fromD, to)
+        else:
+            ext = subinode[subinode.rfind('.')+1:]
+            if ext not in allowedExts: continue
+            fh = open(subinode, 'r')
+            content = fh.read()
+            fh.close()
+            content = re.sub(fromD, to, content)
+            fh = open(subinode, 'w')
+            fh.write(content)
+            fh.close()
+            print(f"Rewritten {subinode}")

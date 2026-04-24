@@ -1,0 +1,42 @@
+<?xml version="1.0"?>  
+<SRSConfig>
+    <phases>
+        <phase number="1" fromStage="1">Apprentice</phase>
+        <phase number="2" fromStage="5">Guru</phase> <!--Unlock depending-on happens here-->
+        <phase number="3" fromStage="7">Master</phase>
+        <phase number="4" fromStage="8">Enlightened</phase>
+        <phase number="5" fromStage="9">Burned</phase>
+    </phases>
+    <penalties>
+        <stage number="1">1</stage> <!--Penalty for stages 1 to 5 (excl) is 1-->
+        <stage number="5">2</stage> <!--Penalty for stages 5 to inf (excl) is 2-->
+    </penalties>
+    <timings>
+        <stage number="1">4</stage> <!--If on stage 1, queue next review in 4 hours-->
+        <stage number="2">8</stage>
+        <stage number="3">24</stage>
+        <stage number="4">48</stage>
+        <stage number="5">168</stage> <!--1 Week-->
+        <stage number="6">336</stage> <!--2 Weeks-->
+        <stage number="7">730</stage> <!--1 Month-->
+        <stage number="8">1461</stage> <!--2 Months-->
+        <!--After stage 8, item gets burned - it won't be reviewed anymore-->
+    </timings>
+    <bindings>
+        <bind source="activity.html" target="NONE"/>
+        <bind source="info.html" target="NONE"/>
+        <bind source="summary.html" target="NONE"/>
+        <bind source="rawinfo.html" target="NONE"/>
+        
+        
+        <bind source="dashboard" target="index.html"/>
+        <bind source="review" target="summary.html"/>
+        <bind source="lesson" target="summary.html"/>
+        <bind type="regex" source="(vocabulary|kanji|radical)/[^/]*" target="info.html"/>
+        <bind type="regex" source=".*/assets/(.*)" target="assets/$1"/>
+        <bind source="reviewactivity" target="activity.html"/>
+        <bind source="lessonactivity" target="activity.html"/>
+
+        <special type="home" target="dashboard"/>
+    </bindings>
+</SRSConfig>

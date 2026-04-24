@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/org/autumn/Server.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/database/implementation/SQLiteDatabase.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/org/autumn/State.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/dataobjects/SRSObjectState.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/sets/Set.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/OpenSRS.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/database/DataObject.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/endpoints/Login.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/endpoints/Debug.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/database/Database.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/org/autumn/annotations/FromBody.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/org/autumn/BodyType.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/HalfAss.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/Log.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/endpoints/Lessons.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/SessionHolder.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/Utils.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/database/Sorters.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/endpoints/Item.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/dataobjects/Result.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/org/autumn/Utils.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/endpoints/Reviews.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/endpoints/UserProgress.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/database/ParameterType.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/database/Sorter.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/org/autumn/annotations/Middleware.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/sets/SRSObject.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/org/autumn/annotations/Endpoint.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/sets/GlobalStore.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/endpoints/Misc.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/org/autumn/Logger.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/org/autumn/annotations/FromExtra.java</file>
+            <file>file:/mnt/NAS/Code/OpenSRS/src/opensrs/Test.java</file>
+        </group>
+    </open-files>
+</project-private>

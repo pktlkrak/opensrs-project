@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenSRS - Login</title>
+    <script>
+        function change(){
+            const newData = document.querySelector("#realName").value;
+            document.querySelectorAll(".itemName").forEach(n => n.name = newData);
+        }
+    </script>
+</head>
+<body>
+    <form action="/api/wk.set/lesson/completed" method="POST">
+        <label>Key[0]: 
+            <input name="keys[]" type="text">
+        </label>
+        <input value="Login" type="submit">
+    </form>
+    <hr>
+    <form action="/api/wk.set/review/progress" method="POST">
+        <label>REVIEW UNLOCKER
+            <input id="realName" onchange="change()">
+            <input hidden class="itemName" name="[]" type="text" value="0">
+            <input hidden class="itemName" name="[]" type="text" value="0">
+        </label>
+        <input value="Login" type="submit">
+    </form>
+</body>
+</body>
+</html>

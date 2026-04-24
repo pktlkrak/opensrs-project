@@ -1,0 +1,369 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package org.autumn;
+
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import org.autumn.annotations.Endpoint;
+import org.autumn.annotations.FromBody;
+import org.autumn.annotations.FromCookie;
+import org.autumn.annotations.FromExtra;
+import org.autumn.annotations.FromPath;
+import org.autumn.annotations.Route;
+import org.reflections.Reflections;
+import org.reflections.scanners.FieldAnnotationsScanner;
+import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.autumn.annotations.FromGetParam;
+import org.autumn.annotations.Middleware;
+
+/**
+ *
+ * @author piotr
+ */
+public class Server {
+
+    private static final String TAG = "Autumn";
+    public static final String VERSION = "1.0.0";
+
+    private final Map<String, EndpointInstance> endpoints = new HashMap<>();
+    private final Map<String, List<EndpointInstance>> middlewares = new HashMap<>();
+    private final List<String> endpointsHierarchy;
+
+    private HttpServer underlying = null;
+
+    private Logger logger;
+
+    private boolean invokeEndpoint(EndpointInstance endpoint, State state, HttpExchange exchange, Map<String, String> pathParameters, Map<String, Object> bodyParameters) throws IOException {
+        String path = exchange.getRequestURI().getPath();
+        Map<String, Object> getParameters = Utils.queryToMap(exchange.getRequestURI().getRawQuery());
+        Map<String, Object> cookies = Utils.queryToMap(exchange.getRequestHeaders().getFirst("Cookie"), "; ");
+
+        Method toInvoke = endpoint.method;
+
+        Object parameters[] = new Object[toInvoke.getParameterCount()];
+
+        parameters[0] = state;
+
+        endpoint.pathParamsToArgumentsMap.forEach((i, n) -> parameters[i] = pathParameters.get(n));
+
+        if (!endpoint.allowedMethods.contains(exchange.getRequestMethod())) {
+            state.sendString("AUTUMN: Invalid request method", 400);
+            return false;
+        }
+
+        for (int i : endpoint.cookiesToArgumentsMap.keySet()) {
+            ParameterInfo in = endpoint.cookiesToArgumentsMap.get(i);
+            Object result = cookies.get(in.name);
+            if (result == null && !in.optional) {
+                try {
+                    state.sendString("AUTUMN: Missing mandatory cookie " + in.name, 400);
+                    return false;
+                } catch (IOException ex) {
+                }
+            }
+            parameters[i] = result;
+        }
+
+        for (int i : endpoint.getParamsToArgumentsMap.keySet()) {
+            ParameterInfo in = endpoint.getParamsToArgumentsMap.get(i);
+            Object result = getParameters.get(in.name);
+            if (result == null && !in.optional) {
+                try {
+                    state.sendString("AUTUMN: Missing mandatory get parameter " + in.name, 400);
+                    return false;
+                } catch (IOException ex) {
+                }
+            }
+            parameters[i] = result;
+        }
+
+        for (int i : endpoint.bodyParamsToArgumentsMap.keySet()) {
+            ParameterInfo in = endpoint.bodyParamsToArgumentsMap.get(i);
+            if ((bodyParameters == null || bodyParameters.get(in.name) == null) && !in.optional) {
+                try {
+                    state.sendString("AUTUMN: Missing mandatory body parameter " + in.name, 400);
+                    return false;
+                } catch (IOException ex) {
+                }
+            }
+            parameters[i] = bodyParameters.get(in.name);
+        }
+        
+        for (int i : endpoint.extraParamsToArgumentsMap.keySet()) {
+            ParameterInfo in = endpoint.extraParamsToArgumentsMap.get(i);
+            if ((state.getExtra(in.name) == null) && !in.optional) {
+                try {
+                    state.sendString("AUTUMN: Missing mandatory extra (internal) parameter " + in.name, 400);
+                    return false;
+                } catch (IOException ex) {
+                }
+            }
+            parameters[i] = state.getExtra(in.name);
+        }
+
+
+        try {
+            Object ret = toInvoke.invoke(endpoint.instance, parameters);
+            exchange.close();
+            if(ret instanceof Boolean && ret == Boolean.FALSE){
+                return (Boolean) ret;
+            }
+            return true;
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            try {
+                state.sendString("AUTUMN: The underlying endpoint has encountered a fatal error:\n\n\n" + Utils.traceToString(ex), 500);
+            } catch (IOException notImportant) {
+            }
+            logger.logException(Logger.ERROR, TAG, ex, "The underlying endpoint has encountered a fatal error (" + path + ")");
+        }
+        return false;
+    }
+
+    public void start(int port) throws IOException {
+        logger.log(Logger.INFO, TAG, "Starting Autumn server at port " + port);
+        underlying = HttpServer.create(new InetSocketAddress(port), 0);
+        underlying.setExecutor(Executors.newCachedThreadPool());
+        underlying.createContext("/", e -> {
+            State state = new State(
+                    e.getRequestHeaders(),
+                    e.getResponseBody(),
+                    e.getRequestBody(),
+                    e.getRequestURI(),
+                    e.getRequestMethod()) {
+                @Override
+                public void sendResponseHeaders(int statusCode) throws IOException {
+                    e.getResponseHeaders().putAll(getOutboundHeaders());
+                    e.sendResponseHeaders(statusCode, outputLength);
+                }
+            };
+
+            state.setHeader("Connection", "close");
+            state.setHeader("X-Powered-By", "Autumn " + Server.VERSION);
+
+            String path = e.getRequestURI().getPath();
+            logger.log(Logger.INFO, TAG, "Incoming connection to path " + path);
+            try {
+                for (String possibleEndpointFormat : endpointsHierarchy) {
+                    Map<String, String> pathParameters;
+                    Map<String, Object> bodyParameters = null;
+                    try {
+                        pathParameters = Utils.parse(possibleEndpointFormat, path);
+                    } catch (Exception ex) {
+                        continue;
+                    }
+                    
+                    // If it's matching
+                    if (pathParameters != null) {
+                        // A middleware is just an endpoint which doesn't end the chain of calls
+                        List<EndpointInstance> endpointsToInvoke = new LinkedList<>();
+                        EndpointInstance thisEndpoint = endpoints.get(possibleEndpointFormat);
+                        for(String route : middlewares.keySet()){
+                            if(path.startsWith(route))
+                                middlewares.get(route)
+                                        .stream()
+                                        .filter(mw -> 
+                                                mw.middlewareScope == Middleware.Scope.GLOBAL ||
+                                                (mw.middlewareScope == Middleware.Scope.CLASS && mw.method.getDeclaringClass().equals(thisEndpoint.method.getDeclaringClass())))
+                                        .forEach(endpointsToInvoke::add);
+                        }
+                        endpointsToInvoke.add(thisEndpoint);
+                        
+                        
+                        String contentType = e.getRequestHeaders().getFirst("Content-Type");
+                        if (contentType != null && endpointsToInvoke.stream().anyMatch(q -> q.tryParsingBody)) {
+                            String tokens[] = contentType.split("; ");
+                            String base = tokens[0];
+                            String charset = "utf-8";
+                            if (tokens.length > 1 && tokens[1].startsWith("charset=")) {
+                                charset = tokens[1].substring(8);
+                            }
+                            switch (base) {
+                                case "application/x-www-form-urlencoded":
+                                    bodyParameters = Utils.queryToMap(new String(Utils.readFully(e.getRequestBody(), Integer.valueOf(e.getRequestHeaders().getFirst("Content-Length"))), charset));
+                                    state.setHasBodyBeenParsed(true);
+                                    break;
+                            }
+                        }
+
+                        // Invoke all the whole tree
+                        for(EndpointInstance instance : endpointsToInvoke){
+                            if(!invokeEndpoint(instance, state, e, pathParameters, bodyParameters))
+                                break;
+                        }
+                        return;
+                    }
+                }
+            } catch (Exception ex) {
+                logger.logException(Logger.ERROR, TAG, ex);
+            }
+            try {
+                logger.log(Logger.WARNING, TAG, "No matching endpoint found for path " + path);
+                state.sendString("AUTUMN: No matching endpoint found", 404);
+            } catch (IOException ex) {
+            }
+        });
+        underlying.start();
+    }
+
+    public void stop() {
+        if (underlying != null) {
+            underlying.stop(5);
+            underlying = null;
+        }
+    }
+
+    public Server(String packageName, Logger logger, Class<?> constructTypes[], Object... constructParameters) {
+        Reflections base = new Reflections(packageName,
+                new TypeAnnotationsScanner(),
+                new SubTypesScanner(),
+                new MethodAnnotationsScanner(),
+                new FieldAnnotationsScanner());
+
+        this.logger = logger;
+
+        Map<String, List<EndpointInstance>> routedEndpoints = new HashMap<>();
+
+        //Step 1 - find all methods tagged by @Endpoint and @Middleware
+        Set<Method> methods = base.getMethodsAnnotatedWith(Endpoint.class);
+        methods.addAll(base.getMethodsAnnotatedWith(Middleware.class));
+
+        Map<Class<?>, Object> instancesMap = new HashMap<>();
+        methods.forEach(method -> {
+            Class<?> declaringClass = method.getDeclaringClass();
+            Route routeAnno = declaringClass.getAnnotation(Route.class);
+            Object instance = null;
+            if (instancesMap.containsKey(declaringClass)) {
+                instance = instancesMap.get(declaringClass);
+            } else {
+                try {
+                    instance = declaringClass
+                            .getConstructor(constructTypes)
+                            .newInstance(constructParameters);
+                    instancesMap.put(declaringClass, instance);
+                } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException ex) {
+                    throw new IllegalArgumentException(ex);
+                }
+            }
+            //Now got the instance and method. We can parse the arguments
+            EndpointInstance endpoint = new EndpointInstance(instance, method);
+
+            if (!method.getParameters()[0].getType().equals(State.class)) {
+                throw new IllegalStateException("Function: " + method.getName() + " delcared in " + declaringClass.toString() + " has to have the first argument of type State");
+            }
+
+            for (int i = 1; i < method.getParameterCount(); i++) {
+                Parameter param = method.getParameters()[i];
+                if (param.getAnnotations().length != 1) {
+                    throw new IllegalStateException("Function: " + method.getName() + " delcared in " + declaringClass.toString() + " had an invalid argument");
+                }
+                FromPath fromPath = param.getAnnotation(FromPath.class);
+                FromGetParam getParam = param.getAnnotation(FromGetParam.class);
+                FromCookie cookieParam = param.getAnnotation(FromCookie.class);
+                FromBody bodyParam = param.getAnnotation(FromBody.class);
+                FromExtra extraParam = param.getAnnotation(FromExtra.class);
+                if (fromPath != null) {
+                    endpoint.pathParamsToArgumentsMap.put(i, fromPath.value());
+                } else if (getParam != null) {
+                    endpoint.getParamsToArgumentsMap.put(i, new ParameterInfo(getParam.value(), getParam.optional()));
+                } else if (cookieParam != null) {
+                    endpoint.cookiesToArgumentsMap.put(i, new ParameterInfo(cookieParam.value(), cookieParam.optional()));
+                } else if (bodyParam != null) {
+                    endpoint.bodyParamsToArgumentsMap.put(i, new ParameterInfo(bodyParam.value(), bodyParam.optional()));
+                } else if (extraParam != null) {
+                    endpoint.extraParamsToArgumentsMap.put(i, new ParameterInfo(extraParam.value(), extraParam.optional()));
+                }
+            }
+
+            if (method.isAnnotationPresent(Endpoint.class)) {
+                Endpoint endpointAnno = method.getAnnotation(Endpoint.class);
+                endpoint.tryParsingBody = endpointAnno.tryParsingBody();
+                endpoint.allowedMethods.addAll(Arrays.asList(endpointAnno.allowedMethods()));
+
+                String endpointName = endpointAnno.value();
+                String route = routeAnno == null ? "" : routeAnno.value();
+                if (!endpointName.startsWith("/")) {
+                    endpointName = "/" + endpointName;
+                }
+                if (route.endsWith("/")) {
+                    route = route.substring(0, route.length() - 1);
+                }
+                endpoints.put(route + endpointName, endpoint);
+
+                if (routeAnno != null) {
+                    String rt = routeAnno.value();
+                    if (!routedEndpoints.containsKey(rt)) {
+                        routedEndpoints.put(rt, new LinkedList<>());
+                    }
+                    routedEndpoints.get(rt).add(endpoint);
+                }
+            } else {
+                // A middleware
+                if (routeAnno == null) {
+                    throw new IllegalStateException("Middleware: " + method.getName() + " delcared in " + declaringClass.toString() + " has to have a parent class annotated with @Route");
+                }
+                if (!middlewares.containsKey(routeAnno.value())) {
+                    middlewares.put(routeAnno.value(), new LinkedList<>());
+                }
+                
+                endpoint.middlewareScope = method.getAnnotation(Middleware.class).scope();
+                middlewares.get(routeAnno.value()).add(endpoint);
+            }
+        });
+
+        endpointsHierarchy = new ArrayList<>(endpoints.size());
+        endpoints.keySet()
+                .stream()
+                .sorted((a, b) -> Utils.count(b, "/") - Utils.count(a, "/"))
+                .forEachOrdered(endpointsHierarchy::add);
+    }
+
+    private class EndpointInstance {
+
+        private Object instance;
+        private Method method;
+        private boolean tryParsingBody;
+        private Map<Integer, ParameterInfo> getParamsToArgumentsMap = new HashMap<>();
+        private Map<Integer, String> pathParamsToArgumentsMap = new HashMap<>();
+        private Map<Integer, ParameterInfo> cookiesToArgumentsMap = new HashMap<>();
+        private Map<Integer, ParameterInfo> bodyParamsToArgumentsMap = new HashMap<>();
+        private Map<Integer, ParameterInfo> extraParamsToArgumentsMap = new HashMap<>();
+        private List<String> allowedMethods = new ArrayList<>();
+        
+        private Middleware.Scope middlewareScope = Middleware.Scope.GLOBAL;
+
+        public EndpointInstance(Object instance, Method method) {
+            this.instance = instance;
+            this.method = method;
+        }
+    }
+
+    private class ParameterInfo {
+
+        private String name;
+        private boolean optional;
+
+        public ParameterInfo(String name, boolean optional) {
+            this.name = name;
+            this.optional = optional;
+        }
+
+    }
+}

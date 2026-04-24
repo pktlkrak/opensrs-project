@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script>
+    window.WaniKani = window.WaniKani || {};
+    window.WaniKani.features = {
+      noAutoUnlock: true,
+      reactSlides: false
+    }
+  </script>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="stylesheet" media="screen"
+    href="assets/application-147c13d8f8493ebd0be2b6e5f2f83b9f95f8fcdfe207b77f81574450a1395fca.css" />
+  <link rel="stylesheet" media="screen"
+    href="assets/application-44ebe0b19e1ef0219c7fb2bd256bab0fc01c004312a7c73da60e726b408564c8.css" />
+  <link rel="stylesheet" media="screen" href="https://cdn.wanikani.com/packs/css/review-114601de.css" />
+  <meta name="application-name" content="WaniKani">
+  <meta name="author" content="tofugu.com">
+  <meta name="description"
+    content="WaniKani is a Japanese radicals, kanji, and vocabulary learning web app that uses mnemonics and SRS to make kanji learning simple.">
+  <meta name="keywords"
+    content="japanese kanji, japanese language, japanese learning, kanji, radicals, kanji radicals, japanese vocabulary, vocabulary, srs, spaced repetition, mnemonics, memory tricks, web app">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="google" value="notranslate">
+  <!-- Open Graph data -->
+  <meta content='Learn Japanese kanji the effective way!' property='og:description'>
+  <meta content='assets/wanikani-icon-196x.png' property='og:image'>
+  <meta content='en_US' property='og:locale'>
+  <meta content='WaniKani' property='og:site_name'>
+  <meta content='WaniKani, a kanji learning application by Tofugu' property='og:title'>
+  <meta content='website' property='og:type'>
+  <meta content='https://wanikani.com/' property='og:url'>
+  <meta content='https://www.tofugu.com' property='og:see_also'>
+  <!-- Twitter Card data -->
+  <meta content='summary_large_image' name='twitter:card'>
+  <meta content='@tofugu' name='twitter:creator'>
+  <meta content='Learn Japanese kanji the effective way!' name='twitter:description'>
+  <meta content='assets/wanikani-icon-196x.png' name='twitter:image'>
+  <meta content='@wanikaniapp' name='twitter:site'>
+  <meta content='WaniKani, a kanji learning application by Tofugu' name='twitter:title'>
+  <link rel="shortcut icon" type="image/png" href="assets/wanikani-icon-196x.png" sizes="196x196" />
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans+JP:400,700&display=swap&subset=japanese"
+    rel="stylesheet">
+
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700' rel='stylesheet' type='text/css'>
+  <link href='https://maxcdn.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css' rel='stylesheet'
+    type='text/css'>
+
+  <script src="/osrs.js"></script>
+</head>
+
+<body>
+  <div>
+    <div class="pure-g-r">
+      <header class="pure-u-1">
+        <nav>
+          <a title="Back to dashboard" id="back-dashboard" href="index.html">&nbsp;</a>
+          <div id="start-session">
+            <a title="Start review session" href="/review/start" id="actionLink">Start Session</a><span id="review-queue-count"
+              title="Reviews in queue" data-insertValue="amountQueued"></span>
+          </div>
+        </nav>
+        <h1>
+          <i class="icon-check-sign"></i> <span data-insertValue="type"></span> Summary
+        </h1>
+      </header>
+    </div>
+  </div>
+  <div id="reviews-summary">
+    <div class="pure-g-r">
+      <div id="review-stats">
+        <div class="pure-u-1-4">
+          <div id="review-stats-answered-correctly">
+            <div class="review-stats-value" data-insertValue="percentageCorrect"></div>
+            <div class="review-stats-type">Answered Correctly</div>
+          </div>
+        </div>
+        <div class="pure-u-1-4">
+          <div id="review-stats-radicals">
+            <div class="review-stats-value" data-insertValue="radicalsCorrect"></div>
+            <div class="review-stats-total">out of <span data-insertValue="radicalsTotal"></span></div>
+            <div class="review-stats-type">Radicals</div>
+          </div>
+        </div>
+        <div class="pure-u-1-4">
+          <div id="review-stats-kanji">
+            <div class="review-stats-value" data-insertValue="kanjiCorrect"></div>
+            <div class="review-stats-total">out of <span data-insertValue="kanjiTotal"></span></div>
+            <div class="review-stats-type">Kanji</div>
+          </div>
+        </div>
+        <div class="pure-u-1-4">
+          <div id="review-stats-vocabulary">
+            <div class="review-stats-value" data-insertValue="vocabCorrect"></div>
+            <div class="review-stats-total">out of <span data-insertValue="vocabTotal"></span></div>
+            <div class="review-stats-type">Vocabulary</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pure-g-r">
+      <div id="incorrect" class="pure-u-1">
+        <h2><strong data-insertValue="overallIncorrectCount"></strong> Answered Incorrectly</h2>
+        <div class="master">
+          <h3><span><strong title="Items in this group"  data-insertValue="incorrectmasterAmount"></strong> Master</span></h3>
+          <ul></ul>
+        </div>
+        <div class="guru">
+          <h3><span><strong title="Items in this group"  data-insertValue="incorrectguruAmount"></strong> Guru</span></h3>
+          <ul></ul>
+        </div>
+        <div class="apprentice">
+          <h3><span><strong title="Items in this group"  data-insertValue="incorrectapprenticeAmount"></strong> Apprentice</span></h3>
+          <ul></ul>
+        </div>
+      </div>
+    </div>
+    <div class="pure-g-r">
+      <div id="correct" class="pure-u-1">
+        <h2><strong data-insertValue="overallCorrectCount"></strong> Answered Correctly</h2>
+        <div class="burned">
+          <h3><span><strong title="Items in this group" data-insertValue="correctburnedAmount"></strong> Burned</span></h3>
+          <ul></ul>
+        </div>
+        <div class="enlightened">
+          <h3><span><strong title="Items in this group" data-insertValue="correctenlightenedAmount"></strong> Enlightened</span></h3>
+          <ul></ul>
+        </div>
+        <div class="master">
+          <h3><span><strong title="Items in this group" data-insertValue="correctmasterAmount"></strong> Master</span></h3>
+          <ul></ul>
+        </div>
+        <div class="guru">
+          <h3><span><strong title="Items in this group" data-insertValue="correctguruAmount"></strong> Guru</span></h3>
+          <ul></ul>
+        </div>
+        <div class="apprentice">
+          <h3><span><strong title="Items in this group" data-insertValue="correctapprenticeAmount"></strong> Apprentice</span></h3>
+          <ul></ul>
+        </div>
+      </div>
+    </div>
+    <div class="pure-g-r">
+      <footer class="pure-u-1">
+        <div id="last-session-date">
+          Your last session started <time></time>
+        </div>
+        <div id="copyright">
+          Copyright © Tofugu LLC, <span lang="ja">よ</span> (Modified to use OpenSRS)
+        </div>
+      </footer>
+    </div>
+  </div>
+  <div id="lessons-summary">
+    <div class="pure-g-r">
+      <div id="radicals" class="pure-u-1">
+        <h2><strong data-insertValue="radicalsTotal">0</strong> Radicals</h2>
+        <div style="display: none;">
+          <ul></ul>
+        </div>
+      </div>
+    </div>
+    <div class="pure-g-r">
+      <div id="kanji" class="pure-u-1">
+        <h2><strong data-insertValue="kanjiTotal">0</strong> Kanji</h2>
+        <div style="display: none;">
+          <ul></ul>
+        </div>
+      </div>
+    </div>
+    <div class="pure-g-r">
+      <div id="vocabulary" class="pure-u-1">
+        <h2><strong data-insertValue="vocabTotal">0</strong> Vocabulary</h2>
+        <div style="display: none;">
+          <ul></ul>
+        </div>
+      </div>
+    </div>
+    <div class="pure-g-r">
+      <footer class="pure-u-1">
+        <div id="last-session-date">
+          Your last session activity was <time datetime="2021-08-27T12:39:00.286585Z">about an hour ago</time>
+        </div>
+        <div id="copyright">
+          Copyright © Tofugu LLC, <span lang="ja">よ</span>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    (async () => {
+      const fillIn = (n, v) => document.querySelectorAll(`[data-insertValue='${n}']`).forEach(n => n.innerText = v);
+
+      const user = await OSRS.getUser();
+      if (user.uid == -1) {
+        OSRS.redirectToLogin();
+        reutrn;
+      }
+
+      //First, check if we're in lesson summary of review summary mode
+      const isLessonSummary = window.location.href.includes("lesson");
+      fillIn("type", isLessonSummary ? "Lessons" : "Reviews");
+
+      const queued = await (isLessonSummary ? OSRS.getLessonsQueue() : OSRS.getReviewsQueue());
+      const queuedAmount = Object.keys(queued.count).map(n => queued.count[n]).reduce((a, b) => a + b, 0);
+      fillIn("amountQueued", queuedAmount);
+
+      const lastSession = await (isLessonSummary ? OSRS.getLastSessionLessonsDone() : OSRS
+        .getLastSessionReviewsDone());
+
+      const getOfFamily = (arr, family) => arr.filter(n => n.family === family); 
+      const getCountOf = (arr, family) => getOfFamily(arr, family).length;
+      const base = `/${OSRS.getCurrentSetName()}`
+
+      const createTileElement = (type, query) => {
+        const element = document.createElement("li");
+        element.className = type;
+        const link = document.createElement("a");
+        link.href = `${base}/${type}/${query}`
+        link.innerText = query;
+        element.appendChild(link);
+        return element;
+      };
+
+      if (isLessonSummary) {
+        document.querySelector("#actionLink").href = "lessonactivity";
+        document.querySelector("#reviews-summary").style.display = "none";
+        const radicals = getOfFamily(lastSession, "radical"),
+              kanji = getOfFamily(lastSession, "kanji"),
+              vocab = getOfFamily(lastSession, "vocabulary");
+        fillIn("radicalsTotal", radicals.length);
+        fillIn("kanjiTotal", kanji.length);
+        fillIn("vocabTotal", vocab.length);
+        
+        const lists = {
+          radical: document.querySelector("#radicals div ul"),
+          kanji: document.querySelector("#kanji div ul"),
+          vocabulary: document.querySelector("#vocabulary div ul")
+        }
+        
+        for(let sessionElement of lastSession){
+          lists[sessionElement.family].parentNode.style.display = "";
+          lists[sessionElement.family].appendChild(createTileElement(sessionElement.family, sessionElement.query));
+        }
+      } else {
+        document.querySelector("#actionLink").href = "reviewactivity";
+        document.querySelector("#lessons-summary").style.display = "none";
+        const correctRadicals = getOfFamily(lastSession.correct, "radical"),
+              correctKanji = getOfFamily(lastSession.correct, "kanji"),
+              correctVocab = getOfFamily(lastSession.correct, "vocabulary"),
+              incorrectRadicals = getOfFamily(lastSession.incorrect, "radical"),
+              incorrectKanji = getOfFamily(lastSession.incorrect, "kanji"),
+              incorrectVocab = getOfFamily(lastSession.incorrect, "vocabulary");
+
+        fillIn("radicalsTotal", correctRadicals.length + incorrectRadicals.length);
+        fillIn("radicalsCorrect", correctRadicals.length);
+
+        fillIn("kanjiTotal", correctKanji.length + incorrectKanji.length);
+        fillIn("kanjiCorrect", correctKanji.length);
+
+        fillIn("vocabTotal", correctVocab.length + incorrectVocab.length);
+        fillIn("vocabCorrect", correctVocab.length);
+
+        const overallCorrectCount = correctVocab.length + correctKanji.length + correctRadicals.length;
+        const allCount = correctVocab.length + correctKanji.length + correctRadicals.length + incorrectVocab.length + incorrectKanji.length + incorrectRadicals.length;
+
+        fillIn("overallCorrectCount", overallCorrectCount);
+        fillIn("overallIncorrectCount", allCount - overallCorrectCount);
+
+        fillIn("percentageCorrect", Math.ceil((100 * overallCorrectCount) / allCount));
+
+        const phaseNames = ["apprentice", "guru", "master", "enlightened", "burned"];
+        const incorrectSection = document.querySelector("#incorrect"),
+              correctSection = document.querySelector("#correct");
+        
+        let incorrectAmounts = Array(phaseNames.length).fill(0);
+        let correctAmounts = Array(phaseNames.length).fill(0);
+
+        for(let correctItem of lastSession.correct){
+          correctSection.style.display = "block";
+          ++correctAmounts[correctItem.srsPhase - 1];
+          const wrapper = correctSection.getElementsByClassName(phaseNames[correctItem.srsPhase-1])[0];
+          wrapper.classList.add("active");
+          wrapper.querySelector("ul").appendChild(createTileElement(correctItem.family, correctItem.query));
+        }
+
+        for(let incorrectItem of lastSession.incorrect){
+          incorrectSection.style.display = "block";
+          ++incorrectAmounts[incorrectItem.srsPhase - 1];
+          const wrapper = incorrectSection.getElementsByClassName(phaseNames[incorrectItem.srsPhase-1])[0];
+          wrapper.classList.add("active");
+          wrapper.querySelector("ul").appendChild(createTileElement(incorrectItem.family, incorrectItem.query));
+        }
+
+        for(let i = 0; i<correctAmounts.length; i++){
+          fillIn(`correct${phaseNames[i]}Amount`, correctAmounts[i]);
+        }
+        for(let i = 0; i<incorrectAmounts.length; i++){
+          fillIn(`incorrect${phaseNames[i]}Amount`, incorrectAmounts[i]);
+        }
+      }
+    })();
+  </script>
+</body>
+
+</html>
