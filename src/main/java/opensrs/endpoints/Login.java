@@ -43,7 +43,6 @@ public class Login {
             State state,
             @FromCookie("session") String session
     ) throws IOException{
-        SessionHolder.logout(session);
         state.setCookie(new Cookie("session", "").setHttpOnly(true).setPath("/"));
         state.setHeader("Location", "/");
         state.sendResponseHeaders(302);

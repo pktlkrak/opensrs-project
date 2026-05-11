@@ -5,8 +5,16 @@
  */
 package opensrs;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import opensrs.database.Database;
-import java.util.concurrent.ConcurrentHashMap;
 import opensrs.dataobjects.User;
 
 /**
@@ -14,32 +22,46 @@ import opensrs.dataobjects.User;
  * @author piotr
  */
 public class SessionHolder {
-    private static final ConcurrentHashMap<String, SessionInfo> SESSIONS = new ConcurrentHashMap<>();
     private static final String TAG = "SessionHolder";
+    private static final String CLAIM_USERNAME = "uname";
+    private static final String CLAIM_UID = "uid";
+    private static final JWTVerifier JWT_VERIFIER;
+    private static final Algorithm JWT_ALGORITHM;
+    
+    static {
+        Algorithm alg = null;
+        try {
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+            KeyPair kp = kpg.generateKeyPair();
+            alg = Algorithm.RSA256((RSAPublicKey) kp.getPublic(), (RSAPrivateKey) kp.getPrivate());
+        } catch (NoSuchAlgorithmException ex) {
+            // Cannot happen
+            ex.printStackTrace();
+        }
+        JWT_ALGORITHM = alg;
+        JWT_VERIFIER = JWT.require(alg).build();
+    }
     
     public static String getNameOfUser(String seskey) {
-        if (seskey == null) {
+        if(seskey == null) return null;
+        try{
+            DecodedJWT jwt = JWT_VERIFIER.verify(seskey);
+            return jwt.getClaim(CLAIM_USERNAME).asString();
+        }catch(RuntimeException ex){
+            Log.handleException(TAG, ex, "getNameOfUser");
             return null;
         }
-        SessionInfo entry = SESSIONS.get(seskey);
-        if (entry == null) {
-            return null;
-        }
-
-        if (entry.isOutdated()) {
-            logout(seskey);
-            return null;
-        }
-        entry.reset();
-        return entry.getName();
     }
-
+    
     public static int getUID(String seskey) {
         if(seskey == null) return -1;
-        if(SESSIONS.containsKey(seskey) && SESSIONS.get(seskey).reset()){
-            return SESSIONS.get(seskey).getUid();
-        }else logout(seskey); //Cleanup
-        return -1;
+        try{
+            DecodedJWT jwt = JWT_VERIFIER.verify(seskey);
+            return jwt.getClaim(CLAIM_UID).asInt();
+        }catch(RuntimeException ex){
+            Log.handleException(TAG, ex, "getUID");
+            return -1;
+        }
     }
 
     public static int getUIDByName(Database db, String uname) {
@@ -56,9 +78,11 @@ public class SessionHolder {
             return null;
         }
         Log.log(Log.INFO, TAG, "Logged on as " + uname);
-        String newKey = Utils.randStr(256);
-        SESSIONS.put(newKey, new SessionInfo(uname, db.getUserByName(uname).getUid()));
-        return newKey;
+        String jwt = JWT.create()
+                .withClaim(CLAIM_USERNAME, uname)
+                .withClaim(CLAIM_UID, db.getUserByName(uname).getUid())
+                .sign(JWT_ALGORITHM);
+        return jwt;
     }
 
     public static boolean isCorrectPassword(Database db, String uname, String pass) {
@@ -68,41 +92,5 @@ public class SessionHolder {
         }
         pass += ":" + u.getSalt();
         return Utils.getSHA256Hash(pass.getBytes()).equals(u.getHash());
-    }
-
-    public static void logout(String key) {
-        SESSIONS.remove(key);
-    }
-    
-    private static final class SessionInfo{
-        String name;
-        int uid;
-        long session;
-        
-        public SessionInfo(String name, int uid){
-            this.name = name;
-            this.uid = uid;
-            this.session = System.currentTimeMillis();
-        }
-        
-        public int getUid(){
-            return uid;
-        }
-        
-        public boolean reset(){
-            if(isOutdated()) return false;
-            this.session = System.currentTimeMillis();
-            return true;
-        }
-        
-        public boolean isOutdated(){
-            return System.currentTimeMillis() - session > 10*60*1000;
-        }
-
-        public String getName() {
-            return name;
-        }
-        
-        
     }
 }
