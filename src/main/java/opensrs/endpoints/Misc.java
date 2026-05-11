@@ -18,12 +18,17 @@ import opensrs.OpenSRS;
 import opensrs.SessionHolder;
 import org.autumn.Utils;
 import opensrs.database.Database;
+import opensrs.database.Filter;
+import opensrs.database.FilterChain;
+import opensrs.database.Filters;
+import opensrs.dataobjects.Review;
 import opensrs.sets.GlobalStore;
 import opensrs.sets.Set;
 import org.autumn.State;
 import org.autumn.annotations.Endpoint;
 import org.autumn.annotations.FromCookie;
 import org.autumn.annotations.FromPath;
+import tools.jackson.databind.node.ArrayNode;
 
 /**
  *
@@ -32,6 +37,7 @@ import org.autumn.annotations.FromPath;
 public class Misc {
 
     private static Map<String, String> extMap;
+    private final Database database;
 
     static {
         try {
@@ -45,6 +51,7 @@ public class Misc {
     }
 
     public Misc(Database database) {
+        this.database = database;
     }
 
     @Endpoint("/{path}")
@@ -120,5 +127,50 @@ public class Misc {
                 .append(" set(s) loaded.")
                 .toString()
         );
+    }
+    
+    @Endpoint("/api/sets")
+    public void listSets(
+            State state
+    ) throws IOException {
+        ArrayNode an = opensrs.Utils.MAPPER.createArrayNode();
+        for(String string : GlobalStore.getAvailableSets()) an.add(string);
+        state.sendJSON(opensrs.Utils.MAPPER.writeValueAsString(an));
+    }
+    
+    @Endpoint(value = "/api/{set}/register", allowedMethods = { "POST" })
+    public void registerUserForSet(
+            State state,
+            @FromPath("set") String set,
+            @FromCookie("session") String seskey
+    ) throws IOException {
+        int uid = SessionHolder.getUID(seskey);
+        if(uid == -1) {
+            state.sendString("Not logged in!", "text/plain", 403);
+            return;
+        }
+        Review rev = database.fetchReview(new FilterChain<>(FilterChain.Junction.AND, Arrays.asList(
+                new Filter<>(Review.Parameter.UID, Filters.EqOnly.EQUAL, uid),
+                new Filter<>(Review.Parameter.SET_CODE, Filters.EqOnly.EQUAL, set.hashCode()))
+        ), null);
+        if(rev == null) {
+            database.createReviews(GlobalStore.getSet(set)
+                .stream()
+                .filter(n -> n.getLevel() == 1 && n.getDependencies().isEmpty())
+                .map(n -> {
+                    Review r = Review.create();
+                    r.setUid(uid);
+                    r.setSetCode(set.hashCode());
+                    r.setType(Review.TYPE_LESSON);
+                    r.setQueuedDate(System.currentTimeMillis());
+                    r.setUnlockDate(-2);
+                    r.setItemSUID(n.getId());
+                    return r;
+                })
+                .toArray(Review[]::new));
+            state.sendString("OK", "text/plain");
+        } else {
+            state.sendString("Already registered!", "text/plain", 400);
+        }
     }
 }
