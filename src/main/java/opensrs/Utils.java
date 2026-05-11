@@ -48,7 +48,6 @@ import org.w3c.dom.NodeList;
  * @author piotr
  */
 public class Utils {
-
     public static final ObjectMapper MAPPER = new ObjectMapper();
     public static DocumentBuilder documentBuilder;
 
