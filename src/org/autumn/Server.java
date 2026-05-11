@@ -35,20 +35,50 @@ import org.autumn.annotations.FromGetParam;
 import org.autumn.annotations.Middleware;
 
 /**
- *
+ * The base class of Autumn. Contains the business logic of the server
  * @author piotr
  */
 public class Server {
 
+    /**
+     * The tag used while logging.
+     */
     private static final String TAG = "Autumn";
+    
+    /**
+     * The version of the application.
+     */
     public static final String VERSION = "1.0.0";
 
+    
+    /**
+     * Maps an {@link EndpointInstance} to it's route.
+     * ex: TODO: Add example mapping?
+     */
     private final Map<String, EndpointInstance> endpoints = new HashMap<>();
+    
+    /**
+     * TODO: ???
+     */
     private final Map<String, List<EndpointInstance>> middlewares = new HashMap<>();
+    
+    /**
+     * Determines the priority order of the endpoints.
+     * Higher in the list = bigger priority.
+     * In situations where multiple endpoints match our querry
+     * the one with the hightest priority is selected.
+     */
     private final List<String> endpointsHierarchy;
 
+    /**
+     * TODO: ???
+     */
     private HttpServer underlying = null;
 
+    /**
+     * An instance of a class implementing the {@link Logger} interface.
+     * Used for logging important info and errors by the server.
+     */
     private Logger logger;
 
     private boolean invokeEndpoint(EndpointInstance endpoint, State state, HttpExchange exchange, Map<String, String> pathParameters, Map<String, Object> bodyParameters) throws IOException {
@@ -137,6 +167,11 @@ public class Server {
         return false;
     }
 
+    /**
+     * Starts the server.
+     * @param port - which port should the server start on.
+     * @throws IOException
+     */
     public void start(int port) throws IOException {
         logger.log(Logger.INFO, TAG, "Starting Autumn server at port " + port);
         underlying = HttpServer.create(new InetSocketAddress(port), 0);
@@ -223,6 +258,9 @@ public class Server {
         underlying.start();
     }
 
+    /**
+     * Stops the server.
+     */
     public void stop() {
         if (underlying != null) {
             underlying.stop(5);
@@ -230,6 +268,13 @@ public class Server {
         }
     }
 
+    /**
+     * Constructor of the Server Object.
+     * @param packageName           the name of root package of the server implementation (in this case it's opensrs).
+     * @param logger                instance of a class implementing the {@link Logger} interface.
+     * @param constructTypes        TODO
+     * @param constructParameters   TODO
+     */
     public Server(String packageName, Logger logger, Class<?> constructTypes[], Object... constructParameters) {
         Reflections base = new Reflections(packageName,
                 new TypeAnnotationsScanner(),

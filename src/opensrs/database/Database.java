@@ -19,16 +19,44 @@ import opensrs.dataobjects.Result;
 import opensrs.dataobjects.Review;
 
 /**
- *
+ * Abstract database class.
+ * Defines all the required interactions.
  * @author piotr
  */
 public abstract class Database {
     
+    /**
+     * gets the {@link User} by name.
+     * @see User
+     * @param name  the name of the user.
+     * @return the user, or <code>null</code> when not found
+     */
     public abstract User getUserByName(String name);
+    
+    /**
+     * gets the {@link User} by id.
+     * @see User
+     * @param uid   the uid of the user
+     * @return the user, or <code>null</code> when not found
+     */
     public abstract User getUserById(int uid);
+    
+    /**
+     * creates the user in the database based on a {@link User} object
+     * @see User
+     * @param user 
+     */
     public abstract void createUser(User user);
 
+    /**
+     * Fetches the list of all the results
+     * @param filter      
+     * @param sorter
+     * @param limit
+     * @return 
+     */
     public abstract List<Result> fetchResults(Filter<Result.Parameter> filter, Sorter<Result.Parameter> sorter, int limit);
+    
     public Result fetchResult(Filter<Result.Parameter> filter, Sorter<Result.Parameter> sorter) {
         return fetchResults(filter, sorter, 1).stream().findFirst().orElse(null);
     }

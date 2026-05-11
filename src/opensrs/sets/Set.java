@@ -28,7 +28,12 @@ import org.xml.sax.InputSource;
 import java.nio.charset.StandardCharsets;
 
 /**
- *
+ * Object holding an SRS set
+ * <p>A set is a collection of {@link SRSObject}.
+ * It is the main method of interacting with the SRS system,
+ * allowing the user to: TODO
+ * 
+ * @see SRSObject   
  * @author piotr
  */
 public abstract class Set {
@@ -38,7 +43,14 @@ public abstract class Set {
     private Set() {
     }
 
+    /**
+     * Map of SRS objects accesible by ID.
+     */
     private Map<Integer, SRSObject> srsObjects = new HashMap<>();
+    
+    /** 
+     * 
+     */
     public SRSConfig config;
 
     public static Set getSetFromFilesystem(File root) {
@@ -159,13 +171,47 @@ public abstract class Set {
         return thisSetss;
     }
 
+    /**
+     * The configuration of an SRS set
+     * <p> It is used to define diffrent parameters of the Set,
+     * like the harshness of the penalties
+     * It is used in {@link Set} </p>
+     * @see Set
+     */
     public class SRSConfig {
 
+        /**
+         * How big is the penalty based on the current stage
+         */
         private Map<Integer, Integer> penalties = new HashMap<>();
+        
+        /**
+         * How long is the time before the next review
+         * based on the current stage
+         */
         private Map<Integer, Integer> timings = new HashMap<>();
+        
+        /**
+         * TODO: ??? Int - Int phases - is this not redundant?
+         */
         private Map<Integer, Integer> phases = new HashMap<>();
+        
+        /**
+         * What are the names of the phases (ex. apprentice, master)
+         * 
+         */
         private Map<Integer, String> phaseNames = new HashMap<>();
+        
+        /**
+         * TODO: ???
+         * i guess these are page bindings for each stage but im not sure
+         */
         private Map<String, String> pageBindings = new HashMap<>();
+        
+        /**
+         * TODO: ???
+         * and these are with the vars???       
+         */
         private Map<Pattern, String> regexPageBindings = new HashMap<>();
 
         private int getValueOfHighestToKey(Map<Integer, Integer> map, int key, int defaultV) {

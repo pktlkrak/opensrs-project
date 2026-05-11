@@ -9,7 +9,9 @@ import java.util.Map;
 import java.util.HashMap;
 
 /**
- *
+ * An abstract class for defining database objects
+ * TODO: write more here after comperhending the lovecraftian horrors of this code
+ * @see GenericParameter
  * @author piotr
  */
 public abstract class DataObject<T extends GenericParameter> {
