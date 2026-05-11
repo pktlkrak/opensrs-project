@@ -1,4 +1,3 @@
-dist/
-build/
-userdata.*
+target/
+*.db
 

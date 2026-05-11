@@ -5,16 +5,13 @@
  */
 package opensrs.sets;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -24,8 +21,6 @@ import opensrs.Utils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
-import org.xml.sax.InputSource;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Object holding an SRS set
@@ -89,31 +84,26 @@ public abstract class Set {
 
         Utils.asStream(srsDataRoot.getElementsByTagName("SRSObject")).forEach((srsObjectRepresentation) -> {
             int id = Integer.valueOf(srsObjectRepresentation.getAttribute("id"));
-            try {
-                String type = Utils.getTextOfElement(srsObjectRepresentation, "family");
-                String query = Utils.getTextOfElement(srsObjectRepresentation, "query");
-                int level = Integer.valueOf(Utils.getTextOfElement(srsObjectRepresentation, "level"));
-                String data = Utils.getTextOfElement(srsObjectRepresentation, "data");
-                SRSObject srsObject = new SRSObject(id, type, level, query, (ObjectNode) Utils.MAPPER.readTree(data));
-                Element srsReviewable = (Element) srsObjectRepresentation.getElementsByTagName("reviewable").item(0);
-                Element srsDependencies = (Element) srsObjectRepresentation.getElementsByTagName("dependencies").item(0);
-                Utils.asStream(srsDependencies.getChildNodes()).map(Element::getTextContent).map(Integer::valueOf).forEach(srsObject.getDependencies()::add);
-                Utils.asStream(srsReviewable.getChildNodes()).forEach(e -> {
-                    if (e.getTagName().equals("coerce")) {
-                        srsObject.getCoerce().put(e.getAttribute("for"), e.getTextContent());
-                    } else {
-                        String name = e.getAttribute("name");
-                        if (!srsObject.getReviewable().containsKey(name)) {
-                            srsObject.getReviewable().put(name, new LinkedList<>());
-                        }
-                        srsObject.getReviewable().get(e.getAttribute("name")).add(e.getTextContent());
+            String type = Utils.getTextOfElement(srsObjectRepresentation, "family");
+            String query = Utils.getTextOfElement(srsObjectRepresentation, "query");
+            int level = Integer.valueOf(Utils.getTextOfElement(srsObjectRepresentation, "level"));
+            String data = Utils.getTextOfElement(srsObjectRepresentation, "data");
+            SRSObject srsObject = new SRSObject(id, type, level, query, (ObjectNode) Utils.MAPPER.readTree(data));
+            Element srsReviewable = (Element) srsObjectRepresentation.getElementsByTagName("reviewable").item(0);
+            Element srsDependencies = (Element) srsObjectRepresentation.getElementsByTagName("dependencies").item(0);
+            Utils.asStream(srsDependencies.getChildNodes()).map(Element::getTextContent).map(Integer::valueOf).forEach(srsObject.getDependencies()::add);
+            Utils.asStream(srsReviewable.getChildNodes()).forEach(e -> {
+                if (e.getTagName().equals("coerce")) {
+                    srsObject.getCoerce().put(e.getAttribute("for"), e.getTextContent());
+                } else {
+                    String name = e.getAttribute("name");
+                    if (!srsObject.getReviewable().containsKey(name)) {
+                        srsObject.getReviewable().put(name, new LinkedList<>());
                     }
-                });
-                srsObjects.put(srsObject.getId(), srsObject);
-            } catch (IOException ex) {
-                Log.log(Log.WARNING, TAG, "Couldn't parse object with id: " + id);
-                Log.handleException(TAG, ex);
-            }
+                    srsObject.getReviewable().get(e.getAttribute("name")).add(e.getTextContent());
+                }
+            });
+            srsObjects.put(srsObject.getId(), srsObject);
         });
     }
 

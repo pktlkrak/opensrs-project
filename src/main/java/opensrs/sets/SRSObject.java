@@ -5,7 +5,7 @@
  */
 package opensrs.sets;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;

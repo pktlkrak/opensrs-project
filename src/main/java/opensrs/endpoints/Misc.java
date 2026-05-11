@@ -5,7 +5,7 @@
  */
 package opensrs.endpoints;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;

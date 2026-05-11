@@ -18,22 +18,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import opensrs.Log;
 import opensrs.dataobjects.Result;
 import opensrs.dataobjects.Review;
 import opensrs.dataobjects.SRSObjectState;
-import opensrs.sets.GlobalStore;
-import opensrs.sets.Set;
 import org.autumn.Utils;
 
 /**
@@ -240,7 +234,6 @@ public class SQLiteDatabase extends Database {
                     FiltersIntermediate fi = parseFilters((FilterChain<R>) filter, array, i);
 
                     sqlForFiltering.append(fi.outputSQL);
-                    i = fi.currentArrayPointer;
                 } else {
                     sqlForFiltering.append(getFilterString(filter));
                     array[i++] = filter.getValue();
