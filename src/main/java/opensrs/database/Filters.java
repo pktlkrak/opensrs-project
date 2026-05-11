@@ -6,14 +6,20 @@
 package opensrs.database;
 
 /**
- *
+ * A class containing multiple implementations of filters for different data types.
  * @author piotr
  */
 public class Filters {
+    /**
+     * Interface implemented by all the Filter enums.
+     */
     public interface Filter{
         public ParameterType getType();
         public String getSymbol();
     }
+    /**
+     * Filters for operating on text, matching different SQL operations.
+     */
     public enum Text implements Filter{
         EQUAL("="), ALIKE("LIKE"), NOT_ALIKE("NOT LIKE"), NOT_EQUAL("!=");
         private final String symbol;

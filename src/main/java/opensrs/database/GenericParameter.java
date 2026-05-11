@@ -12,13 +12,38 @@ import java.util.function.Supplier;
 import opensrs.dataobjects.User;
 
 /**
- *
+ * Generic Parameter that 
  * @author piotr
  */
 public interface GenericParameter<T extends DataObject> {
+    /**
+     * Gets the name of the object
+     * @return  object name
+     */
     public String name();
+    
+    /**
+     * Returns the function to set a given parameter on the object
+     * @return  setter function
+     */
     public BiConsumer<T, ?> getSetter(); //Used when getting objects from database
+    
+    /**
+     * Returns the function to get a given parameter of the object
+     * @return  getter function
+     */
     public Function<T, ?> getGetter(); //Used when filtering 
+    
+    /**
+     * Gets the type of the objects parameter
+     * see ParameterType
+     * @return  parameter type
+     */
     public ParameterType getType();
+    
+    /**
+     * TODO: ???
+     * @return 
+     */
     public boolean insert();
 }

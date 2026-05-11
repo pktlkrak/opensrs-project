@@ -6,7 +6,7 @@
 package opensrs.database;
 
 /**
- *
+ * Enum defining the different parameter types a database component may have
  * @author piotr
  */
 public enum ParameterType {

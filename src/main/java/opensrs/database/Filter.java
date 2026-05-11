@@ -6,17 +6,26 @@
 package opensrs.database;
 
 /**
- *
+ * A filter for a certain parameter.
+ * The parameter should extend {@link GenericParameter}.
+ * <p>Specific filters for specific data types are defined in {@link Filters}</p>
+ * @see GenericParameter
+ * @see Filters
  * @author piotr
  */
 public class Filter<T extends GenericParameter> {
-
     private T filteredValue;
     private Filters.Filter filter;
     private Object value;
     
     Filter(){}
 
+    /**
+     * Creates and validates the filter for the filtered value type
+     * @param filteredValue value to be filtered of type {@link T}
+     * @param filter        
+     * @param value 
+     */
     public Filter(T filteredValue, Filters.Filter filter, Object value) {
         if(filteredValue.getType() == ParameterType.NOT_APPLICABLE) throw new RuntimeException("Cannot filter by a NOT_APPLICABLE field");
         if (!filter.getType().getClass().equals(filteredValue.getType().getClass())) {
