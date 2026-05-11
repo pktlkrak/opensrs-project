@@ -273,7 +273,6 @@ public class Server {
      * Constructor of the Server Object.
      * @param packageName           the name of root package of the server implementation (in this case it's opensrs).
      * @param logger                instance of a class implementing the {@link Logger} interface.
-     * @param constructTypes        TODO
      * @param constructParameters   TODO
      */
     public Server(String packageName, Logger logger, Object... constructParameters) {
