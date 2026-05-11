@@ -391,7 +391,11 @@ public class Server {
         endpointsHierarchy = new ArrayList<>(endpoints.size());
         endpoints.keySet()
                 .stream()
-                .sorted((a, b) -> Utils.count(b, "/") - Utils.count(a, "/"))
+                .sorted(Utils.hierarchicalSort(
+                        (a, b) -> Utils.count(b, "/") - Utils.count(a, "/"),
+                        (a, b) -> Utils.count(a, "{") - Utils.count(b, "{"),
+                        (a, b) -> b.length() - a.length()
+                ))
                 .forEachOrdered(endpointsHierarchy::add);
     }
 

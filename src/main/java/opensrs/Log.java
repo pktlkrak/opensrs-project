@@ -144,19 +144,14 @@ public class Log {
     }
 
     private static String decodeSeverity(int s) {
-        switch (s) {
-            case DEBUG:
-                return "[D]";
-            case INFO:
-                return "[I]";
-            case WARNING:
-                return "[W]";
-            case ERROR:
-                return "[E]";
-            case FATAL:
-                return "[F]";
-        }
-        return "[INCORRECT_SEVERITY_GIVEN]";
+        return switch (s) {
+            case DEBUG -> "[D]";
+            case INFO -> "[I]";
+            case WARNING -> "[W]";
+            case ERROR -> "[E]";
+            case FATAL -> "[F]";
+            default -> "[INCORRECT_SEVERITY_GIVEN]";
+        };
     }
 
     public static void log(int severity, String tag, boolean storeInFile, String... data) {

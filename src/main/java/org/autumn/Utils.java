@@ -13,8 +13,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -125,5 +124,15 @@ public class Utils {
         while ((read = i.read(buffer)) != -1) {
             o.write(Arrays.copyOf(buffer, read));
         }
+    }
+    
+    public static <T> Comparator<T> hierarchicalSort(Comparator<T>... funcs) {
+        return (a, b) -> {
+            for(Comparator<T> f : funcs) {
+                int v = f.compare(a, b);
+                if(v != 0) return v;
+            }
+            return 0;
+        };
     }
 }
