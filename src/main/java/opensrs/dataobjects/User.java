@@ -7,6 +7,7 @@ package opensrs.dataobjects;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import opensrs.Utils;
 import opensrs.database.DataObject;
 import opensrs.database.GenericParameter;
 import opensrs.database.ParameterType;
@@ -16,6 +17,14 @@ import opensrs.database.ParameterType;
  * @author piotr
  */
 public class User extends DataObject<User.Parameter> {
+    
+    public static User fromPassword(String username, String password) {
+        User newUser = new User();
+        newUser.setName(username);
+        newUser.setSalt(Utils.randStr(20, true));
+        newUser.setHash(Utils.getSHA256Hash((password + ":" + newUser.getSalt()).getBytes()));
+        return newUser;
+    }
 
     private int uid;
     private String name, hash, salt;
