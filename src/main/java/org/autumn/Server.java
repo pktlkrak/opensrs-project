@@ -8,6 +8,7 @@ package org.autumn;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -230,7 +231,7 @@ public class Server {
         }
     }
 
-    public Server(String packageName, Logger logger, Class<?> constructTypes[], Object... constructParameters) {
+    public Server(String packageName, Logger logger, Object... constructParameters) {
         Reflections base = new Reflections(packageName,
                 new TypeAnnotationsScanner(),
                 new SubTypesScanner(),
@@ -253,12 +254,27 @@ public class Server {
             if (instancesMap.containsKey(declaringClass)) {
                 instance = instancesMap.get(declaringClass);
             } else {
+                Constructor<?>[] constructors = declaringClass.getConstructors();
+                if(constructors.length != 1) {
+                    throw new IllegalStateException("Class containing an @Endpoint method doesn't have one, single constructor!");
+                }
+                Constructor<?> constr = constructors[0];
+                Object[] constructorParamInstances = new Object[constr.getParameterCount()];
+                Class<?>[] constructorParamTypes = constr.getParameterTypes();
+                root: for(int i = 0; i<constructorParamInstances.length; i++) {
+                    for(Object param : constructParameters) {
+                        if(constructorParamTypes[i].isAssignableFrom(param.getClass())) {
+                            constructorParamInstances[i] = param;
+                            continue root;
+                        }
+                    }
+                    throw new IllegalArgumentException("Cannot find the dependency of type: " + constructorParamTypes[i].getCanonicalName());
+                }
                 try {
-                    instance = declaringClass
-                            .getConstructor(constructTypes)
-                            .newInstance(constructParameters);
+                    instance = constr
+                            .newInstance(constructorParamInstances);
                     instancesMap.put(declaringClass, instance);
-                } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException ex) {
+                } catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException ex) {
                     throw new IllegalArgumentException(ex);
                 }
             }
