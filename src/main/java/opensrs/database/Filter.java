@@ -22,9 +22,9 @@ public class Filter<T extends GenericParameter> {
 
     /**
      * Creates and validates the filter for the filtered value type
-     * @param filteredValue value to be filtered of type {@link T}
-     * @param filter        
-     * @param value 
+     * @param filteredValue Value to be filtered of type {@link T} (the left side of the expression).
+     * @param filter        The filter to be used {@link Filters} (the operator).
+     * @param value         The value to be filtered against (the right side of the expression).
      */
     public Filter(T filteredValue, Filters.Filter filter, Object value) {
         if(filteredValue.getType() == ParameterType.NOT_APPLICABLE) throw new RuntimeException("Cannot filter by a NOT_APPLICABLE field");
@@ -59,6 +59,4 @@ public class Filter<T extends GenericParameter> {
     public void setValue(Object value) {
         this.value = value;
     }
-    
-    
 }
