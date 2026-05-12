@@ -6,18 +6,24 @@
 package opensrs.database;
 
 /**
- *
+ * An update for a certain {@link GenericParameter}.
+ * <p>This object specifies which parameter should be updated and with what value</p>
  * @author piotr
  */
 public class Update <T extends GenericParameter> {
     private T parameter;
     private Object newValue;
 
+    /**
+     * Constructor specifying the parameter and new value.
+     * @param parameter The parameter to be updated.
+     * @param newValue  The value to be updated with.
+     */
     public Update(T parameter, Object newValue) {
         this.parameter = parameter;
         this.newValue = newValue;
     }
-
+    
     public T getParameter() {
         return parameter;
     }

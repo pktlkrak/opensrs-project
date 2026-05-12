@@ -6,13 +6,22 @@
 package opensrs.database;
 
 /**
- *
+ * A sorter for a certain parameter.
+ * The parameter should extend {@link GenericParameter}.
+ * <p>Specific sorters for specific data types are defined in {@link Sorters}</p>
+ * @see GenericParameter
+ * @see Sorters
  * @author piotr
  */
 public class Sorter<T extends GenericParameter> {
     private final T sortedValue;
     private final Sorters.Sorter sorter;
-
+    
+    /**
+     * Constructor that creates the sorting method.
+     * @param sortedValue   Value that needs to be sorted of type {@link T}.
+     * @param sorter        The sorting method to be used ({@link Sorters}).
+     */
     public Sorter(T sortedValue, Sorters.Sorter sorter) {
         this.sortedValue = sortedValue;
         this.sorter = sorter;

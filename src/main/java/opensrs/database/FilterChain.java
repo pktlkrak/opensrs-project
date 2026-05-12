@@ -9,18 +9,19 @@ import java.util.List;
 
 /**
  * A group of filters for a certain parameter of type, joined by either an AND or OR.
+ * @see Filter
+ * @see GenericParameter
  * @author piotr
  */
 public class FilterChain<T extends GenericParameter> extends Filter<T> {
 
     /**
-     * Type of junction.
-     * <p>Determines if one or all filters must be met</p>
+     * Enum specifying the type of junction between the {@link Filter} list.
+     * <p>Determines if one or all filters must be met (OR / AND).</p>
      */
     public enum Junction {
         OR, AND;
     }
-
 
     private final List<Filter<T>> filters;
     private final Junction junction;
