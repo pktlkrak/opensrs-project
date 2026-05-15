@@ -31,7 +31,8 @@ import opensrs.dataobjects.SRSObjectState;
 import org.autumn.Utils;
 
 /**
- *
+ * The implementation of the {@link Database} abstract class, providing a database
+ * utilizing the SQLite engine.
  * @author piotr
  */
 public class SQLiteDatabase extends Database {
@@ -49,33 +50,8 @@ public class SQLiteDatabase extends Database {
     };
 
     private Connection connection;
-    
-    /* CURSES BEGIN */
-    
-    public void snapshot(){
-        try {
-            //End me
-            //Please I beg you
-
-            connection.close();
-            int ender = 0;
-            while(new File(fileName + "." + ender).exists()) ++ender;
-            FileOutputStream fos = new FileOutputStream(new File(fileName + "." + ender));
-            FileInputStream fis = new FileInputStream(new File(fileName));
-            Utils.copyStream(fis, fos, 4096);
-            fos.close();
-            fis.close();
-            connection = DriverManager.getConnection("jdbc:sqlite:" + fileName);
-        } catch (SQLException | IOException ex) {
-            Log.handleException(TAG, ex);
-        }
-        
-    }
-    private String fileName;
-    /*CURSES END*/
 
     public SQLiteDatabase(String fileName) throws SQLException {
-        this.fileName = fileName;
         connection = DriverManager.getConnection("jdbc:sqlite:" + fileName);
         createSchema();
     }

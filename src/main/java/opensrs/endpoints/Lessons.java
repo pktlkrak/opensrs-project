@@ -24,7 +24,6 @@ import opensrs.database.Filters;
 import opensrs.database.Sorter;
 import opensrs.database.Sorters;
 import opensrs.database.Update;
-import opensrs.database.implementation.SQLiteDatabase;
 import opensrs.dataobjects.Result;
 import opensrs.dataobjects.Review;
 import opensrs.sets.GlobalStore;
@@ -56,7 +55,6 @@ public class Lessons {
             State state,
             @FromPath("set") String set
     ) throws IOException {
-        ((SQLiteDatabase) database).snapshot();
         state.setHeader("Cache-Control", "no-store");
         state.setCookie(new Cookie("_rev_session", Math.abs(new Random().nextInt()) + "").setHttpOnly(true).setPath("/api/" + set + "/lesson"));
         state.sendString("{}");
