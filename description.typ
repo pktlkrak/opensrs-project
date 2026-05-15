@@ -298,6 +298,14 @@ Review last = database.fetchReview(
 
 = Logika i endpointy systemu OpenSRS
 
+== Autentykacja
+
+== Lekcje
+
+== Powtórki
+
+= Definiowanie nowych zestawów
+
 = Podsumowanie
 
 = Możliwe sposoby rozwoju aplikacji
