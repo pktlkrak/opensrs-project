@@ -8,7 +8,8 @@ package opensrs;
 import java.io.InputStream;
 
 /**
- *
+ * A simple wrapper around InputStream which also keeps track of the original length
+ * of the data which should be readable from the stream.
  * @author piotr
  */
 public class InputStreamLength {
