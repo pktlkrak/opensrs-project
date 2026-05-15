@@ -27,6 +27,13 @@
             line(start: (0%, 0pt), end: (100%, 0pt))
         })
     ] else []
+  },
+  footer: context {
+    if counter(page).get().first() > 1 [
+        #align(center, [
+            #(counter(page).get().first())
+        ])
+    ]
   }
 )
 
