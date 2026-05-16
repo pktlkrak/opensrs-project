@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 import org.autumn.annotations.Endpoint;
 import org.autumn.annotations.FromBody;
 import org.autumn.annotations.FromCookie;
@@ -32,8 +33,8 @@ import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.scanners.MethodAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
-import org.autumn.annotations.FromGetParam;
 import org.autumn.annotations.Middleware;
+import org.autumn.annotations.FromQuery;
 
 /**
  * The base class of Autumn. Contains the business logic of the server
@@ -47,16 +48,15 @@ public class Server {
     private static final String TAG = "Autumn";
     
     /**
-     * The version of the application.
+     * The version of the Autumn server.
      */
-    public static final String VERSION = "1.0.0";
+    public static final String VERSION = "1.1.0";
 
     
     /**
-     * Maps an {@link EndpointInstance} to it's route.
-     * ex: TODO: Add example mapping?
+     * Maps an {@link EndpointInstance} to its route.
      */
-    private final Map<String, EndpointInstance> endpoints = new HashMap<>();
+    private final Map<String, List<EndpointInstance>> endpoints = new HashMap<>();
     
     /**
      * TODO: ???
@@ -95,7 +95,7 @@ public class Server {
 
         endpoint.pathParamsToArgumentsMap.forEach((i, n) -> parameters[i] = pathParameters.get(n));
 
-        if (!endpoint.allowedMethods.contains(exchange.getRequestMethod())) {
+        if (!endpoint.allowedMethods.contains(exchange.getRequestMethod()) && endpoint.middlewareScope == null) {
             state.sendString("AUTUMN: Invalid request method", 400);
             return false;
         }
@@ -153,7 +153,8 @@ public class Server {
 
         try {
             Object ret = toInvoke.invoke(endpoint.instance, parameters);
-            exchange.close();
+            if(endpoint.middlewareScope == null)
+                exchange.close();
             if(ret instanceof Boolean && ret == Boolean.FALSE){
                 return (Boolean) ret;
             }
@@ -205,12 +206,25 @@ public class Server {
                     } catch (Exception ex) {
                         continue;
                     }
-                    
+                                        
                     // If it's matching
                     if (pathParameters != null) {
                         // A middleware is just an endpoint which doesn't end the chain of calls
                         List<EndpointInstance> endpointsToInvoke = new LinkedList<>();
-                        EndpointInstance thisEndpoint = endpoints.get(possibleEndpointFormat);
+                        List<EndpointInstance> matchedEndpoints = endpoints.get(possibleEndpointFormat)
+                                .stream()
+                                .filter(z -> z.allowedMethods.contains(state.getMethod()))
+                                .collect(Collectors.toList());
+                        if(matchedEndpoints.isEmpty()) continue;
+                        else if(matchedEndpoints.size() != 1) {
+                            state.sendString("AUTUMN: More than one endpoint matches this exact path. The server is misconfigured.", 500);
+                            logger.log(Logger.WARNING, TAG, "More than one endpoint matches");
+                            return;
+                        }
+                        EndpointInstance thisEndpoint = matchedEndpoints.get(0);
+                        // If the method doesn't match, continue
+                        if(!thisEndpoint.allowedMethods.contains(state.getMethod())) continue;
+
                         for(String route : middlewares.keySet()){
                             if(path.startsWith(route))
                                 middlewares.get(route)
@@ -335,7 +349,7 @@ public class Server {
                     throw new IllegalStateException("Function: " + method.getName() + " delcared in " + declaringClass.toString() + " had an invalid argument");
                 }
                 FromPath fromPath = param.getAnnotation(FromPath.class);
-                FromGetParam getParam = param.getAnnotation(FromGetParam.class);
+                FromQuery getParam = param.getAnnotation(FromQuery.class);
                 FromCookie cookieParam = param.getAnnotation(FromCookie.class);
                 FromBody bodyParam = param.getAnnotation(FromBody.class);
                 FromExtra extraParam = param.getAnnotation(FromExtra.class);
@@ -356,6 +370,7 @@ public class Server {
                 Endpoint endpointAnno = method.getAnnotation(Endpoint.class);
                 endpoint.tryParsingBody = endpointAnno.tryParsingBody();
                 endpoint.allowedMethods.addAll(Arrays.asList(endpointAnno.allowedMethods()));
+                endpoint.middlewareScope = null;
 
                 String endpointName = endpointAnno.value();
                 String route = routeAnno == null ? "" : routeAnno.value();
@@ -365,7 +380,9 @@ public class Server {
                 if (route.endsWith("/")) {
                     route = route.substring(0, route.length() - 1);
                 }
-                endpoints.put(route + endpointName, endpoint);
+                String key = route + endpointName;
+                if(!endpoints.containsKey(key)) endpoints.put(key, new LinkedList<>());
+                endpoints.get(route + endpointName).add(endpoint);
 
                 if (routeAnno != null) {
                     String rt = routeAnno.value();

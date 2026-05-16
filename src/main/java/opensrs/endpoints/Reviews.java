@@ -58,7 +58,6 @@ public class Reviews {
             State state,
             @FromPath("set") String set
     ) throws IOException {
-        //((SQLiteDatabase) database).snapshot();
         state.setHeader("Cache-Control", "no-store");
         state.setCookie(new Cookie("_rev_session", Math.abs(new Random().nextInt()) + "").setHttpOnly(true).setPath("/api/" + set + "/review"));
         state.sendString("{}");

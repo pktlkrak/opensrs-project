@@ -18,7 +18,6 @@ import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Queue;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -73,23 +72,14 @@ public class Log {
 
     private static void writeLog(LogRepresentation logObject) {
         String colorTag = "";
-        switch (logObject.severity) {
-            case DEBUG:
-                colorTag = TextColors.ANSI_CYAN;
-                break;
-            case INFO:
-                colorTag = TextColors.ANSI_GREEN;
-                break;
-            case WARNING:
-                colorTag = TextColors.ANSI_YELLOW;
-                break;
-            case ERROR:
-                colorTag = TextColors.ANSI_RED;
-                break;
-            case FATAL:
-                colorTag = TextColors.ANSI_BLUE;
-                break;
-        }
+        colorTag = switch (logObject.severity) {
+            case DEBUG -> TextColors.ANSI_CYAN;
+            case INFO -> TextColors.ANSI_GREEN;
+            case WARNING -> TextColors.ANSI_YELLOW;
+            case ERROR -> TextColors.ANSI_RED;
+            case FATAL -> TextColors.ANSI_BLUE;
+            default -> TextColors.ANSI_RESET;
+        };
         if (logObject.content == null) {
             return;
         }
@@ -206,7 +196,6 @@ public class Log {
     }
 
     private static class LogRepresentation {
-
         private String date, tag;
         private int severity;
         private boolean storeInFile = true;

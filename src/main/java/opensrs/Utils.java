@@ -59,6 +59,11 @@ public class Utils {
         }
     }
 
+    /**
+     * Stream an XML node list
+     * @param n The node list to stream
+     * @return  A {@link Stream} object with all the objects from the NodeList buffered.
+     */
     public static Stream<Element> asStream(NodeList n) {
         return new AbstractList<Node>() {
             @Override
@@ -73,11 +78,23 @@ public class Utils {
         }.stream().filter(q -> q instanceof Element).map(Element.class::cast);
     }
 
+    /**
+     * Returns the text of a given XML node
+     * @param parent    The XML parent
+     * @param name      The name of the field, whose contents have to be returned
+     *                  as text.
+     * @return 
+     */
     public static String getTextOfElement(Element parent, String name) {
         return parent.getElementsByTagName(name).item(0).getTextContent();
     }
     private final static char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
+    /**
+     * Convert a byte array to a {@link String}
+     * @param bytes The input byte array
+     * @return      The string
+     */
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {
@@ -88,10 +105,23 @@ public class Utils {
         return new String(hexChars);
     }
 
+    /**
+     * Generates a random string of length n using the not cryptographically secure
+     * random number generator
+     * @param n     The length of the string to generate
+     * @return      The random string
+     */
     public static String randStr(int n) {
         return randStr(n, false);
     }
 
+    /**
+     * Generates a random string of length n using either the secure or insecure
+     * random number generator
+     * @param n     The length of the string
+     * @param s     Whether or not to use a cryptographically-secure RNG source
+     * @return      The random string
+     */
     public static String randStr(int n, boolean s) {
         final char[] data = "1234567890QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm".toCharArray();
         String out = "";
@@ -107,6 +137,11 @@ public class Utils {
         return out;
     }
 
+    /**
+     * Returns the SHA256 hash as a {@link String}
+     * @param data  The data to hash
+     * @return      Stringified SHA256 digest
+     */
     public static String getSHA256Hash(byte[] data) {
         String result = null;
         try {
@@ -119,6 +154,14 @@ public class Utils {
         return result;
     }
 
+    /**
+     * A helper method for fetching all the items for which lessons are queued
+     * for a given user in a given set
+     * @param database      The database instance
+     * @param user          The user for whom the data is to be fetched
+     * @param setCode       The set code from which lessons are to be fetched
+     * @return              The set of item IDs
+     */
     public static java.util.Set<Integer> getQueuedLessons(Database database, int user, int setCode) {
         return database.fetchReviews(
                 new FilterChain<>(FilterChain.Junction.AND, Arrays.asList(
@@ -132,6 +175,14 @@ public class Utils {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * A helper method for fetching all the items for which reviews are queued
+     * for a given user in a given set
+     * @param database      The database instance
+     * @param user          The user for whom the data is to be fetched
+     * @param setCode       The set code from which lessons are to be fetched
+     * @return              The set of item IDs
+     */
     public static java.util.Set<Integer> getQueuedReviews(Database database, int user, int setCode) {
         return database.fetchReviews(
                 new FilterChain<>(FilterChain.Junction.AND, Arrays.asList(
@@ -145,18 +196,39 @@ public class Utils {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * A helper method which sends back the not-logged-in JSON object.
+     * @param state     Autumn server state
+     * @throws IOException 
+     */
     public static void sendNotLoggedInJSON(State state) throws IOException {
-        state.sendString("{\"errorCode\": 400, \"message\": \"Not logged in\"}", 400);
+        state.sendJSON("{\"errorCode\": 400, \"message\": \"Not logged in\"}", 400);
     }
 
+    /**
+     * A helper method which checks if a given set exists, and in case it does not,
+     * send back an appropriate error through the Autumn server state.
+     * @param set       Set name
+     * @param state     Autumn server state
+     * @return          True if set is invalid
+     * @throws IOException 
+     */
     public static boolean isSetInvalid(String set, State state) throws IOException {
         if (!GlobalStore.hasSet(set)) {
-            state.sendString("{\"errorCode\": 404, \"message\": \"Set not found\"}", 404);
+            state.sendJSON("{\"errorCode\": 404, \"message\": \"Set not found\"}", 404);
             return true;
         }
         return false;
     }
 
+    /**
+     * A helper method for queuing a review
+     * @param database          The database instance
+     * @param user              The user ID for whom the review is to be queued
+     * @param setName           The name of the set to which the item belongs
+     * @param currentSrsStage   The SRS stage on which the item is right now 
+     * @param id                The item ID
+     */
     public static void queueNextReview(Database database, int user, String setName, int currentSrsStage, int id) {
         int delay = GlobalStore.getSet(setName).config.getDelayInHours(currentSrsStage);
         if(delay == -1) return; //Burned item
@@ -175,6 +247,14 @@ public class Utils {
         database.createReviews(r);
     }
 
+    /**
+     * A convenience function for creating a lesson object for a given UID, setCode and item ID.
+     * @param uid       The ID of the user for whom the lesson is to be created
+     * @param setCode   The setCode (hashCode of set name) of the set
+     *                  the item belongs to.
+     * @param id        The ID of the item to define the lesson for
+     * @return          The final Lesson object
+     */
     public static Review createLesson(int uid, int setCode, int id) {
         Review newLesson = Review.create();
         newLesson.setType(Review.TYPE_LESSON);
@@ -187,17 +267,38 @@ public class Utils {
         return newLesson;
     }
 
+    /**
+     * Get {@link System#currentTimeMillis} but round it down to the nearest hour.
+     * @return The rounded down {@link System#currentTimeMillis}
+     */
     public static long currentTimeMillis() {
         Calendar c = Calendar.getInstance();
         return System.currentTimeMillis() - ((c.get(Calendar.SECOND) + (c.get(Calendar.MINUTE) * 60)) * 1000 + c.get(Calendar.MILLISECOND));
     }
 
+    /**
+     * Append dependencies and itemsDependent fields to the given JSON {@link ObjectNode}
+     * @param n     The object node from which the ID of the item is retrieved,
+     *              and which gets updated with the new fields
+     * @param set   The set to which the item belongs to.
+     */
     public static void appendAdditionalToJSON(ObjectNode n, Set set) {
         SRSObject thisObject = set.get(n.get("id").intValue());
         ((ObjectNode) n).set("itemsDependent", Utils.MAPPER.valueToTree(set.stream().filter(q -> q.getDependencies().contains(thisObject.getId())).toArray(SRSObject[]::new)));
         ((ObjectNode) n).set("dependencies", Utils.MAPPER.valueToTree(thisObject.getDependencies().stream().map(q -> set.get(q)).toArray(SRSObject[]::new)));
     }
 
+    /**
+     * Creates a function which fills in the rawStage and phase attributes for
+     * a given object, while acting on the data looked up by the arguments.
+     * 
+     * @param database  The database instance
+     * @param setName   The name of the set to which all the items passed to the
+     *                  returned function belong
+     * @param uid       The ID of the user for whom the parameters have to be looked up
+     * @return          The function which takes in a JSON {@link ObjectNode}
+     *                  and fills in the rawStage and phase attributes.
+     */
     public static Consumer<? super JsonNode> appendUserdataToJSON(Database database, String setName, int uid) {
         Set set = GlobalStore.getSet(setName);
         Map<Integer, Integer> srsStages = database.fetchState(new FilterChain<>(FilterChain.Junction.AND, Arrays.asList(
@@ -237,6 +338,14 @@ public class Utils {
 
     }
 
+    /**
+     * A simple function which can be passed to a {@link Stream#filter} function
+     * in order to remove duplicates
+     * @param <T>               The type of the objects to act on
+     * @param keyExtractor      The function which maps the object to the given 
+     *                          unique 'key'.
+     * @return                  A filtering function ideal for {@link Stream#filter}
+     */
     public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
         java.util.Set<Object> seen = ConcurrentHashMap.newKeySet();
         return t -> seen.add(keyExtractor.apply(t));
