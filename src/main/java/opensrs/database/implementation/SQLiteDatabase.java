@@ -31,7 +31,7 @@ import opensrs.dataobjects.SRSObjectState;
 import org.autumn.Utils;
 
 /**
- *
+ * The implementation of the connection between the OpenSRS system and an SQLite database.
  * @author piotr
  */
 public class SQLiteDatabase extends Database {
@@ -52,6 +52,9 @@ public class SQLiteDatabase extends Database {
     
     /* CURSES BEGIN */
     
+    /**
+     * TODO: god help me
+     */
     public void snapshot(){
         try {
             //End me
@@ -74,6 +77,11 @@ public class SQLiteDatabase extends Database {
     private String fileName;
     /*CURSES END*/
 
+    /**
+     * Constructor getting the database connection based on the provided file name.
+     * @param fileName      The name of the file containing the database.
+     * @throws SQLException 
+     */
     public SQLiteDatabase(String fileName) throws SQLException {
         this.fileName = fileName;
         connection = DriverManager.getConnection("jdbc:sqlite:" + fileName);

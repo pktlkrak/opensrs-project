@@ -12,7 +12,8 @@ import opensrs.database.GenericParameter;
 import opensrs.database.ParameterType;
 
 /**
- *
+ * {@link DataObject} for representing a result.
+ * <p>A result is a single most granular instance of feedback of a user's interaction with the SRS. For example, a results says if the answer for the certain question or coerce was correct or not. </p>
  * @author piotr
  */
 public class Result extends DataObject<Result.Parameter>{
