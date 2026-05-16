@@ -12,7 +12,7 @@ import opensrs.database.GenericParameter;
 import opensrs.database.ParameterType;
 
 /**
- *
+ * TODO: i don't get it
  * @author piotr
  */
 public class SRSObjectState extends DataObject<SRSObjectState.Parameter>{

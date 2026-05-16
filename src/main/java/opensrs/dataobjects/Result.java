@@ -96,12 +96,39 @@ public class Result extends DataObject<Result.Parameter>{
     }
     
     public enum Parameter implements GenericParameter<Result>{
+        /**
+         * The UID of the {@link User} the result belongs to.
+         */
         UID((BiConsumer<Result, Integer>) Result::setUid, Result::getUid, ParameterType.EQ_ONLY, true),
+        
+        /**
+         * The code of the set the review comes from (Multiple sets can be set up simultaneously)
+         */
         SET_CODE((BiConsumer<Result, Integer>) Result::setSetCode, Result::getSetCode, ParameterType.EQ_ONLY, true),
+        
+        /**
+         * The ID of this particular result.
+         */
         ID((BiConsumer<Result, Integer>) Result::setId, Result::getId, ParameterType.EQ_ONLY, false),
+        
+        /**
+         * The ID of the {@link Review} this is a result of.
+         */
         REVIEW_ID((BiConsumer<Result, Integer>) Result::setReviewID, Result::getReviewID, ParameterType.EQ_ONLY, true),
+        
+        /**
+         * TODO: no clue co to nie widze zeby mialo usage jakis.
+         */
         ITEM_SUID((BiConsumer<Result, Integer>) Result::setItemSUID, Result::getItemSUID, ParameterType.EQ_ONLY, true),
+        
+        /**
+         * TODO: no clue co to nie widze zeby mialo usage jakis.
+         */
         ITEM_PARAM((BiConsumer<Result, Integer>) Result::setItemParam, Result::getItemParam, ParameterType.EQ_ONLY, true),
+        
+        /**
+         * TODO: no clue co to nie widze zeby mialo usage jakis.
+         */
         TRIES_AMOUNT((BiConsumer<Result, Integer>) Result::setAmountOfTries, Result::getAmountOfTries, ParameterType.NUMBER, true);
                 
         private final BiConsumer<Result, ?> setter;

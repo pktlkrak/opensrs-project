@@ -17,7 +17,8 @@ import opensrs.database.GenericParameter;
 import opensrs.database.ParameterType;
 
 /**
- *
+ * {@link DataObject} for representing a result.
+ * <p>TODO: Understand what exactly is a Review </p>
  * @author piotr
  */
 public abstract class Review extends DataObject<Review.Parameter>{
@@ -133,16 +134,58 @@ public abstract class Review extends DataObject<Review.Parameter>{
     }
     
     public enum Parameter implements GenericParameter<Review>{
+        /**
+         * The UID of the {@link User} the result belongs to.
+         */
         UID((BiConsumer<Review, Integer>) Review::setUid, Review::getUid, ParameterType.EQ_ONLY, true),
+                
+        /**
+         * The code of the set the review comes from (Multiple sets can be set up simultaneously)
+         */
         SET_CODE((BiConsumer<Review, Integer>) Review::setSetCode, Review::getSetCode, ParameterType.EQ_ONLY, true),
+        
+        /**
+         * The ID of this particular review.
+         */
         ID((BiConsumer<Review, Integer>) Review::setId, Review::getId, ParameterType.EQ_ONLY, false),
+        
+        /**
+         * The type of the review. Can be {@link Review#TYPE_LESSON} or {@link Review#TYPE_REVIEW}
+         */
         TYPE((BiConsumer<Review, Integer>) Review::setType, Review::getType, ParameterType.EQ_ONLY, true),
+        
+        /**
+         * TODO: no clue co to, ma usage ale mi nic nie powiedzial tbh :)
+         */
         ITEM_SUID((BiConsumer<Review, Integer>) Review::setItemSUID, Review::getItemSUID, ParameterType.EQ_ONLY, true),
+        
+        /**
+         * The date and time after which the result should be done again by the user.
+         */
         QUEUED_DATE((BiConsumer<Review, Number>) Review::setQueuedDate, Review::getQueuedDate, ParameterType.EQ_ONLY, true),
+        
+        /**
+         * The date when the user unlocked this item to be reviewed.
+         * TODO: Explain the -1 and -2 values.
+         */
         UNLOCK_DATE((BiConsumer<Review, Number>) Review::setUnlockDate, Review::getUnlockDate, ParameterType.EQ_ONLY, true),
+        
+        /**
+         * TODO: i think this is the level the user archived but not sure again.
+         */
         SRS_WEIGHT((BiConsumer<Review, Integer>) Review::setSrsWeight, Review::getSrsWeight, ParameterType.NUMBER, true),
+        
+        /**
+         * The ID of the review session this singular review was a part of.
+         * TODO: Explain review sessions.
+         */
         REVIEW_SESSION_ID((BiConsumer<Review, Integer>) Review::setReviewSessionId, Review::getReviewSessionId, ParameterType.EQ_ONLY, true),
         
+        /**
+         * TODO: check this
+         * A pseudo parameter to access the results of this review.
+         * TODO: maybe explain the related function?
+         */
         RESULTS(null, Review::getResults, ParameterType.NOT_APPLICABLE, false);
         
         private final BiConsumer<Review, ?> setter;

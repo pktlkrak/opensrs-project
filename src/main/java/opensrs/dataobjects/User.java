@@ -13,7 +13,8 @@ import opensrs.database.GenericParameter;
 import opensrs.database.ParameterType;
 
 /**
- *
+ * {@link DataObject} for representing a result.
+ * <p>A user has an UID and login information and allows multiple people to utilise the same SRS and track their progress separately because the progress they make is tied to their UID.</p>
  * @author piotr
  */
 public class User extends DataObject<User.Parameter> {
