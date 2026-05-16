@@ -166,25 +166,25 @@ public abstract class Review extends DataObject<Review.Parameter>{
         
         /**
          * The date when the user unlocked this item to be reviewed.
-         * TODO: Explain the -1 and -2 values.
+         * {@code -1} means unreviewed.
+         * {@code -2} means lesson.
          */
         UNLOCK_DATE((BiConsumer<Review, Number>) Review::setUnlockDate, Review::getUnlockDate, ParameterType.EQ_ONLY, true),
         
         /**
-         * TODO: i think this is the level the user archived but not sure again.
+         * The change of the level for this object caused by this review.
+         * This is based on the penalty config per level.
          */
         SRS_WEIGHT((BiConsumer<Review, Integer>) Review::setSrsWeight, Review::getSrsWeight, ParameterType.NUMBER, true),
         
         /**
          * The ID of the review session this singular review was a part of.
-         * TODO: Explain review sessions.
+         * If the user reviewed multiple objects in one session they will share this ID.
          */
         REVIEW_SESSION_ID((BiConsumer<Review, Integer>) Review::setReviewSessionId, Review::getReviewSessionId, ParameterType.EQ_ONLY, true),
         
         /**
-         * TODO: check this
          * A pseudo parameter to access the results of this review.
-         * TODO: maybe explain the related function?
          */
         RESULTS(null, Review::getResults, ParameterType.NOT_APPLICABLE, false);
         

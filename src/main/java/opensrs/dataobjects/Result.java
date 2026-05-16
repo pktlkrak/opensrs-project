@@ -117,17 +117,18 @@ public class Result extends DataObject<Result.Parameter>{
         REVIEW_ID((BiConsumer<Result, Integer>) Result::setReviewID, Result::getReviewID, ParameterType.EQ_ONLY, true),
         
         /**
+         * Set UID
          * TODO: no clue co to nie widze zeby mialo usage jakis.
          */
         ITEM_SUID((BiConsumer<Result, Integer>) Result::setItemSUID, Result::getItemSUID, ParameterType.EQ_ONLY, true),
         
         /**
-         * TODO: no clue co to nie widze zeby mialo usage jakis.
+         * Which aspect of the object we are reviewing. (for ex. spelling and meaning - this is defined on a set by set basis)
          */
         ITEM_PARAM((BiConsumer<Result, Integer>) Result::setItemParam, Result::getItemParam, ParameterType.EQ_ONLY, true),
         
         /**
-         * TODO: no clue co to nie widze zeby mialo usage jakis.
+         * The amount of mistakes the user made before submitting the correct answer. For example if the user made 2 mistakes and was correct in their third answer this will be 2.
          */
         TRIES_AMOUNT((BiConsumer<Result, Integer>) Result::setAmountOfTries, Result::getAmountOfTries, ParameterType.NUMBER, true);
                 

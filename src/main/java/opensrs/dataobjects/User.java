@@ -76,9 +76,24 @@ public class User extends DataObject<User.Parameter> {
     }
 
     public enum Parameter implements GenericParameter {
+        /**
+         * UID of the user. Used to match the user to his entries in the database.
+         */
         UID((BiConsumer<User, Integer>) User::setUid, User::getUid, ParameterType.EQ_ONLY, false),
+        
+        /**
+         * The username.
+         */
         NAME((BiConsumer<User, String>) User::setName, User::getName, ParameterType.EQ_ONLY, true),
+        
+        /**
+         * The hash for the password.
+         */
         HASH((BiConsumer<User, String>) User::setHash, User::getHash, ParameterType.EQ_ONLY, true),
+        
+        /**
+         * The salt for the password.
+         */
         SALT((BiConsumer<User, String>) User::setSalt, User::getSalt, ParameterType.EQ_ONLY, true);
 
         private final BiConsumer<User, ?> setter;

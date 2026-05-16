@@ -12,7 +12,8 @@ import opensrs.database.GenericParameter;
 import opensrs.database.ParameterType;
 
 /**
- * TODO: i don't get it
+ * {@link DataObject} for representing the current state of an SRS object.
+ * <p>This is used to acces the identifying parameters of the object and the current weight (level) of the object.</p>
  * @author piotr
  */
 public class SRSObjectState extends DataObject<SRSObjectState.Parameter>{
@@ -67,9 +68,24 @@ public class SRSObjectState extends DataObject<SRSObjectState.Parameter>{
     }
 
     public enum Parameter implements GenericParameter {
+        /**
+         * The UID of the {@link User} the result belongs to.
+         */
         UID((BiConsumer<SRSObjectState, Integer>) SRSObjectState::setUid, SRSObjectState::getUid, ParameterType.EQ_ONLY, true),
+        
+        /**
+         * The code of the set the review comes from (Multiple sets can be set up simultaneously)
+         */
         SET_CODE((BiConsumer<SRSObjectState, Integer>) SRSObjectState::setSetCode, SRSObjectState::getSetCode, ParameterType.EQ_ONLY, true),
+        
+        /**
+         * TODO: SUID my beloved.
+         */
         ITEM_SUID((BiConsumer<SRSObjectState, Integer>) SRSObjectState::setItemSUID, SRSObjectState::getItemSUID, ParameterType.EQ_ONLY, true),
+        
+        /**
+         * The current SRS weight (level) of this object. Getting positive reviews will increase this, while negative ones will decrease this.
+         */
         WEIGHT((BiConsumer<SRSObjectState, Integer>) SRSObjectState::setWeight, SRSObjectState::getWeight, ParameterType.NUMBER, false);
 
         private final BiConsumer<SRSObjectState, ?> setter;
