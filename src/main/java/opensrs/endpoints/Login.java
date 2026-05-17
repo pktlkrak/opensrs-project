@@ -16,7 +16,7 @@ import org.autumn.annotations.FromBody;
 import org.autumn.annotations.FromCookie;
 
 /**
- *
+ * Endpoint related to logging into the user's account.
  * @author piotr
  */
 public class Login {
@@ -27,6 +27,14 @@ public class Login {
         this.database = database;
     }
 
+    /**
+     * The endpoint used for logging in.
+     * @param state     Autumn state.
+     * @param username  The username provided in the login form.
+     * @param password  The password provided in the login form.
+     * @param redirect  The optional option for the login page to redirect somewhere. The default is <code>/<code>
+     * @throws IOException 
+     */
     @Endpoint(value = "/login", allowedMethods = {"POST"})
     public void login(
             State state,
@@ -40,6 +48,12 @@ public class Login {
         state.sendResponseHeaders(302);
     }
 
+    /**
+     * The endpoint used for logging out.
+     * @param state     Autumn state.
+     * @param session   The session to log the user out of.
+     * @throws IOException 
+     */
     @Endpoint("/logout")
     public void logout(
             State state,
@@ -50,6 +64,15 @@ public class Login {
         state.sendResponseHeaders(302);
     }
 
+    /**
+     * The endpoint used for registering a new user.
+     * @param state             Autumn State.
+     * @param username          The username field of the form.
+     * @param password          The password field of the form.
+     * @param confirmPassword   The confirm password field of the form. If these do not match the state will return the message about the conflict.
+     * @param redirect          The optional redirect after the registration.
+     * @throws IOException 
+     */
     @Endpoint(value = "/register", allowedMethods = {"POST"})
     public void register(
             State state,
