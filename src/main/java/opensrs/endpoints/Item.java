@@ -23,7 +23,7 @@ import org.autumn.annotations.FromPath;
 import org.autumn.annotations.Route;
 
 /**
- *
+ * Endpoint to access specific reviewable items.
  * @author piotr
  */
 @Route("/api/{set}/item")
@@ -35,6 +35,15 @@ public class Item {
         this.database = database;
     }
 
+    /**
+     * Endpoint to access a reviewable by it's family. 
+     * @param state     Autumn State.
+     * @param setName   The name of the set the reviewable is in.
+     * @param family    The family of the reviewable (ex. Kanji).
+     * @param query     The query - the reviewable itself.
+     * @param session   The current user session.
+     * @throws IOException 
+     */
     @Endpoint("/by-family/{family}/{query}")
     public void byFamily(
             State state,
@@ -60,6 +69,14 @@ public class Item {
         state.sendString(Utils.MAPPER.writeValueAsString(node), "application/JSON; charset=UTF-8");
     }
     
+    /**
+     * The endpoint to access all the reviewables of a certain level TODO: is this true chat?
+     * @param state     Autumn State
+     * @param setName   The name of the set the reviewable is in. 
+     * @param levelS    The level of which we want the reviewables of. TODO: why levelS instead of level?
+     * @param session   The current user session. 
+     * @throws IOException 
+     */
     @Endpoint("/by-level/{level}")
     public void byLevel(
             State state,
@@ -90,6 +107,14 @@ public class Item {
         state.sendString(Utils.MAPPER.writeValueAsString(matchingNode), "application/JSON; charset=UTF-8");
     }
 
+    /**
+     * Endpoint to access the reviewable by it's ID. TODO: is this the reviewable id in the database or in the set?
+     * @param state     AutumnState
+     * @param setName   The name of the set the reviewable is in. TODOP: Not actually in the params?
+     * @param id        The ID of the reviewable.
+     * @param session   The current user session.
+     * @throws IOException 
+     */
     @Endpoint("/by-id/{id}")
     public void byID(
             State state,

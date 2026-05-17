@@ -32,7 +32,7 @@ import org.autumn.annotations.FromPath;
 import org.autumn.annotations.Route;
 
 /**
- *
+ * Endpoint to monitor the progress of the user.
  * @author piotr
  */
 @Route("/api/{set}/progress")
@@ -44,6 +44,13 @@ public class UserProgress {
         this.database = database;
     }
 
+    /**
+     * The endpoint that allows to view how many of each type of reviewable the user has learned at what level. TODO: is this true?
+     * @param state     Autumn State.
+     * @param setName   The name of the set.
+     * @param session   Current session.
+     * @throws IOException 
+     */
     @Endpoint("/phases")
     public void phases(
             State state,

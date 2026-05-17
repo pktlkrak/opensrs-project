@@ -31,7 +31,7 @@ import org.autumn.annotations.FromPath;
 import tools.jackson.databind.node.ArrayNode;
 
 /**
- *
+ * Miscelanious endpoints.
  * @author piotr
  */
 public class Misc {
@@ -54,6 +54,12 @@ public class Misc {
         this.database = database;
     }
 
+    /**
+     * Generic endpoint to access a path TODO: is this true?
+     * @param state Autumn State
+     * @param path  Path the generic endpoint is trying to access.
+     * @throws IOException 
+     */
     @Endpoint("/{path}")
     public void access(
             State state,
@@ -102,6 +108,12 @@ public class Misc {
         Utils.copyStream(toRead.getInputStream(), state.getOutput(), 4096);
     }
 
+    /**
+     * The endpoint for information about the currently logged in user.
+     * @param state     Autumn State.
+     * @param session   Current session.
+     * @throws IOException 
+     */
     @Endpoint("/api/user")
     public void user(
             State state,
@@ -115,6 +127,12 @@ public class Misc {
         state.sendString(opensrs.Utils.MAPPER.writeValueAsString(rootNode), "application/json; charset=utf-8");
     }
 
+    /**
+     * Endpoint for the about section.
+     * <p>It displays generic info: The version of the system and how many sets are Loaded.</p>
+     * @param state Autumn State.
+     * @throws IOException 
+     */
     @Endpoint("/about")
     public void about(
             State state
@@ -129,6 +147,11 @@ public class Misc {
         );
     }
     
+    /**
+     * Endpoint that returns the list of all available sets.
+     * @param state Autumn State
+     * @throws IOException 
+     */
     @Endpoint("/api/sets")
     public void listSets(
             State state
@@ -138,6 +161,14 @@ public class Misc {
         state.sendJSON(opensrs.Utils.MAPPER.writeValueAsString(an));
     }
     
+    /**
+     * Endpoint for the user to register for a certain Set.
+     * <p>Not every user might want to use every available Set so the users first need to register for the sets they actually want to study.</p>
+     * @param state     Autumn State.
+     * @param set       The set to register for.
+     * @param seskey    The session key.
+     * @throws IOException 
+     */
     @Endpoint(value = "/api/{set}/register", allowedMethods = { "POST" })
     public void registerUserForSet(
             State state,

@@ -38,7 +38,8 @@ import org.autumn.annotations.FromPath;
 import org.autumn.annotations.Route;
 
 /**
- *
+ * Endpoints related to accesing lessons.
+ * <p>Lessons are the first time a user sees a certain reviewable - it is where they learn their meaning. After that the object can be reviewed</p>
  * @author piotr
  */
 @Route("/api/{set}/lesson/")
