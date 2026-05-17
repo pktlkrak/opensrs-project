@@ -51,6 +51,12 @@ public class Lessons {
         this.database = database;
     }
 
+    /**
+     * Endpoint for starting the lesson.
+     * @param state Autumn State.
+     * @param set   The set the lesson is for.
+     * @throws IOException 
+     */
     @Endpoint("/start")
     public void start(
             State state,
@@ -61,6 +67,14 @@ public class Lessons {
         state.sendString("{}");
     }
 
+    /**
+     * Endpoint for accessing the current queue of lessons.
+    * During the lesson process each lesson object the user can review now is queued and served to the user in random order.
+     * @param state     Autumn State.
+     * @param set       Set the lessons are form.
+     * @param session   The current session.
+     * @throws IOException 
+     */
     @Endpoint("/queue")
     public void queue(
             State state,
@@ -91,6 +105,13 @@ public class Lessons {
         state.sendString(Utils.MAPPER.writeValueAsString(node), "application/JSON; charset=UTF-8");
     }
 
+    /**
+     * Endpoint for accessing what the user learned in the last session.
+     * @param state     Autumn State.
+     * @param set       Set the lessons are form. 
+     * @param session   Current session.
+     * @throws IOException 
+     */
     @Endpoint("/lastSession")
     public void lastSession(
             State state,
@@ -125,6 +146,15 @@ public class Lessons {
         state.sendString(Utils.MAPPER.writeValueAsString(data), "application/JSON; charset=UTF-8");
     }
 
+    /**
+     * Endpoint for completing a review by a user.
+     * @param state         Autumn State
+     * @param set           Set the lessons are form. 
+     * @param session       Current session.
+     * @param lessonSession The lesson session this is a part of. 
+     * @param keys          The keys of the completed lesson objects.
+     * @throws IOException 
+     */
     @Endpoint(value = "/completed", allowedMethods = { "POST" })
     public void completed(
             State state,

@@ -41,7 +41,8 @@ import org.autumn.annotations.FromPath;
 import org.autumn.annotations.Route;
 
 /**
- *
+ * Endpoints related to accessing reviews.
+ * <p>Reviews are for reviewing what the user already learned during lessons. The reviews will become less frequent as the users reaches a higher mastery of the topic and drop in level when the user makes mistakes while revising the topic./p>
  * @author piotr
  */
 @Route("/api/{set}/review/")
@@ -53,6 +54,12 @@ public class Reviews {
         this.database = database;
     }
 
+    /**
+     * Endpoint for starting a review.
+     * @param state Autumn State.
+     * @param set   The set the review is for.
+     * @throws IOException 
+     */
     @Endpoint("/start")
     public void start(
             State state,
@@ -63,6 +70,14 @@ public class Reviews {
         state.sendString("{}");
     }
 
+    /**
+     * Endpoint for the queue of all the reviews the user has to do.
+     * During the review process each reviewable object the user can review now is queued and served to the user in random order.
+     * @param state     Autumn State.
+     * @param set       The set the review is for.
+     * @param session   Current session.
+     * @throws IOException 
+     */
     @Endpoint("/queue")
     public void queue(
             State state,
@@ -92,6 +107,13 @@ public class Reviews {
         state.sendString(Utils.MAPPER.writeValueAsString(node), "application/JSON; charset=UTF-8");
     }
 
+    /**
+     * Endpoint for viewing the last review session.
+     * @param state     Autumn state.
+     * @param set       The set the review is for.
+     * @param session   Current session.
+     * @throws IOException 
+     */
     @Endpoint("/lastSession")
     public void lastSession(
             State state,
@@ -148,6 +170,14 @@ public class Reviews {
         state.sendString(Utils.MAPPER.writeValueAsString(root), "application/JSON; charset=UTF-8");
     }
 
+    /**
+     * TODO: this behemoth
+     * @param state         Autumn state.
+     * @param set           The set the review is for.
+     * @param session       Current session.     
+     * @param lessonSession TODO: why lesson session here?
+     * @throws IOException 
+     */
     @Endpoint(value = "/progress", tryParsingBody = false, allowedMethods = { "POST" })
     public void progress(
             State state,
