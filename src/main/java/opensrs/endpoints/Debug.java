@@ -18,7 +18,7 @@ import org.autumn.annotations.FromPath;
 import org.autumn.annotations.Route;
 
 /**
- *
+ * Endpoint utilized for testing and debugging
  * @author piotr
  */
 @Route("/debug")
@@ -30,6 +30,14 @@ public class Debug {
         this.database = database;
     }
 
+    /**
+     * Debug endpoint to initialise a set for a user with the starting values for each reviewable object.
+     * @param state     Autumn State.
+     * @param set       Which set to initialize.
+     * @param user      Which user to initialize for.
+     * @param session   The current session of the user.
+     * @throws IOException 
+     */
     @Endpoint("/initSetForUser/{set}/{user}")
     public void initSetForUser(
             State state,
@@ -58,6 +66,14 @@ public class Debug {
         state.sendString("OK Done");
     }
 
+    /**
+     * Force the unlock of a reviewable, regardless of if the user met it's prerequisites.
+     * @param state Autumn State.
+     * @param user  The user to unlock for.
+     * @param set   The set to unlock for.
+     * @param id    The id of the reviewable.
+     * @throws IOException 
+     */
     @Endpoint("/forceUnlock/{user}/{set}/{id}")
     public void forceUnlock(
             State state,
@@ -69,12 +85,24 @@ public class Debug {
         state.sendString("OK");
     }
 
+    /**
+     * Reloads the current state of {@link GlobalStore}.
+     * @param state         Autumn State.
+     * @throws IOException
+     */
     @Endpoint("/reload")
     public void reload(State state) throws IOException {
         GlobalStore.reload();
         state.sendString("OK");
     }
 
+    /**
+     * Get the info about the user in the current session.
+     * <p>This can tell if the user is logged in or not, and what is the UID of the logged in user.</p>
+     * @param state     Autumn State.
+     * @param session   The session for which we check the user status.
+     * @throws IOException 
+     */
     @Endpoint("/user")
     public void user(
             State state,
