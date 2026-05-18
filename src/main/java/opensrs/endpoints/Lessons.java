@@ -69,7 +69,8 @@ public class Lessons {
 
     /**
      * Endpoint for accessing the current queue of lessons.
-    * During the lesson process each lesson object the user can review now is queued and served to the user in random order.
+    * During the lesson process each lesson
+    * object the user can review now is queued and served to the user in random order.
      * @param state     Autumn State.
      * @param set       Set the lessons are form.
      * @param session   The current session.

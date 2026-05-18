@@ -117,8 +117,7 @@ public class Result extends DataObject<Result.Parameter>{
         REVIEW_ID((BiConsumer<Result, Integer>) Result::setReviewID, Result::getReviewID, ParameterType.EQ_ONLY, true),
         
         /**
-         * Set UID
-         * TODO: no clue co to nie widze zeby mialo usage jakis.
+         * The internal Set UID Of the item (the ID inside the set, not the DB).
          */
         ITEM_SUID((BiConsumer<Result, Integer>) Result::setItemSUID, Result::getItemSUID, ParameterType.EQ_ONLY, true),
         

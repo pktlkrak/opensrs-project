@@ -79,7 +79,7 @@ public class SRSObjectState extends DataObject<SRSObjectState.Parameter>{
         SET_CODE((BiConsumer<SRSObjectState, Integer>) SRSObjectState::setSetCode, SRSObjectState::getSetCode, ParameterType.EQ_ONLY, true),
         
         /**
-         * TODO: SUID my beloved.
+         * The internal Set UID Of the item (the ID inside the set, not the DB).
          */
         ITEM_SUID((BiConsumer<SRSObjectState, Integer>) SRSObjectState::setItemSUID, SRSObjectState::getItemSUID, ParameterType.EQ_ONLY, true),
         

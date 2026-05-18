@@ -55,7 +55,7 @@ public class Misc {
     }
 
     /**
-     * Generic endpoint to access a path TODO: is this true?
+     * Endpoint for accessing static paths.
      * @param state Autumn State
      * @param path  Path the generic endpoint is trying to access.
      * @throws IOException 

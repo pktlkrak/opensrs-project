@@ -18,7 +18,7 @@ import opensrs.database.ParameterType;
 
 /**
  * {@link DataObject} for representing a result.
- * <p>TODO: Understand what exactly is a Review </p>
+ * <p>A review is a single instance of reviewing an SRS object.</p>
  * @author piotr
  */
 public abstract class Review extends DataObject<Review.Parameter>{
@@ -155,7 +155,7 @@ public abstract class Review extends DataObject<Review.Parameter>{
         TYPE((BiConsumer<Review, Integer>) Review::setType, Review::getType, ParameterType.EQ_ONLY, true),
         
         /**
-         * TODO: no clue co to, ma usage ale mi nic nie powiedzial tbh :)
+         * The internal Set UID Of the item (the ID inside the set, not the DB).
          */
         ITEM_SUID((BiConsumer<Review, Integer>) Review::setItemSUID, Review::getItemSUID, ParameterType.EQ_ONLY, true),
         

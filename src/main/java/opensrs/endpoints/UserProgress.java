@@ -45,7 +45,7 @@ public class UserProgress {
     }
 
     /**
-     * The endpoint that allows to view how many of each type of reviewable the user has learned at what level. TODO: is this true?
+     * The endpoint that allows to view how many of each type of reviewable the user has learned at what level.
      * @param state     Autumn State.
      * @param setName   The name of the set.
      * @param session   Current session.

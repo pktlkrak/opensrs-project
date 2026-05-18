@@ -42,7 +42,7 @@ public interface GenericParameter<T extends DataObject> {
     public ParameterType getType();
     
     /**
-     * TODO: ???
+     * If the object can be inserted into the database.
      * @return 
      */
     public boolean insert();

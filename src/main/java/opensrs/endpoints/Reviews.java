@@ -171,11 +171,14 @@ public class Reviews {
     }
 
     /**
-     * TODO: this behemoth
+     * Handles the updating of an individual item's progress. 
+     * Queues items dependent on this one if item advances to phase two. 
+     * Checks if every item of the current level is passed. 
+     * If so, unlocks the next level.
      * @param state         Autumn state.
      * @param set           The set the review is for.
      * @param session       Current session.     
-     * @param lessonSession TODO: why lesson session here?
+     * @param reviewSession The current review session.
      * @throws IOException 
      */
     @Endpoint(value = "/progress", tryParsingBody = false, allowedMethods = { "POST" })
@@ -183,7 +186,7 @@ public class Reviews {
             State state,
             @FromPath("set") String set,
             @FromCookie("session") String session,
-            @FromCookie("_rev_session") String lessonSession
+            @FromCookie("_rev_session") String reviewSession
     ) throws IOException {
         state.setHeader("Cache-Control", "no-store");
 
@@ -222,7 +225,7 @@ public class Reviews {
 
         int reviewSessionI;
         try {
-            reviewSessionI = Integer.valueOf(lessonSession);
+            reviewSessionI = Integer.valueOf(reviewSession);
         } catch (RuntimeException ex) {
             state.sendString("{\"errorCode\": 400, \"message\": \"Invalid request - missing review token\"}", 400);
             return;

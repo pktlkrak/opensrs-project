@@ -70,10 +70,10 @@ public class Item {
     }
     
     /**
-     * The endpoint to access all the reviewables of a certain level TODO: is this true chat?
+     * The endpoint to access all the reviewables of a certain level.
      * @param state     Autumn State
      * @param setName   The name of the set the reviewable is in. 
-     * @param levelS    The level of which we want the reviewables of. TODO: why levelS instead of level?
+     * @param levelS    The level of which we want the reviewables of in string format.
      * @param session   The current user session. 
      * @throws IOException 
      */
@@ -108,10 +108,10 @@ public class Item {
     }
 
     /**
-     * Endpoint to access the reviewable by it's ID. TODO: is this the reviewable id in the database or in the set?
+     * Endpoint to access the reviewable by it's set ID.
      * @param state     AutumnState
-     * @param setName   The name of the set the reviewable is in. TODOP: Not actually in the params?
-     * @param id        The ID of the reviewable.
+     * @param setName   The name of the set the reviewable is in
+     * @param id        The set ID of the reviewable.
      * @param session   The current user session.
      * @throws IOException 
      */

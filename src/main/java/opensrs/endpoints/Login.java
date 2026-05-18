@@ -32,7 +32,7 @@ public class Login {
      * @param state     Autumn state.
      * @param username  The username provided in the login form.
      * @param password  The password provided in the login form.
-     * @param redirect  The optional option for the login page to redirect somewhere. The default is <code>/<code>
+     * @param redirect  The optional option for the login page to redirect somewhere. The default is <code>/</code>
      * @throws IOException 
      */
     @Endpoint(value = "/login", allowedMethods = {"POST"})

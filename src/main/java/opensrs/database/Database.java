@@ -54,7 +54,7 @@ public abstract class Database {
      * @see Sorter
      * @see Result.Parameter
      * @param filter    determines the criteria that need to be met by the returned instanced of result   .      
-     * @param sorter    determines by which parameters to order the results (descending) (TODO: fact-check).
+     * @param sorter    determines by which parameters to order the results by.
      * @param limit     the maximum numbers of items returned.
      * @return          returns an ordered list of result objects that met the query, up to a specified limit.
      */
@@ -66,7 +66,7 @@ public abstract class Database {
      * @see Sorter
      * @see Result.Parameter
      * @param filter    determines the criteria that need to be met by the returned instanced of result.
-     * @param sorter    determines by which parameters to order the results (descending) (TODO: fact-check).
+     * @param sorter    determines by which parameters to order the results by.
      * @return          the first instance of a result object that met the query. Returns <code>null</code> when empty.
      */
     public Result fetchResult(Filter<Result.Parameter> filter, Sorter<Result.Parameter> sorter) {
@@ -79,7 +79,7 @@ public abstract class Database {
      * @see Sorter
      * @see Review.Parameter
      * @param filter    determines the criteria that need to be met by the returned instanced of review.         
-     * @param sorter    determines by which parameters to order the review (descending) (TODO: fact-check).
+     * @param sorter    determines by which parameters to order the review by.
      * @param limit     the maximum numbers of items returned. 
      * @return          returns an ordered list of review objects that met the query, up to a specified limit.
      */
@@ -91,7 +91,7 @@ public abstract class Database {
      * @see Sorter
      * @see Review.Parameter
      * @param filter    determines the criteria that need to be met by the returned instanced of review.
-     * @param sorter    determines by which parameters to order the review (descending) (TODO: fact-check).
+     * @param sorter    determines by which parameters to order the review by.
      * @return          the first instance of a review object that met the query. Returns <code>null</code> when empty.
      */
     public Review fetchReview(Filter<Review.Parameter> filter, Sorter<Review.Parameter> sorter) {
@@ -118,7 +118,7 @@ public abstract class Database {
      * @see Review
      * @param filter    determines the criteria that need to be met by the updated instanced of review.
      * @param updates   determines which fields should be updated with which values.
-     * @return          returns the updated reviews (TODO: Fact check this info)
+     * @return          returns the updated reviews.
      */
     public abstract List<Review> updateReviews(Filter<Review.Parameter> filter, Update<Review.Parameter>... updates);
     
@@ -127,7 +127,7 @@ public abstract class Database {
      * @see Result
      * @param filter    determines the criteria that need to be met by the updated instanced of result.
      * @param updates   determines which fields should be updated with which values.
-     * @return          returns the updated results (TODO: Fact check this info)
+     * @return          returns the updated results.
      */
     public abstract List<Result> updateResults(Filter<Result.Parameter> filter, Update<Result.Parameter>... updates);
     
