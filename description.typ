@@ -298,11 +298,39 @@ Review last = database.fetchReview(
 
 = Logika i endpointy systemu OpenSRS
 
+
 == Autentykacja
 
 == Lekcje
+Dany Set ma w sobie wiele fiszek. 
+Najpierw użytkownik musi przerobić daną fiszkę w ramach lekcji - nauczyć się jej aby móc zacząc ją powtarzać jako review.
+Niektóre fiszki mogą wymagać wiedzy z poprzednich fiszek np. kanji może składać z kilku radykałów (składowych, prostrzych znaków).
+Dlatego system wspiera zablokowanie lekcji za innymi lekcjami (użytkownik nie ma dostępu do lekcji o danym kanji dopóki nie przerobi jego wszsytkich radykałów).
+Po przerobieniu danej fiszki jako lekcja staje się ona dostępna dla użytkownika jako powrtórka, która będzie omówiona w następnej sekcji.
+
+OpenSRS definiuje różne endpointy do obsługi lekcji zdefiniowne w pliku `Lesson.java`:
+- '/api/{set}/lesson/start' - Ustawia nowe cookie sesji lekcji, które będzie użyte do grupowania elementów poznanych w tej sesji (jeśli użytkownik pozna więcej niż jedną fiszkę podczas jednego posiedzenia będą pogrupowane tym cookie).
+- '/api/{set}/lesson/queue' - Daje dostęp do kolejki dostępnych dla użytkownika lekcji. Same UI setu definiuje jak zaprezentować użytkownikowi tą kolejkę.
+- '/api/{set}/lesson/completed' - Pozwala przesłać informację o zakończeniu jednej lub wielu lekcji z informacją podczas jakiej sesji dana lekcja została zakończona (można przesyłać tą informajcę np. po każdej lekcji albo po wszystkich - zależy to od samego UI setu).
+- '/api/{set}/lesson/lastSession' - Daje informacje zwrotne o ostatnio zakończonej sesji - może zostać wykorzystny do wyświetlenia np. ekranu podsumowania co dany użytkownik nauczył się podczas danej sesji.
 
 == Powtórki
+Po tym jak użytkownik przerobi daną fiszkę jako lekcja staje się ona dostępna jako powtórka.
+Każdy set definiuje fazy znajomości danej fiszki - najpierw użytkownik zaczyna od najniższej fazy (np. begginer).
+Każde udane powtórzenie danej fiszki zwiększa poziom o 1 (numeryczna wartość reprezentująca znajomośc danej fiszki).
+Każda faza ma swoje zdefiniowane widełki (np. set może zdefiniować drugą fazę, intermidiate od poziomu > 3 - użytkownik osiągnie fazę intermidiate po 3 udanych powtórzeniach fiszki).
+Każde nieudane powtórzenie fiszki obniża poziom. Każdy set definuje dla każdej fazy, jaka jest w niej utrata poziomu (np. złe powtórzenie fiszki, w której użytkownik ma fazę Begginer może obniżyc poziom o 1, natomiast złe powtórzenie fiszki na fazie Guru może obniżyć poziom o 3)
+Fiszek nie powtarza się też kiedy chcę - każda powtórka ustawia czas, za który najwcześniej użytkownik powinien powtórzyć daną fiszkę.
+Im wyższa faza danego użytkownika, tym dłuższe okresy między kiedy należy zrobić następną powtórkę (np. powtórzenie fiszki na poziomie Begginer może ustawić powtórkę na dostepną za godzinę a powótrzenie fiszki na poziomie Guru na za dwa tygodnie).   
+
+Powtórki mogą zawierać też funkcjonalność incentyw. Każda fiszka może mieć jakieś incentywy - odpowiedzi bliskie lub związane z poprawną, które nie są jednak wymaganą odpowiedzią.
+Wtedy zamiast liczyć się jako nieudana próba odpowiedzenia użytkownik otrzyma podpowiedź związaną z daną incentywą.   
+
+OpenSRS definiuje różne endpointy do obsługi powtórek zdefiniowne w pliku `Lesson.java`:
+- '/api/{set}/review/start' - Ustawia nowe cookie sesji powtórek, które będzie użyte do grupowania elementów powtórzonych w tej sesji (jeśli użytkownik powtórzy więcej niż jedną fiszkę podczas jednego posiedzenia będą pogrupowane tym cookie).
+- '/api/{set}/review/queue' - Daje dostęp do kolejki dostępnych dla użytkownika powtórek (tych, których czas między powtórkami już upłynoł). Same UI setu definiuje jak zaprezentować użytkownikowi tą kolejkę.
+- '/api/{set}/review/lastSession' - Daje informacje zwrotne o ostatnio zakończonej sesji - może zostać wykorzystny do wyświetlenia np. ekranu podsumowania co dany użytkownik powtórzył podczas danej sesji.
+- '/api/{set}/review/progress' - 
 
 = Definiowanie nowych zestawów
 

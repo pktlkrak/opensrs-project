@@ -148,7 +148,7 @@ public class Lessons {
     }
 
     /**
-     * Endpoint for completing a review by a user.
+     * Endpoint for completing a lesson by a user.
      * @param state         Autumn State
      * @param set           Set the lessons are form. 
      * @param session       Current session.
