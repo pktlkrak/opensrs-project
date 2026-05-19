@@ -301,6 +301,18 @@ Review last = database.fetchReview(
 
 == Autentykacja
 
+Rejestracja i logowanie użytkowników odbywa się przez endpointy opisane w pliku `Login.java`.
+
+Serwis OpenSRS wykorzystuje JWT do zapisania informacji o obecnie zalogowanym użytkowniku. Jest to wygodne, ponieważ serwer nie musi utrzymywać w pamięci informacji o zalogowanych użytkownikach.
+
+Istnieją trzy endpointy związane z logowaniem:
+
+- `/login` - Przymuje login i hasło. Jeżeli dane są poprawne, tworzy i podpisuje JWT.
+- `/logout` - Usuwa cookie sesji
+- `/register` - Tworzy konto użytkownika jeżeli takowe jeszcze nie istnieje.
+
+Z uwagi na założenia projektu, według których OpenSRS był zaprojektowany aby działać w Home Labach a nie na serwerach dużej firmy, aplikacja nie ma możliwości resetu hasła.
+
 == Lekcje
 Dany Set ma w sobie wiele fiszek. 
 Najpierw użytkownik musi przerobić daną fiszkę w ramach lekcji - nauczyć się jej aby móc zacząc ją powtarzać jako review.
