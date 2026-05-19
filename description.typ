@@ -298,6 +298,17 @@ Review last = database.fetchReview(
 
 = Logika i endpointy systemu OpenSRS
 
+== Archiktura
+
+W projekcie można wyodrębnić 4 główne częsci projektu:
+- Serwer Autumn - Opisany wyżej serwer, działający za pomocą refleksji.
+Odopowiada za serwowanie dostępu do określonych przes OpenSRS endpointów.
+Jest on niezależny od reszty projektu więc może zostać wykorzystany do innych projektów.
+- OpenSRS - Sam system SRS definiujący logikę interaktywnego systemu fiszek.
+Definiuje zarówno zachowania samych endpointów jak i komunikację aplikacji z bazą danych.
+- Baza danych SQLite - Baza danych przechowująca informajce o postępnie użytkowników, ich sesjach lekcji i powtórek.
+- Sety - zapisane w odpowiednim folderze, definiują fiszki dla danego zestawu a także różne parametry takie jak grupy fiszek, fazy znajomości każdej z nich.
+Sam OpenSRS też nie ma zdefiniowanego front endu. Każdy set mająć dostęp do endpointów wymaganych do obsługi aplikacji definiuje własne UI do obsługi danego setu.
 
 == Autentykacja
 
@@ -347,6 +358,10 @@ OpenSRS definiuje różne endpointy do obsługi powtórek zdefiniowne w pliku `L
 = Definiowanie nowych zestawów
 
 = Podsumowanie
+OpenSRS to interaktywny system fiszek wspierający adaptywne czasy powtórzeń na podstawie znajomości użytkownika, definiowanie fiszek które wymagają znajomości innych fiszek, grupowanie ich po typach oraz dodawanie incentyw dla bliskich odpowiedzi.
+Cechuje się uniwersalnością - może wspierać wielu użytkowników i wiele zestawów na raz. Każdy zestaw definiuje nie tylko własne fiszki ale ich grupy, fazy i interfejs graficzny.
+Cały projekt działa na serwerze Autumn który też jest niezależny od reszty projektu i może być wykorzystany do innych celów.
+
 
 = Możliwe sposoby rozwoju aplikacji
 
