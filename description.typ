@@ -350,3 +350,6 @@ OpenSRS definiuje różne endpointy do obsługi powtórek zdefiniowne w pliku `L
 
 = Możliwe sposoby rozwoju aplikacji
 
+- Łatwiejszy system edycji treści - obecnie można to robić jedynie przez edycję plików XML set'ów.
+- Możliwość resetu haseł, a co za tym idzie wysyłanie e-maili.
+- Przepisanie na system ORM, np. Hibernate.
