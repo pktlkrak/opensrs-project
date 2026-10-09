@@ -82,8 +82,19 @@
 Projekt OpenSRS ma na celu umożliwić jego użytkownikom swobodną naukę dowolnego zestawu fiszek przy użyciu aplikacji webowej hostowanej przez wbudowany serwer HTTP.
 
 Projekt składa się z kilku warstw, z czego każda z nich zaprojektowana była ręcznie i nie jest zaimplementowana przy użyciu bibliotek zewnętrznych.
-Postanowiłem ustanowić takie założenia, aby lepiej zrozumieć jak gotowe narzędzia, takie jak ORM Hibernate, lub serwer Spring działają od podszewki, poprzez implementację ich uproszczonych wersji.
+Takie założenia zostały ustalone, aby lepiej zrozumieć jak gotowe narzędzia, takie jak ORM Hibernate lub serwer Spring działają od podszewki - poprzez implementację ich uproszczonych wersji.
 
+Każdy z podsystemów projektu opisanych poniżej jest jeszcze dokładniej opisany przy użyciu JavaDoc'ów, które można znaleźć w folderze `target/reports/apidocs` po zbudowaniu projektu. 
+
+== Czym jest SRS
+
+SRS w tym kontekście to skrót od Spaced Repetition System. #link("https://en.wikipedia.org/wiki/Spaced_repetition")[Spaced Repetition] to technka nauki opierająca się na powtarzaniu fiszek, w której te które są określone jako lepiej znane przez powtarzającego pojawiają się coraz rzadziej i rzadziej.
+
+Idea skupia się na najpierw wprowadzeniu fiszek w postaci lekcji w której użytkownik poznaje jej zawartość. Po poznaniu jej trafia do póli powtórek. Użytkowni w dowolnym czasie może przystąpić do powtórek, jeśli ma jakiekolwiek fiszki do powtórzenia.
+Po powtórzeniu danej fiszki dostępna będzie ona jako powtórka dopiero po jakimś czasie. Clue systemu leży w tym, że im częściej użytkownik odpowiada dobrze na daną fiszkę zyskuje w niej poziom, a odpowiadając źle traci.
+
+Każdy zestaw fiszek definiuje widełki faz w zależności od poziomu użytkownika w danej fiszce. Faza definiuje jakie odstępy czasowe będą występowały między powtózeniami fiszki oraz ile poziomów użytkownik traci za złą odpowiedź (dobra odpowiedź daje zawsze tylko jeden poziom).
+Istnieje też mechanizm Coerce - gdy użytkownik odpowie na "bliską" odpowiedź zdefiniowaną dla danej fiszki, nie zostanie od razu ukarany a otrzyma związaną z jego odpowiedzią podpowiedź.
 
 = Serwer HTTP - "Autumn"
 
@@ -356,6 +367,139 @@ OpenSRS definiuje różne endpointy do obsługi powtórek zdefiniowne w pliku `L
 - '/api/{set}/review/progress' - 
 
 = Definiowanie nowych zestawów
+
+Tworzenie własnych zestawów ("set'ów"), zgodnie z założeniami projektu jest bardzo proste. Dla OpenSRS'a, zestawem fiszek jest każdy folder wewnątrz folderu `sets`, którego nazwa kończy się sufixem `.set`. Wewnątrz tego folderu powinny znajdować się pliki `config.XML`, `content.XML` oraz folder `files`.
+
+Aby stworzyć nowy set, należy więc zacząć od stworzenia nowego folderu w folderze `sets`.
+
+== Pisanie `config.XML`
+
+Następnym etapem jest utworzenie pliku `config.XML`, w którym zdefiniowane są metadata o zestawie. Każdy plik `config.XML` składa się z pojedyńczego objektu `SRSConfig`, w którym następnie zdefiniowane są:
+
+- nazwy oraz granice faz poznawania fiszek
+- informacje o karach za błędne odpowiedzi
+- informacje o przerwach pomiędzy powtórzeniami
+- aliasy (przyjazne nazwy) plików frontendu
+
+Przykładowy plik `config.XML` wygląda następująco:
+
+=== Fazy
+
+W systemie OpenSRS, faza ("phase") to konkretny poziom poznania danej fiszki. Pojedyńcza powtórka nosi nazwę etapu ("stage"). OpenSRS pozwala nadać fazom przyjazne dla użytkownika nazwy - do tego właśnie służy objekt `<phases>`.
+Wewnątrz niego powinny znaleźć się jedynie objekty `<phase>`, zawierające atrybuty `number` oraz `fromStage`. Atrybut `number` określa numer danej fazy, `fromStage` informuje od którego etapu dana faza się rozpoczyna. Wewnątrz tego objektu zapisana powinna być nazwa fazy.
+
+=== Kary
+
+Sekcja kar zawiera informacje o ile etapów użytkownik "spada" po podaniu złej odpowiedzi, w zależności od obecnego etapu. Sekcja ta składa się z objektu `<penalties>` zawierającego subobjekty `<stage>` z atrybutami `number`.
+Wewnątrz objektów stage zawarta jest informacja ile etapów należy odjąć dla danego przedmiotu po błędnej odpowiedzi na pytanie, zakładając, że użytkownik zna dany objekt na etapie odczytanym z atrybutu `number.`
+
+=== Przerwy
+
+Analogicznie do sekcji kar, informacje o przerwach zakodowane są przy pomocy objektu `<timings>`, wewnątrz którego znajdują się objekty `<stage>` o formacie identycznym do tych wewnątrz sekcji kar. Wewnątrz każdego objektu `<stage>` zawarta jest liczba godzin opóźnienia.
+
+=== Aliasy
+
+Aliasy pozwalają na przekierowanie poszczególnych URI na konkretne pliki z folderu `files` danego zestawu. Zapisane są jako objekt `<bindings>` zawierający objekty `<bind>`.
+
+Każdy typ `<bind>` składa się z atrybutów `source`, `target` oraz `type`.
+
+- source wskazuje na źródłowe URI, które ma być przemapowane
+- target zawiera nazwę pliku docelowego
+- type informuje system OpenSRS czy `source` jest wyrażeniem regularnym, czy zwykłą regułą. (Możliwe wartości: `literal`, `regex`. Domyślna: `literal`)
+
+
+=== Przykładowy plik
+
+```xml
+<?xml version="1.0"?>
+<SRSConfig>
+    <phases>
+        <phase number="1" fromStage="1">Apprentice</phase>
+        <phase number="2" fromStage="5">Guru</phase> <!--Odblokowanie podległych fiszek następuje po przejściu na drugą fazę-->
+    </phases>
+    <penalties>
+        <stage number="1">1</stage> <!--Kara za błąd na pierwszym etapie wynosi spadek o 1-->
+        <stage number="2">2</stage> <!--...analogicznie - dla etapu 2, spadek wynosi 2-->
+    </penalties>
+    <timings>
+        <stage number="1">4</stage> <!--Po wejściu na etap 1, opóźnienie 4 godziny-->
+        <stage number="2">8</stage> <!--Etap 2 - 8 godzin-->
+        <!--Po etapie 2 system uznaje objekt za "dobrze znany" przez użytkownika - nie będzie już o niego pytał.-->
+    </timings>
+    <bindings>
+        <bind source="summary.html" target="NONE"/>     <!--Zablokuj możliwość odczytu pliku summary.html bezpośrednio-->
+        <bind source="dashboard" target="index.html"/>  <!--Przekieruj /wk.set/dashboard na plik index.html-->
+        <bind source="lesson" target="summary.html"/>   <!--Przekieruj /wk.set/lesson na summary.html - w ten sposób można uzyskać do niego dostęp w kontrolowany sposób-->
+    </bindings>
+</SRSConfig>
+```
+
+== Pisanie `content.XML`
+
+Plik `content.XML` zawiera informacje o fiszkach. Jest to plik o znacznie prostrzym formacie, składający się jedynie z root-objektu `<SRSData>`, zawierającego wiele `<SRSObject>`.
+Każdy objekt `<SRSObject>` reprezentuje jedną fiszkę.
+
+Każdy `<SRSObject>` zawiera następujące wartości:
+
+- Atrybut `id` - numeryczny identyfikator danej fiszki
+- Objekt `<family>` - rodzina, do której fiszka należy - służy do późniejszego grupowania po stronie frontendu
+- Objekt `<query>` - jest to "przednia strona" fiszki - frontend powinien wyświetlić to zapytanie użytkownikowi
+- Objekt `<dependencies>` - zawiera subobjekty `<dependsOn>`. W każdym z nich powinno znaleźć się ID fiszki, która musi zostać odblokowana, aby można było nauczyć się fiszki reprezentowanej przez obecny `<SRSObject>`
+- Objekt `<level>` - zawiera numer "poziomu", do którego fiszka należy. Poziomy pozwalają na łatwe sprawdzenie jak wiele fiszek dany użytkownik zna. Pozwala też w łatwy sposób grupować materiał do poznania (fiszki z kolejnego poziomu odblokowywują się tylko po poznaniu wszystkich z poziomu obecnego)
+- Objekt `<reviewable>` - zawiera objekty `<param>` oraz `<coerce>`. Objekty `<param>` opisują konkretną cechę danej fiszki, która ma być sprawdzona - zawierają atrybut `name`, oraz żądaną odpowiedź, jako zawartość. Wiele objektów `<param>` z taką samą wartością `name` traktowane jest jako alternatywa. Objekty `<coerce>` to podpowiedzi. Zawierają atrybut `for`, w którym zapisana jest błędna odpowiedź. W zawartości natomiast zapisana jest treść podpowiedzi.
+- Objekt `<data>` - JSON, który zostanie przekazany frontend'owi bezpośrednio. Sam system OpenSRS nie sprawdza go.
+
+=== Przykładowy plik
+
+```xml
+<?xml version="1.0" ?>
+<SRSData>
+    <SRSObject id="0">
+        <family>radical</family>
+        <query>亅</query>
+        <dependencies/>
+        <level>1</level>
+        <reviewable>
+            <param name="name">Barb</param>
+        </reviewable>
+        <data>{}</data>
+    </SRSObject>
+    <SRSObject id="125">
+        <family>kanji</family>
+        <query>了</query>
+        <dependencies>
+            <dependsOn>0</dependsOn>
+        </dependencies>
+        <level>2</level>
+        <reviewable>
+            <param name="reading">ryou</param>
+            <param name="meaning">Finish</param>
+            <param name="meaning">Complete</param>
+            <param name="meaning">End</param>
+        </reviewable>
+        <data>{}</data>
+    </SRSObject>
+</SRSData>
+```
+
+== Tworzenie frontendu
+
+Każdy zestaw powinien sam zdefiniować frontend. W tym celu użyć musi on endpointów, które dokładnie opisane były we wcześniejszej części dokumentacji, oraz pliku `osrs.js`, który stanowi prostą bibliotekę dla kodu frontend'ów.
+
+Zawartość folderu `files` dostępna jest dla klientów pod adresem `http://<adres>/<nazwa zbioru>/ ... pliki`. Jeżeli plik nie istnieje w folderze `files` danego zbioru, zostanie od odczytany z folderu `common` w CWD serwera.
+
+= Uruchamianie projektu
+
+Projekt OpenSRS został napisany w IDE NetBeans, jednak może być uruchomiony za pomocą systemu Maven.
+Aby projekt uruchomił się poprawnie, w folderze z którego zostanie uruchomiony musi znajdować się folder `sets` z poprawną strukturą zbiorów OpenSRS.
+
+```sh
+$ mvn clean dependency:copy-dependencies javadoc:javadoc package
+$ java -cp "target/OpenSRSMVN-1.0-SNAPSHOT.jar:$(printf %s: target/dependency/*.jar)" opensrs.OpenSRS
+```
+
+Po wykonaniu powyższych komend, uruchomiony zostanie serwer lokalny na `http://0.0.0.0:9998`, a pliki JavaDoc wygenerowane zostaną w folderze `target/reports/apidocs`.
+
 
 = Podsumowanie
 OpenSRS to interaktywny system fiszek wspierający adaptywne czasy powtórzeń na podstawie znajomości użytkownika, definiowanie fiszek które wymagają znajomości innych fiszek, grupowanie ich po typach oraz dodawanie incentyw dla bliskich odpowiedzi.
