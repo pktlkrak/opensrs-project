@@ -36,7 +36,5 @@
         <bind type="regex" source=".*/assets/(.*)" target="assets/$1"/>
         <bind source="reviewactivity" target="activity.html"/>
         <bind source="lessonactivity" target="activity.html"/>
-
-        <special type="home" target="dashboard"/>
     </bindings>
 </SRSConfig>
