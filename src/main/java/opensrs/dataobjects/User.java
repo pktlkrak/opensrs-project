@@ -75,6 +75,10 @@ public class User extends DataObject<User.Parameter> {
         return Parameter.UID;
     }
 
+    
+     /**
+     * Enum containing all the parameters of the {@link User} Class.
+     */
     public enum Parameter implements GenericParameter {
         /**
          * UID of the user. Used to match the user to his entries in the database.

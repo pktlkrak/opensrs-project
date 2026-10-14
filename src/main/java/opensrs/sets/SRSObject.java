@@ -13,15 +13,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TODO: FIX
  * Class defining a single SRS object.
  *
  * <p>Provides an object for interacting with a single SRS object, which is a single,
  * reviewable thing like a kanji. </P>
  * 
- * <p>Example Usage</p>
- * TODO: ADD
- *
  * @author piotr
  */
 public class SRSObject {
@@ -36,39 +32,38 @@ public class SRSObject {
     private final String family;
     
     /**
-     * What level of mastery the user is currently on (TODO: the masty names cuz i dont remember them)
+     * What level of mastery the user is currently on
     */
     private final int level;
     
     /**
      * The thing it's gonna show you on the rev. page, like a kanji
-     * This is basicly the "question"
+     * This is the "question"
     */
     private final String query; //The thing it's gonna show you on the rev. page, like a kanji 
     
     /**
-     * TODO: ??? is this
+     * Reviewables.
      */
     private final LinkedHashMap<String, List<String>> reviewable = new LinkedHashMap<>();
     
     /** 
-     * TODO: don't member
+     * Data from the client
      */
     private final ObjectNode clientData;
     
     /**
-     * The prerequsites required for the 
+     * The prerequisites required for the 
      */
     private final List<Integer> dependencies = new ArrayList<>();
     
     /**
-     * This are hints that are shown if the user is a bit off the correct anwser
-     * (TODO: Add a good example)
+     * This are hints that are shown if the user is a bit off the correct answer
      */
     private final Map<String, String> coerce = new HashMap<>();
 
     /**
-     * The constuctor  (TODO ig)
+     * The constructor
      * @param id 
      * @param type
      * @param stage

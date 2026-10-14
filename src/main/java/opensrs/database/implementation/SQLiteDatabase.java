@@ -3,6 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
+/**
+ * Package containing the implementation of the ORM.
+ */
 package opensrs.database.implementation;
 
 import java.io.File;

@@ -67,6 +67,9 @@ public class SRSObjectState extends DataObject<SRSObjectState.Parameter>{
         return Parameter.ITEM_SUID;
     }
 
+    /**
+     * Enum containing all the parameters of the {@link SRSObjectState} Class.
+     */
     public enum Parameter implements GenericParameter {
         /**
          * The UID of the {@link User} the result belongs to.

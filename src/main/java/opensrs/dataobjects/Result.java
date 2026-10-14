@@ -95,6 +95,9 @@ public class Result extends DataObject<Result.Parameter>{
         return null;
     }
     
+    /**
+     * Enum containing all the parameters of the {@link Result} Class.
+     */
     public enum Parameter implements GenericParameter<Result>{
         /**
          * The UID of the {@link User} the result belongs to.

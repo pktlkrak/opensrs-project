@@ -25,8 +25,7 @@ import org.xml.sax.SAXException;
 /**
  * Object holding an SRS set
  * <p>A set is a collection of {@link SRSObject}.
- * It is the main method of interacting with the SRS system,
- * allowing the user to: TODO
+ * The Set class is the representation of a sets data in java (sets are stored as actual files)</p>
  * 
  * @see SRSObject   
  * @author piotr
@@ -44,7 +43,7 @@ public abstract class Set {
     private Map<Integer, SRSObject> srsObjects = new HashMap<>();
     
     /** 
-     * 
+     * Config of the set.
      */
     public SRSConfig config;
 
@@ -182,7 +181,7 @@ public abstract class Set {
         private Map<Integer, Integer> timings = new HashMap<>();
         
         /**
-         * TODO: ??? Int - Int phases - is this not redundant?
+         * From which level does a certain phase start.
          */
         private Map<Integer, Integer> phases = new HashMap<>();
         
@@ -193,14 +192,12 @@ public abstract class Set {
         private Map<Integer, String> phaseNames = new HashMap<>();
         
         /**
-         * TODO: ???
-         * i guess these are page bindings for each stage but im not sure
+         * Aliases of a certain set file to a page adress.
          */
         private Map<String, String> pageBindings = new HashMap<>();
         
         /**
-         * TODO: ???
-         * and these are with the vars???       
+         * Aliases of a certain set file to a page adress with regex (eg. a certain flashcard). 
          */
         private Map<Pattern, String> regexPageBindings = new HashMap<>();
 

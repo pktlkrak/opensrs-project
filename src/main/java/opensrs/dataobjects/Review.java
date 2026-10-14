@@ -133,6 +133,9 @@ public abstract class Review extends DataObject<Review.Parameter>{
         return (List<Result>) fetchObject(Parameter.RESULTS);
     }
     
+    /**
+     * Enum containing all the parameters of the {@link Review} Class.
+     */
     public enum Parameter implements GenericParameter<Review>{
         /**
          * The UID of the {@link User} the result belongs to.
