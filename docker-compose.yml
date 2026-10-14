@@ -1,0 +1,8 @@
+services:
+    opensrs:
+        build:
+            context: .
+        ports:
+            - 8080:9998
+        volumes:
+            - /ram/userdata.db:/app/userdata.db
