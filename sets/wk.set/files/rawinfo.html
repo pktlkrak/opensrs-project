@@ -47,15 +47,10 @@
 
     <script src="/osrs.js"></script>
     <script src="assets/wanakana.js"></script>
-
-    <style>
-        body, .row{
-            margin: 0;
-        }
-    </style>
+    <link href='assets/rawinfo.css' rel='stylesheet'
+        type='text/css'>
 
     <script defer>
-        //Let the shitshow begin
         (async () => {
             const fillIn = (n, v) => document.querySelectorAll(`[data-insertValue='${n}']`).forEach(n => n
                 .innerText = v);

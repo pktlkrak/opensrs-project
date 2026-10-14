@@ -1,0 +1,9 @@
+.english-sentence{
+    color: grey;
+    background-color: grey;
+    display: inline-block;
+}
+.english-sentence:hover{
+    color: black;
+    background-color: white;
+}
