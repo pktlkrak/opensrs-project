@@ -6,9 +6,13 @@
 package opensrs.endpoints;
 
 import java.io.IOException;
+import java.util.List;
 import opensrs.SessionHolder;
 import opensrs.Utils;
 import opensrs.database.Database;
+import opensrs.database.Filter;
+import opensrs.database.FilterChain;
+import opensrs.database.Filters;
 import opensrs.dataobjects.Review;
 import opensrs.sets.GlobalStore;
 import org.autumn.State;
@@ -21,17 +25,19 @@ import org.autumn.annotations.Route;
  * Endpoint utilized for testing and debugging
  * @author piotr
  */
-@Route("/debug")
-public class Debug {
+@Route("/management")
+public class Management {
+    
+    public static final boolean USERS_CAN_SELF_ENROLL = false;
 
     private final Database database;
 
-    public Debug(Database database) {
+    public Management(Database database) {
         this.database = database;
     }
 
     /**
-     * Debug endpoint to initialise a set for a user with the starting values for each reviewable object.
+     * Management endpoint to initialize a set for a user with the starting values for each reviewable object.
      * @param state     Autumn State.
      * @param set       Which set to initialize.
      * @param user      Which user to initialize for.
@@ -46,32 +52,45 @@ public class Debug {
             @FromCookie("session") String session
     ) throws IOException {
         state.setHeader("Cache-Control", "no-store");
-        int uid = Integer.valueOf(user);
-
-        database.createReviews(GlobalStore.getSet(set)
-                .stream()
-                .filter(n -> n.getLevel() == 1 && n.getDependencies().isEmpty())
-                .map(n -> {
-                    Review r = Review.create();
-                    r.setUid(uid);
-                    r.setSetCode(set.hashCode());
-                    r.setType(Review.TYPE_LESSON);
-                    r.setQueuedDate(System.currentTimeMillis());
-                    r.setUnlockDate(-2);
-                    r.setItemSUID(n.getId());
-                    return r;
-                })
-                .toArray(Review[]::new));
-
-        state.sendString("OK Done");
+        int uid = Integer.parseInt(user);
+        int localUid = SessionHolder.getUID(session);
+        if(localUid == 0 || (USERS_CAN_SELF_ENROLL && uid == localUid)) {
+            Review anyReview = database.fetchReview(
+                    new FilterChain<>(FilterChain.Junction.AND, List.of(
+                            new Filter<>(Review.Parameter.UID, Filters.EqOnly.EQUAL, uid),
+                            new Filter<>(Review.Parameter.SET_CODE, Filters.EqOnly.EQUAL, set.hashCode()))), null);
+            if(anyReview == null) {
+                // No queued = no collisions
+                database.createReviews(GlobalStore.getSet(set)
+                    .stream()
+                    .filter(n -> n.getLevel() == 1 && n.getDependencies().isEmpty())
+                    .map(n -> {
+                        Review r = Review.create();
+                        r.setUid(uid);
+                        r.setSetCode(set.hashCode());
+                        r.setType(Review.TYPE_LESSON);
+                        r.setQueuedDate(System.currentTimeMillis());
+                        r.setUnlockDate(-2);
+                        r.setItemSUID(n.getId());
+                        return r;
+                    })
+                    .toArray(Review[]::new));
+                state.sendString("OK Done");
+            } else {
+                state.sendString("Already enrolled");
+            }
+        } else {
+            state.sendString("Permission denied");
+        }
     }
 
     /**
      * Force the unlock of a reviewable, regardless of if the user met it's prerequisites.
-     * @param state Autumn State.
-     * @param user  The user to unlock for.
-     * @param set   The set to unlock for.
-     * @param id    The id of the reviewable.
+     * @param state     Autumn State.
+     * @param user      The user to unlock for.
+     * @param set       The set to unlock for.
+     * @param id        The id of the reviewable.
+     * @param session   The current session of the user.
      * @throws IOException 
      */
     @Endpoint("/forceUnlock/{user}/{set}/{id}")
@@ -79,8 +98,13 @@ public class Debug {
             State state,
             @FromPath("user") String user,
             @FromPath("set") String set,
-            @FromPath("id") String id
+            @FromPath("id") String id,
+            @FromCookie("session") String session
     ) throws IOException {
+        if(SessionHolder.getUID(session) != 0) {
+            state.sendString("Not root user");
+            return;
+        }
         database.createReviews(Utils.createLesson(Integer.valueOf(user), set.hashCode(), Integer.valueOf(id)));
         state.sendString("OK");
     }
@@ -88,10 +112,15 @@ public class Debug {
     /**
      * Reloads the current state of {@link GlobalStore}.
      * @param state         Autumn State.
+     * @param session   The current session of the user.
      * @throws IOException
      */
     @Endpoint("/reload")
-    public void reload(State state) throws IOException {
+    public void reload(State state, @FromCookie("session") String session) throws IOException {
+        if(SessionHolder.getUID(session) != 0) {
+            state.sendString("Not root user");
+            return;
+        }
         GlobalStore.reload();
         state.sendString("OK");
     }
