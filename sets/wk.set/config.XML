@@ -28,13 +28,15 @@
         <bind source="summary.html" target="NONE"/>
         <bind source="rawinfo.html" target="NONE"/>
         
-        
-        <bind source="dashboard" target="index.html"/>
-        <bind source="review" target="summary.html"/>
-        <bind source="lesson" target="summary.html"/>
-        <bind type="regex" source="(vocabulary|kanji|radical)/[^/]*" target="info.html"/>
+        <bind source="index.html" target="index.emhtml"/>
+        <bind source="dashboard" target="index.emhtml"/>
+        <bind source="review" target="summary.emhtml"/>
+        <bind source="lesson" target="summary.emhtml"/>
+        <bind type="regex" source="(vocabulary|kanji|radical)/[^/]*" target="info.emhtml"/>
         <bind type="regex" source=".*/assets/(.*)" target="assets/$1"/>
-        <bind source="reviewactivity" target="activity.html"/>
-        <bind source="lessonactivity" target="activity.html"/>
+        <bind source="reviewactivity" target="activity.emhtml"/>
+        <bind source="lessonactivity" target="activity.emhtml"/>
+
+        <bind type="regex" source="modules/.*" target="NONE"/>
     </bindings>
 </SRSConfig>

@@ -5,11 +5,15 @@
  */
 package opensrs.endpoints;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import tools.jackson.databind.node.ObjectNode;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import opensrs.InputStreamLength;
@@ -53,6 +57,47 @@ public class Misc {
     public Misc(Database database) {
         this.database = database;
     }
+    
+    /**
+     * A scaffold for a more complex file transformer system in the future
+     * Right now it only supports the "embedText" transformer.
+     * 
+     * The embedText transformer imports files w/ relative paths to their set / common folder
+     * @param is Source input stream
+     * @param transformerName Name of the transformer
+     * @return Readable input stream passed through the transformer
+     */
+    private InputStreamLength applyTransformer(Set set, InputStreamLength is, String transformerName) throws IOException {
+        if(transformerName.equals("embedText")) {
+            ByteArrayOutputStream rootBaos = new ByteArrayOutputStream();
+            Utils.copyStream(is.getInputStream(), rootBaos, 4096);
+            String asString = rootBaos.toString("utf-8");
+            Pattern p = Pattern.compile("(?<!\\<)\\<~ *embed *([^~]+) *~\\>");
+            Matcher stringMatcher = p.matcher(asString);
+            StringBuilder out = new StringBuilder();
+            while(stringMatcher.find()) {
+                String fileName = stringMatcher.group(1).strip();
+                InputStreamLength fullFile;
+                if(set != null) {
+                    fullFile = set.getFile(fileName);
+                } else {
+                    fullFile = GlobalStore.getCommonFile(fileName);
+                }
+
+                ByteArrayOutputStream subBaos = new ByteArrayOutputStream();
+                Utils.copyStream(fullFile.getInputStream(), subBaos, 4096);
+
+                stringMatcher.appendReplacement(out, subBaos.toString("UTF-8"));
+            }
+
+            stringMatcher.appendTail(out);
+
+            byte[] bytes = out.toString().getBytes("UTF-8");
+            return new InputStreamLength(new ByteArrayInputStream(bytes), bytes.length);
+        } else {
+            throw new RuntimeException("Invalid transformer " + transformerName);
+        }
+    }
 
     /**
      * Endpoint for accessing static paths.
@@ -78,29 +123,41 @@ public class Misc {
         path = path.split(Pattern.quote("?"))[0];
         String[] pathTokens = path.split("/");
         InputStreamLength toRead;
+        Set thisSet;
+        String lastSubPath = pathTokens[pathTokens.length - 1];
         if (GlobalStore.hasSet(pathTokens[0])) {
             if (pathTokens.length == 1) {
                 state.setHeader("Location", "index.html");
                 state.sendResponseHeaders(302);
                 return;
             }
-            Set thisSet = GlobalStore.getSet(pathTokens[0]);
+            thisSet = GlobalStore.getSet(pathTokens[0]);
             String subPath = Arrays.asList(pathTokens).stream().skip(1).collect(Collectors.joining("/"));
             subPath = thisSet.config.getBinding(subPath);
+            lastSubPath = subPath;
             toRead = thisSet.getFile(subPath);
         } else {
             toRead = GlobalStore.getCommonFile(path);
+            thisSet = null;
         }
         if (toRead == null) {
             state.sendString("404 Not found", 404);
             return;
         }
-        String extension = pathTokens[pathTokens.length - 1];
+        String extension = lastSubPath;
         if (extension.contains(".")) {
             extension = extension.substring(extension.lastIndexOf(".") + 1);
         }
         if (extMap.containsKey(extension)) {
-            state.setHeader("Content-Type", extMap.get(extension));
+            String contentType = extMap.get(extension);
+            if(contentType.contains("~")) {
+                String[] ctSteps = contentType.split(Pattern.quote("~"));
+                contentType = ctSteps[0];
+                for(int i = 1; i < ctSteps.length; i++) {
+                    toRead = applyTransformer(thisSet, toRead, ctSteps[i]);
+                }
+            }
+            state.setHeader("Content-Type", contentType);
         }
 
         state.setOutputLength((int) toRead.getLength());
