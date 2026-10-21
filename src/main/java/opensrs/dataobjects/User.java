@@ -81,7 +81,7 @@ public class User extends DataObject<User.Parameter> {
      */
     public enum Parameter implements GenericParameter {
         /**
-         * UID of the user. Used to match the user to his entries in the database.
+         * UID of the user. Used to match the user to their entries in the database.
          */
         UID((BiConsumer<User, Integer>) User::setUid, User::getUid, ParameterType.EQ_ONLY, false),
         
