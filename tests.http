@@ -1,0 +1,21 @@
+@host = http://localhost:8080
+
+POST {{host}}/register
+Content-Type: application/x-www-form-urlencoded
+
+name=alice&password=secret1&confirmPassword=secret1
+
+### Login
+POST {{host}}/login
+Content-Type: application/x-www-form-urlencoded
+
+name=alice&password=secret1
+
+### Change own password
+POST {{host}}/management/changepw
+Content-Type: application/x-www-form-urlencoded
+
+username=alice&password=secret2
+
+###
+POST {{host}}/management/initSetForUser/wk.set/0
