@@ -44,9 +44,10 @@ public abstract class Database {
     /**
      * creates the user in the database based on a {@link User} object
      * @see User
-     * @param user  the {@link User} we want to create
+     * @param user    the {@link User} we want to create
+     * @param setUid  whether or not the DB should write this user's UID
      */
-    public abstract void createUser(User user);
+    public abstract void createUser(User user, boolean setUid);
     
     /**
      * updates the user in the database based on a {@link User} object

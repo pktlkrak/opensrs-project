@@ -86,7 +86,7 @@ public class Login {
             if(!password.equals(confirmPassword)) {
                 state.sendString("Passwords are not matching!", "text/plain", 400);
             } else {
-                database.createUser(User.fromPassword(username, password));
+                database.createUser(User.fromPassword(username, password), false);
                 login(state, username, password, redirect);
             }
         }

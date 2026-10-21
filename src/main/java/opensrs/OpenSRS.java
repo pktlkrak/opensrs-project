@@ -7,6 +7,7 @@ package opensrs;
 
 import opensrs.database.Database;
 import opensrs.database.implementation.PostgresDatabase;
+import opensrs.dataobjects.User;
 import org.autumn.Logger;
 import org.autumn.Server;
 
@@ -50,5 +51,13 @@ public class OpenSRS {
         }, new Class<?>[]{Database.class}, database);
         autumn.start(9998);
         Runtime.getRuntime().addShutdownHook(new Thread(database::close));
+        
+        User root = database.getUserById(0);
+        if(root == null) {
+            root = User.fromPassword("root", "P@ssword");
+            root.setUid(0);
+            database.createUser(root, true);
+            Log.log(Log.INFO, TAG, "Created the root user with creds: root / P@ssword");
+        }
     }
 }
