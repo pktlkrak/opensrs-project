@@ -6,7 +6,7 @@
 package opensrs;
 
 import opensrs.database.Database;
-import opensrs.database.implementation.SQLiteDatabase;
+import opensrs.database.implementation.PostgresDatabase;
 import org.autumn.Logger;
 import org.autumn.Server;
 
@@ -26,7 +26,7 @@ public class OpenSRS {
     public static void main(String[] args) throws Exception {
         Log.startLoggingThread();
         Log.log(Log.INFO, TAG, "Starting " + VERSION);
-        Database database = new SQLiteDatabase("userdata.db");
+        Database database = new PostgresDatabase("localhost", 5433, "opensrs", "osrs", "P@ssw0rd!");
         
         Server autumn = new Server("opensrs", new Logger(){
             @Override
@@ -43,5 +43,4 @@ public class OpenSRS {
         autumn.start(9998);
         Runtime.getRuntime().addShutdownHook(new Thread(database::close));
     }
-    
 }

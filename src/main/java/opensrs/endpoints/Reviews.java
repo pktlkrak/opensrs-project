@@ -26,7 +26,7 @@ import opensrs.database.Filters;
 import opensrs.database.Sorter;
 import opensrs.database.Sorters;
 import opensrs.database.Update;
-import opensrs.database.implementation.SQLiteDatabase;
+import opensrs.database.implementation.PostgresDatabase;
 import opensrs.dataobjects.Result;
 import opensrs.dataobjects.Review;
 import opensrs.dataobjects.SRSObjectState;
