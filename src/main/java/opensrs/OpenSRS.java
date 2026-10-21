@@ -26,7 +26,15 @@ public class OpenSRS {
     public static void main(String[] args) throws Exception {
         Log.startLoggingThread();
         Log.log(Log.INFO, TAG, "Starting " + VERSION);
-        Database database = new PostgresDatabase("localhost", 5433, "opensrs", "osrs", "P@ssw0rd!");
+        String db = System.getProperty("POSTGRES_DB");
+        String username = System.getProperty("POSTGRES_USER");
+        String password = System.getProperty("POSTGRES_PASSWORD");
+        String dbHost = System.getProperty("POSTGRES_HOST");
+        String strDbPort = System.getProperty("POSTGRES_PORT");
+        if(strDbPort == null || strDbPort.isEmpty()) strDbPort = "5432";
+        int dbPort = Integer.parseInt(strDbPort);
+        
+        Database database = new PostgresDatabase(dbHost, dbPort, db, username, password);
         
         Server autumn = new Server("opensrs", new Logger(){
             @Override
