@@ -30,7 +30,7 @@ import org.autumn.annotations.Route;
 @Route("/management")
 public class Management {
     
-    public static final boolean USERS_CAN_SELF_ENROLL = false;
+    public static final boolean USERS_CAN_SELF_ENROLL = true;
 
     private final Database database;
 
