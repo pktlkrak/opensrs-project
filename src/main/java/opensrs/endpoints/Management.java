@@ -14,9 +14,11 @@ import opensrs.database.Filter;
 import opensrs.database.FilterChain;
 import opensrs.database.Filters;
 import opensrs.dataobjects.Review;
+import opensrs.dataobjects.User;
 import opensrs.sets.GlobalStore;
 import org.autumn.State;
 import org.autumn.annotations.Endpoint;
+import org.autumn.annotations.FromBody;
 import org.autumn.annotations.FromCookie;
 import org.autumn.annotations.FromPath;
 import org.autumn.annotations.Route;
@@ -77,10 +79,10 @@ public class Management {
                     .toArray(Review[]::new));
                 state.sendString("OK Done");
             } else {
-                state.sendString("Already enrolled");
+                state.sendString("Already enrolled", 400);
             }
         } else {
-            state.sendString("Permission denied");
+            state.sendString("Access denied", 403);
         }
     }
 
@@ -102,7 +104,7 @@ public class Management {
             @FromCookie("session") String session
     ) throws IOException {
         if(SessionHolder.getUID(session) != 0) {
-            state.sendString("Not root user");
+            state.sendString("Not root user", 403);
             return;
         }
         database.createReviews(Utils.createLesson(Integer.valueOf(user), set.hashCode(), Integer.valueOf(id)));
@@ -118,7 +120,7 @@ public class Management {
     @Endpoint("/reload")
     public void reload(State state, @FromCookie("session") String session) throws IOException {
         if(SessionHolder.getUID(session) != 0) {
-            state.sendString("Not root user");
+            state.sendString("Not root user", 403);
             return;
         }
         GlobalStore.reload();
@@ -140,5 +142,36 @@ public class Management {
         state.setHeader("Cache-Control", "no-store");
         int uid = SessionHolder.getUID(session);
         state.sendString(uid == -1 ? "Not logged in" : "Logged in as UID " + uid + " with name '" + SessionHolder.getNameOfUser(session) + "'");
+    }
+
+    /**
+     * Change the password of the currently logged in user.
+     * @param state     Autumn State.
+     * @param session   The session for which we check the user status.
+     * @param username  The name of the user whose password is to be changed.
+     * @param password  The new password
+     * @throws IOException 
+     */
+    @Endpoint(value = "/changepw", allowedMethods = {"POST"})
+    public void changePassword(
+            State state,
+            @FromCookie("session") String session,
+            @FromBody("username") String username,
+            @FromBody("password") String password
+    ) throws IOException {
+        state.setHeader("Cache-Control", "no-store");
+        int uid = SessionHolder.getUID(session);
+        User userToChange = database.getUserByName(username);
+        if(userToChange == null) {
+            state.sendString("Not found", 404);
+        } else if(uid == 0 || uid == userToChange.getUid()) {
+            int orgUid = userToChange.getUid();
+            userToChange = User.fromPassword(username, password);
+            userToChange.setUid(orgUid);
+            database.updateUser(userToChange);
+            state.sendString("OK");
+        } else {
+            state.sendString("Access denied.", 403);
+        }
     }
 }

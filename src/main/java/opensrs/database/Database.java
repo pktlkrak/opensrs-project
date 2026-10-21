@@ -47,6 +47,13 @@ public abstract class Database {
      * @param user  the {@link User} we want to create
      */
     public abstract void createUser(User user);
+    
+    /**
+     * updates the user in the database based on a {@link User} object
+     * @see User
+     * @param user  the {@link User} we want to create
+     */
+    public abstract void updateUser(User user);
 
     /**
      * Fetches the list of all the results that meet the specified filters.
