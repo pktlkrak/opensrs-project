@@ -10,7 +10,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:3.5.1:exec</goal>
             </goals>
             <properties>
-                <exec.vmArgs></exec.vmArgs>
+                <exec.vmArgs>-DPOSTGRES_USER=osrs -DPOSTGRES_PASSWORD=P@ssw0rd! -DPOSTGRES_DB=opensrs -DPOSTGRES_HOST=localhost -DPOSTGRES_PORT=5433</exec.vmArgs>
                 <exec.args>${exec.vmArgs} -classpath %classpath ${exec.mainClass} ${exec.appArgs}</exec.args>
                 <exec.appArgs></exec.appArgs>
                 <exec.mainClass>opensrs.OpenSRS</exec.mainClass>
@@ -27,12 +27,29 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:3.5.1:exec</goal>
             </goals>
             <properties>
-                <exec.vmArgs>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address}</exec.vmArgs>
+                <exec.vmArgs>-DPOSTGRES_USER=osrs -DPOSTGRES_PASSWORD=P@ssw0rd! -DPOSTGRES_DB=opensrs -DPOSTGRES_HOST=localhost -DPOSTGRES_PORT=5433 -agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address}</exec.vmArgs>
                 <exec.args>${exec.vmArgs} -classpath %classpath ${exec.mainClass} ${exec.appArgs}</exec.args>
                 <exec.appArgs></exec.appArgs>
                 <exec.mainClass>opensrs.OpenSRS</exec.mainClass>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
+            </properties>
+        </action>
+        <action>
+            <actionName>profile</actionName>
+            <packagings>
+                <packaging>jar</packaging>
+            </packagings>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:3.5.1:exec</goal>
+            </goals>
+            <properties>
+                <exec.vmArgs>-DPOSTGRES_USER=osrs -DPOSTGRES_PASSWORD=P@ssw0rd! -DPOSTGRES_DB=opensrs -DPOSTGRES_HOST=localhost -DPOSTGRES_PORT=5433</exec.vmArgs>
+                <exec.args>${exec.vmArgs} -classpath %classpath ${exec.mainClass} ${exec.appArgs}</exec.args>
+                <exec.mainClass>${packageClassName}</exec.mainClass>
+                <exec.executable>java</exec.executable>
+                <exec.appArgs></exec.appArgs>
             </properties>
         </action>
     </actions>
