@@ -429,6 +429,7 @@ Po wykonaniu powyższych komend, uruchomiony zostanie serwer lokalny na `http://
 
 Alternatywnie, do projektu dołączone są pliki Docker'a - `docker-compose.yml` oraz `Dockerfile`. Pliki te także mogą zostać wykorzystane aby uruchomić serwer OpenSRS.
 
+Do projektu dołączony jest przykładowy zrzut danych z bazy danych w pliku `docker/db/init.sql`. W połączeniu z `example.env`, pozwala to na szybkie przetestowanie projektu z domyślnymi danymi logowania: `root` / `P@ssword`.
 ## 7. Podsumowanie
 
 OpenSRS to interaktywny system fiszek wspierający adaptywne czasy powtórzeń na podstawie znajomości użytkownika, definiowanie fiszek które wymagają znajomości innych fiszek, grupowanie ich po typach oraz dodawanie incentyw dla bliskich odpowiedzi.
