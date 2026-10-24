@@ -537,6 +537,7 @@
                         if(char.includes("images/")){
                             const img = document.createElement("img");
                             img.src = char;
+                            document.querySelector("#lesson-character").innerHTML = "";
                             document.querySelector("#lesson-character").appendChild(img);
                         }else{
                             document.querySelector("#lesson-character").innerText = window.lesson.itemList[item].character;
@@ -774,7 +775,13 @@
                     const span = document.createElement("span");
                     span.className = item.family;
                     span.lang = "ja";
-                    span.innerText = item.character;
+                    if(item.character.includes("images/")){
+                        const img = document.createElement("img");
+                        img.src = item.character;
+                        span.appendChild(img);
+                    }else{
+                        span.innerText = item.character;
+                    }
                     elem.appendChild(span);
                     batch.appendChild(elem);
                 }
