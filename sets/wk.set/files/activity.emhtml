@@ -8,6 +8,7 @@
     <link rel="stylesheet" media="screen"
         href="assets/application-147c13d8f8493ebd0be2b6e5f2f83b9f95f8fcdfe207b77f81574450a1395fca.css">
         <link rel="stylesheet" media="screen" href="assets/application-44ebe0b19e1ef0219c7fb2bd256bab0fc01c004312a7c73da60e726b408564c8.css">
+    <link rel="stylesheet" media="screen" href="assets/additionals.css">
     <link rel="stylesheet" media="screen" href="assets/lesson-3189d49d.css">
     <link rel="stylesheet" href="assets/osrs-overrides.css">
     <meta name="application-name" content="WaniKani">
@@ -43,11 +44,13 @@
         type="text/css">
 
     <script src="/osrs.js"></script>
+    <script src="assets/dark-theme.js" defer></script>
     <script src="assets/wanakana.js"></script>
     <script src="/explode.js"></script>
     <script src="assets/explodemodules.js"></script>
     <link href="assets/explode.css" rel="stylesheet" type="text/css">
 <body>
+  <~ embed modules/toggle-dark.html ~>
 
     <div id="loading" style="display: none;"></div>
 
@@ -114,7 +117,7 @@
                 </div>
             </header>
             <div id="lesson">
-                <div id="supplement-nav" class="noSwipe">
+                <div id="supplement-nav" class="noSwipe dark-filter-exclude">
                     <ul>
                     </ul>
                 </div>

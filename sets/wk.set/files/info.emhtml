@@ -50,9 +50,13 @@
     <script src="assets/wanakana.js"></script>
     <script src="/explode.js"></script>
     <script src="assets/explodemodules.js"></script>
+    <script src="assets/dark-theme.js" defer></script>
+    <link rel="stylesheet" media="screen" href="assets/additionals.css">
+
 </head>
 
 <body>
+  <~ embed modules/toggle-dark.html ~>
 
     <div class="footer-adjustment">
         <~ embed modules/global-header.html ~>

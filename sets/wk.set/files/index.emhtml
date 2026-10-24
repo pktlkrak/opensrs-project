@@ -9,6 +9,7 @@
   <link rel="stylesheet" media="screen"
     href="assets/application-be8fec0c87a2d6cf9afb39f298ad7f72f89c7f1d741153bd.css" />
   <link rel="stylesheet" media="screen" href="assets/application-07e4a557.css" />
+  <link rel="stylesheet" media="screen" href="assets/additionals.css" />
 
   <meta name="application-name" content="WaniKani">
   <meta name="author" content="tofugu.com">
@@ -31,11 +32,13 @@
     type='text/css'>
   <script src="assets/depends.js"></script>
   <script src="assets/nav.js" defer></script>
+  <script src="assets/dark-theme.js" defer></script>
   <script src="assets/utils.js"></script>
   <script src="/osrs.js"></script>
 </head>
 
 <body>
+  <~ embed modules/toggle-dark.html ~>
 
   <div class="footer-adjustment">
     <~ embed modules/global-header.html ~>
@@ -48,11 +51,11 @@
               <section class="lessons-and-reviews">
                 <ul>
                   <li>
-                    <a class="lessons-and-reviews__button lessons-and-reviews__lessons-button" href="lesson">
+                    <a class="lessons-and-reviews__button lessons-and-reviews__lessons-button dark-filter-exclude" href="lesson">
                       Lessons <span data-insertValue="lessonsAmount">Fetching...</span>
                     </a> </li>
                   <li>
-                    <a class="lessons-and-reviews__button lessons-and-reviews__reviews-button" href="review">
+                    <a class="lessons-and-reviews__button lessons-and-reviews__reviews-button dark-filter-exclude" href="review">
                       Reviews <span data-insertValue="reviewsAmount">Fetching...</span>
                     </a> </li>
                 </ul>

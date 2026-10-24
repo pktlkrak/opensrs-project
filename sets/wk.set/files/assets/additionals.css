@@ -1,0 +1,45 @@
+:root[data-theme='dark'] .dark-filter-exclude {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+:root[data-theme='dark'] #lesson #supplement-nav ul li.active::before {
+    border-color: transparent transparent #000 transparent !important;
+}
+
+:root[data-theme='dark'] #lesson #supplement-nav ul li:hover:not(.active)::before {
+    border-color: transparent transparent rgba(0, 0, 0, 0.3) transparent !important;
+}
+#toggle-dark {
+    border-radius: 32px;
+    width: 32px;
+    padding: 5px;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    color: black;
+    background-color: #eee;
+    text-align: center;
+    z-index: 100000
+}
+
+:root[data-theme='dark'] #toggle-dark {
+    color: white !important;
+    background-color: #333 !important;
+}
+
+#toggle-dark i {
+    font-size: 32px;
+    display: none;
+}
+
+:root[data-theme='dark'] #toggle-dark i.icon-sun {
+    display: inline-block !important;
+}
+
+:root:not([data-theme='dark']) #toggle-dark i.icon-moon {
+    display: inline-block !important;
+}
+
+:root[data-theme='dark'] { filter: invert(1) hue-rotate(180deg) }
+:root[data-theme='dark'] #answer-form fieldset.correct,
+:root[data-theme='dark'] #answer-form fieldset.incorrect { filter: invert(1) hue-rotate(180deg) }

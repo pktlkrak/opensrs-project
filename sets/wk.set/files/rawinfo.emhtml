@@ -44,8 +44,10 @@
         type='text/css'>
     <link href='https://maxcdn.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css' rel='stylesheet'
         type='text/css'>
+    <link rel="stylesheet" media="screen" href="assets/additionals.css">
 
     <script src="/osrs.js"></script>
+    <script src="assets/dark-theme.js" defer></script>
     <script src="assets/wanakana.js"></script>
     <link href='assets/rawinfo.css' rel='stylesheet'
         type='text/css'>
