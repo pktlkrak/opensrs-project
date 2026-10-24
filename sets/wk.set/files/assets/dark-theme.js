@@ -16,3 +16,8 @@ function toggleDarkTheme() {
 
 
 loadTheme();
+const darkModePreference = window.matchMedia("(prefers-color-scheme: dark)");
+darkModePreference.addEventListener('change', e => {
+    localStorage.setItem("theme", e.matches ? "dark" : "light");
+    loadTheme();
+});
