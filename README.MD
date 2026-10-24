@@ -1,6 +1,8 @@
 # OpenSRS - Prosty system do cyklicznego powtarzania fiszek
 
 
+![Strona główna](https://github.com/pktlkrak/opensrs-private/blob/master/doc_assets/main.png?raw=true)
+
 ## 1. Wstęp
 
 Projekt OpenSRS ma na celu umożliwić jego użytkownikom swobodną naukę dowolnego zestawu fiszek przy użyciu aplikacji webowej hostowanej przez wbudowany serwer HTTP.
@@ -14,8 +16,12 @@ Każdy z podsystemów projektu opisanych poniżej jest jeszcze dokładniej opisa
 
 SRS w tym kontekście to skrót od Spaced Repetition System. [Spaced Repetition](https://en.wikipedia.org/wiki/Spaced_repetition) to technka nauki opierająca się na powtarzaniu fiszek, w której te które są określone jako lepiej znane przez powtarzającego pojawiają się coraz rzadziej i rzadziej.
 
+![Przykładowa "lekcja"](https://github.com/pktlkrak/opensrs-private/blob/master/doc_assets/lesson.png?raw=true)
+
 Idea skupia się na najpierw wprowadzeniu fiszek w postaci lekcji w której użytkownik poznaje jej zawartość. Po poznaniu jej trafia do póli powtórek. Użytkowni w dowolnym czasie może przystąpić do powtórek, jeśli ma jakiekolwiek fiszki do powtórzenia.
 Po powtórzeniu danej fiszki dostępna będzie ona jako powtórka dopiero po jakimś czasie. Clue systemu leży w tym, że im częściej użytkownik odpowiada dobrze na daną fiszkę zyskuje w niej poziom, a odpowiadając źle traci.
+
+![Przykładowa "powtórka"](https://github.com/pktlkrak/opensrs-private/blob/master/doc_assets/review.png?raw=true)
 
 Każdy zestaw fiszek definiuje widełki faz w zależności od poziomu użytkownika w danej fiszce. Faza definiuje jakie odstępy czasowe będą występowały między powtózeniami fiszki oraz ile poziomów użytkownik traci za złą odpowiedź (dobra odpowiedź daje zawsze tylko jeden poziom).
 Istnieje też mechanizm Coerce - gdy użytkownik odpowie na "bliską" odpowiedź zdefiniowaną dla danej fiszki, nie zostanie od razu ukarany a otrzyma związaną z jego odpowiedzią podpowiedź.
