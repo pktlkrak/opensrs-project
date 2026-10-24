@@ -1,94 +1,18 @@
-#import "@preview/cetz:0.4.2"
-#import "@preview/cetz-plot:0.1.3": chart
-#import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
-#set text(lang: "pl")
-#set par(justify: true)
-#set heading(numbering: "1.")
-#let title = [OpenSRS - Prosty system do cyklicznego powtarzania fiszek]
-
-#set document(title: title)
-#set text(14pt)
-
-#show link: underline
-
-#set page(
-  margin: 5em,
-  numbering: "1",
-
-  header: context {
-    if counter(page).get().first() > 1 [
-        #smallcaps({
-            grid(columns: (1fr, 1fr, 1fr), align: (left, center, right),
-            "Politechnika Krakowska - Java",
-            "Projekt Końcowy",
-            "PK, WN"
-            )
-            v(-.7em)
-            line(start: (0%, 0pt), end: (100%, 0pt))
-        })
-    ] else []
-  },
-  footer: context {
-    if counter(page).get().first() > 1 [
-        #align(center, [
-            #(counter(page).get().first())
-        ])
-    ]
-  }
-)
-
-#par([
-  \
-  \
-  \
-  \
-  \
-  \
-  \
-  \
-  \
-  \
-  \
-  \
-  \
-  \
-  \
-])
+# OpenSRS - Prosty system do cyklicznego powtarzania fiszek
 
 
-#set text(20pt)
-
-#align(center, [* #title *])
-#set text(14pt)
-
-#align(center, [
-    * PK, WN *
-])
-
-#set text(11pt)
-
-#pagebreak()
-#outline(title: [Spis Treści])
-#pagebreak()
-
-
-#set page(
-  margin: 5em,
-  // columns: 2
-)
-
-= Wstęp
+## 1. Wstęp
 
 Projekt OpenSRS ma na celu umożliwić jego użytkownikom swobodną naukę dowolnego zestawu fiszek przy użyciu aplikacji webowej hostowanej przez wbudowany serwer HTTP.
 
 Projekt składa się z kilku warstw, z czego każda z nich zaprojektowana była ręcznie i nie jest zaimplementowana przy użyciu bibliotek zewnętrznych.
 Takie założenia zostały ustalone, aby lepiej zrozumieć jak gotowe narzędzia, takie jak ORM Hibernate lub serwer Spring działają od podszewki - poprzez implementację ich uproszczonych wersji.
 
-Każdy z podsystemów projektu opisanych poniżej jest jeszcze dokładniej opisany przy użyciu JavaDoc'ów, które można znaleźć w folderze `target/reports/apidocs` po zbudowaniu projektu. 
+Każdy z podsystemów projektu opisanych poniżej jest jeszcze dokładniej opisany przy użyciu JavaDoc'ów, które można znaleźć w folderze `target/reports/apidocs` po zbudowaniu projektu.
 
-== Czym jest SRS
+### 1.1. Czym jest SRS
 
-SRS w tym kontekście to skrót od Spaced Repetition System. #link("https://en.wikipedia.org/wiki/Spaced_repetition")[Spaced Repetition] to technka nauki opierająca się na powtarzaniu fiszek, w której te które są określone jako lepiej znane przez powtarzającego pojawiają się coraz rzadziej i rzadziej.
+SRS w tym kontekście to skrót od Spaced Repetition System. [Spaced Repetition](https://en.wikipedia.org/wiki/Spaced_repetition) to technka nauki opierająca się na powtarzaniu fiszek, w której te które są określone jako lepiej znane przez powtarzającego pojawiają się coraz rzadziej i rzadziej.
 
 Idea skupia się na najpierw wprowadzeniu fiszek w postaci lekcji w której użytkownik poznaje jej zawartość. Po poznaniu jej trafia do póli powtórek. Użytkowni w dowolnym czasie może przystąpić do powtórek, jeśli ma jakiekolwiek fiszki do powtórzenia.
 Po powtórzeniu danej fiszki dostępna będzie ona jako powtórka dopiero po jakimś czasie. Clue systemu leży w tym, że im częściej użytkownik odpowiada dobrze na daną fiszkę zyskuje w niej poziom, a odpowiadając źle traci.
@@ -96,11 +20,11 @@ Po powtórzeniu danej fiszki dostępna będzie ona jako powtórka dopiero po jak
 Każdy zestaw fiszek definiuje widełki faz w zależności od poziomu użytkownika w danej fiszce. Faza definiuje jakie odstępy czasowe będą występowały między powtózeniami fiszki oraz ile poziomów użytkownik traci za złą odpowiedź (dobra odpowiedź daje zawsze tylko jeden poziom).
 Istnieje też mechanizm Coerce - gdy użytkownik odpowie na "bliską" odpowiedź zdefiniowaną dla danej fiszki, nie zostanie od razu ukarany a otrzyma związaną z jego odpowiedzią podpowiedź.
 
-= Serwer HTTP - "Autumn"
+## 2. Serwer HTTP - "Autumn"
 
-== Podsumowanie
+### 2.1. Podsumowanie
 
-Autumn zbudowany jest w dużej mierze na bibliotece #link("https://mvnrepository.com/artifact/org.reflections/reflections")[Reflections],
+Autumn zbudowany jest w dużej mierze na bibliotece [Reflections](https://mvnrepository.com/artifact/org.reflections/reflections),
 która wyszukuje metody z określonymi adnotacjami oraz na zestawie adnotacji, które dyktują w jaki sposób każdy z endpointów działa.
 Definiują one, między innymi:
 
@@ -110,7 +34,7 @@ Definiują one, między innymi:
 
 Podczas uruchamiania aplikacji, Autumn buduje listę endpointów z narzuconymi priorytetami. W ten sposób, w momencie przyjścia nowego żądania, serwer jest w stanie szybko stwierdzić, który endpoint powinien być wykorzystany.
 
-== Definiowanie endpointów
+### 2.2. Definiowanie endpointów
 
 Podstawowym konceptem serwera Autumn jest "endpoint". Jest to metoda oznaczona adnotacją `@Endpoint`, która przyjmuje conajmniej jeden argument - `State` - Stan serwera, który reprezentuje zarówno żądanie przychodzące, jak i odpowiedź serwera.
 
@@ -137,12 +61,10 @@ public class TestAPI {
 }
 ```
 
-== Wypakowywanie danych z żądań
+### 2.3. Wypakowywanie danych z żądań
 
 Autumn do pobierania danych wykorzystuje adnotacje argumentów funkcji, przykładowo
-aby otrzymać wartość z parametru query, argument w funkcji należy oznaczyć adnotacją `@FromQuery("nazwa")`:
-
-#pagebreak()
+aby otrzymać wartość z parametru query, argument w funkcji należy oznaczyć adnotacją `@FromQuery("nazwa")`:
 
 ```java
 @Endpoint("hello")
@@ -152,19 +74,20 @@ public void sayHelloGet(State state, @FromQuery("test") String test) throws IOEx
 ```
 
 Podobna reguła występuje w przypadku wypakowywania danych z:
-- cookie (`@FromCookie("...")`) 
+
+- cookie (`@FromCookie("...")`)
 - body (o ile parsowanie ciała żądania jest włączone - jest to parametr `allowParsingBody` w adnotacji `@Endpoint`) (`@FromBody`)
 - ścieżki dostępu (`@FromPath("nazwa")`) - Uwaga: W takiej sytuacji, `@Route` lub `@Endpoint` muszą zawierać odpowiednią informację o ścieżce - przykładowo `@Endpoint("/fields/{field}")` oraz `@FromPath("field")`.
 - parametrów "extra" narzuconych przez middleware (`@FromExtra("...")`)
 
-== Middleware
+### 2.4. Middleware
 
 Middleware to metody podobne do endpointów, jednak zamiast adnotacji `@Endpoint`, wykorzystywana jest adnotacja `@Middleware`.
-Mogą one posługiwać się tymi samymi metodami ekstrakcji danych, co endpointy.
+Mogą one posługiwać się tymi samymi metodami ekstrakcji danych, co endpointy.
 
 Middleware dzielą się na lokalne (takie, które działają tylko wewnątrz klasy, w której są definiowane), oraz globalne (działające na wszystkie żądania).
 
-Klasa, w której definiowany jest middleware musi mieć adnotację `@Route(...)`
+Klasa, w której definiowany jest middleware musi mieć adnotację `@Route(...)`
 
 Przykład:
 
@@ -184,26 +107,26 @@ public class TestAPI {
 }
 ```
 
-== Objekt `State`
+### 2.5. Objekt `State`
 
 Objekt state, dla serwera Autumn stanowi zarówno abstrakcję żądania, jak i odpowiedzi serwera. Ma funkcje pozwalające na przykład na odczytanie zawartości strumienia
 przychodzącego żądania, oraz funkjce służące do ustawiania nagłówków odpowiedzi i odczytywania nagłówków przychodzących. Wszystkie metody opisane są w Javadoc'u.
 
-= Prosta implementacja systemu ORM
+## 3. Prosta implementacja systemu ORM
 
-== Podsumowanie
+### 3.1. Podsumowanie
 
 Połączenie z bazą danych reprezentuje abstrakcyjna klasa `Database`.
-Sam system ORM zaimplementowany został wewnątrz `SQLDatabaseImplementation` oraz objektów należących do pakietu `opensrs.dataobjects`.
+Sam system ORM zaimplementowany został wewnątrz `SQLDatabaseImplementation` oraz objektów należących do pakietu `opensrs.dataobjects`.
 
 System ten polega na założeniach, które spełniać musi każdy objekt, który zapisany zostanie wewnątrz bazy danych.
 
-== Definiowanie objektów
+### 3.2. Definiowanie objektów
 
-Objekty danych dziedziczą po `DataObject`, oraz implementują własną wersję enumeratora `GenericParameter`, który za zadanie ma informować jakiego typu jest dana kolumna, oraz czy dane pole powinno zostać wprowadzone do bazy danych w przypadku operacji insert lub update.
+Objekty danych dziedziczą po `DataObject`, oraz implementują własną wersję enumeratora `GenericParameter`, który za zadanie ma informować jakiego typu jest dana kolumna, oraz czy dane pole powinno zostać wprowadzone do bazy danych w przypadku operacji insert lub update.
 Enumerator ten stanowi także prosty w obsłudze interface, który mogą wykorzystywać implementacje bazy danych aby ustawiać i odczytywać konkretne wartości z objektów, przy pomocy funkcji `getGetter` oraz `getSetter`.
 
-Najprostrzy typ danych (samo ID) mogłoby zostać zapisane w poniższy sposób:
+Najprostrzy typ danych (samo ID) mogłoby zostać zapisane w poniższy sposób:
 
 ```java
 public class SimpleDataType extends DataObject<SimpleDataType.Parameter> {
@@ -251,7 +174,7 @@ public class SimpleDataType extends DataObject<SimpleDataType.Parameter> {
 }
 ```
 
-== API bazy danych
+### 3.3. API bazy danych
 
 Implementacja klasy `Database` dla każdego typu danych musi zawierać funkcje:
 
@@ -262,13 +185,13 @@ public List<Datatype> updateDatatype(Filter<Datatype.Parameter> filter, Update<D
 
 Gdzie `DataType` to objekt, który powinien zostać zapisany w bazie.
 
-Ponieważ system jest skonstruowany na zasanie niemutowalnego ledger'a, funkcja służąca do kasowania objektów nie powinna być zaimplementowana.
+Ponieważ system jest skonstruowany na zasanie niemutowalnego ledger'a, funkcja służąca do kasowania objektów nie powinna być zaimplementowana.
 
-== Klasy pomocnicze
+### 3.4. Klasy pomocnicze
 
-=== Filtry
+#### 3.4.1. Filtry
 
-Filtrowanie objektów w bazie danych odbywa się przy pomocy klasy `Filter`. Klasa ta symbolizuje pojedyńcze kryterum, które każdy z objektów zwróconych przez implementację bazy danych ma spełniać. Aby wykonywać bardziej skomplikowane filtrowanie, należy wykorzystać opisaną niżej klasę `FilterChain`.
+Filtrowanie objektów w bazie danych odbywa się przy pomocy klasy `Filter`. Klasa ta symbolizuje pojedyńcze kryterum, które każdy z objektów zwróconych przez implementację bazy danych ma spełniać. Aby wykonywać bardziej skomplikowane filtrowanie, należy wykorzystać opisaną niżej klasę `FilterChain`.
 
 Przykład filtrowania przy pomocy pojedyńczego filtru:
 
@@ -276,11 +199,11 @@ Przykład filtrowania przy pomocy pojedyńczego filtru:
 Review r = database.fetchReview(new Filter<>(Review.Parameter.UID, Filters.EqOnly.EQUAL, userId), null);
 ```
 
-Takie zapytanie znajdzie pierwszy `Review`, którego `UID` ustawiony jest na wartość `userId`. Identyfikatory objektów mają zdefiniowany typ `EqOnly` pomimo tego, że są liczbami, z uwagi na to, iż filtrowanie po ID większych lub mniejszych niż konkretna wartość nie ma logicznego sensu.
+Takie zapytanie znajdzie pierwszy `Review`, którego `UID` ustawiony jest na wartość `userId`. Identyfikatory objektów mają zdefiniowany typ `EqOnly` pomimo tego, że są liczbami, z uwagi na to, iż filtrowanie po ID większych lub mniejszych niż konkretna wartość nie ma logicznego sensu.
 
-==== Łączenie filtrów
+##### 3.4.1.1. Łączenie filtrów
 
-Aby filtrorwać przy użyciu wielu kryterów, należy wykorzystać klasę `FilterChain`, która symbolizuje logiczną koniunkcję lub alternatywę z kilku parametrów. Warto zauważyć, że `FilterChain` implementuje `Filter`, więc może być on wykorzystywany rekurencyjnie.
+Aby filtrorwać przy użyciu wielu kryterów, należy wykorzystać klasę `FilterChain`, która symbolizuje logiczną koniunkcję lub alternatywę z kilku parametrów. Warto zauważyć, że `FilterChain` implementuje `Filter`, więc może być on wykorzystywany rekurencyjnie.
 
 Przykładowe zapytanie:
 
@@ -291,9 +214,9 @@ Review rev = database.fetchReview(new FilterChain<>(FilterChain.Junction.AND, Ar
 ), null);
 ```
 
-=== Sortowanie
+#### 3.4.2. Sortowanie
 
-Sortowanie zaimplementowane jest w podobny sposób do filtrów. Jedyną różnicą jest to, że w obecnej wersji tego systemu nie da się reprezentować sortowania po kilku parametrach.
+Sortowanie zaimplementowane jest w podobny sposób do filtrów. Jedyną różnicą jest to, że w obecnej wersji tego systemu nie da się reprezentować sortowania po kilku parametrach.
 
 Przykładowe zapytanie:
 
@@ -307,21 +230,22 @@ Review last = database.fetchReview(
     new Sorter(Review.Parameter.UNLOCK_DATE, Sorters.NumberSorter.DESCENDING));
 ```
 
-= Logika i endpointy systemu OpenSRS
+## 4. Logika i endpointy systemu OpenSRS
 
-== Archiktura
+### 4.1. Archiktura
 
 W projekcie można wyodrębnić 4 główne częsci projektu:
+
 - Serwer Autumn - Opisany wyżej serwer, działający za pomocą refleksji.
-Odopowiada za serwowanie dostępu do określonych przes OpenSRS endpointów.
-Jest on niezależny od reszty projektu więc może zostać wykorzystany do innych projektów.
+  Odopowiada za serwowanie dostępu do określonych przes OpenSRS endpointów.
+  Jest on niezależny od reszty projektu więc może zostać wykorzystany do innych projektów.
 - OpenSRS - Sam system SRS definiujący logikę interaktywnego systemu fiszek.
-Definiuje zarówno zachowania samych endpointów jak i komunikację aplikacji z bazą danych.
+  Definiuje zarówno zachowania samych endpointów jak i komunikację aplikacji z bazą danych.
 - Baza danych SQLite - Baza danych przechowująca informajce o postępnie użytkowników, ich sesjach lekcji i powtórek.
 - Sety - zapisane w odpowiednim folderze, definiują fiszki dla danego zestawu a także różne parametry takie jak grupy fiszek, fazy znajomości każdej z nich.
-Sam OpenSRS też nie ma zdefiniowanego front endu. Każdy set mająć dostęp do endpointów wymaganych do obsługi aplikacji definiuje własne UI do obsługi danego setu.
+  Sam OpenSRS też nie ma zdefiniowanego front endu. Każdy set mająć dostęp do endpointów wymaganych do obsługi aplikacji definiuje własne UI do obsługi danego setu.
 
-== Autentykacja
+### 4.2. Autentykacja
 
 Rejestracja i logowanie użytkowników odbywa się przez endpointy opisane w pliku `Login.java`.
 
@@ -335,44 +259,48 @@ Istnieją trzy endpointy związane z logowaniem:
 
 Z uwagi na założenia projektu, według których OpenSRS był zaprojektowany aby działać w Home Labach a nie na serwerach dużej firmy, aplikacja nie ma możliwości resetu hasła.
 
-== Lekcje
-Dany Set ma w sobie wiele fiszek. 
+### 4.3. Lekcje
+
+Dany Set ma w sobie wiele fiszek.
 Najpierw użytkownik musi przerobić daną fiszkę w ramach lekcji - nauczyć się jej aby móc zacząc ją powtarzać jako review.
 Niektóre fiszki mogą wymagać wiedzy z poprzednich fiszek np. kanji może składać z kilku radykałów (składowych, prostrzych znaków).
 Dlatego system wspiera zablokowanie lekcji za innymi lekcjami (użytkownik nie ma dostępu do lekcji o danym kanji dopóki nie przerobi jego wszsytkich radykałów).
 Po przerobieniu danej fiszki jako lekcja staje się ona dostępna dla użytkownika jako powrtórka, która będzie omówiona w następnej sekcji.
 
 OpenSRS definiuje różne endpointy do obsługi lekcji zdefiniowne w pliku `Lesson.java`:
+
 - '/api/{set}/lesson/start' - Ustawia nowe cookie sesji lekcji, które będzie użyte do grupowania elementów poznanych w tej sesji (jeśli użytkownik pozna więcej niż jedną fiszkę podczas jednego posiedzenia będą pogrupowane tym cookie).
 - '/api/{set}/lesson/queue' - Daje dostęp do kolejki dostępnych dla użytkownika lekcji. Same UI setu definiuje jak zaprezentować użytkownikowi tą kolejkę.
 - '/api/{set}/lesson/completed' - Pozwala przesłać informację o zakończeniu jednej lub wielu lekcji z informacją podczas jakiej sesji dana lekcja została zakończona (można przesyłać tą informajcę np. po każdej lekcji albo po wszystkich - zależy to od samego UI setu).
 - '/api/{set}/lesson/lastSession' - Daje informacje zwrotne o ostatnio zakończonej sesji - może zostać wykorzystny do wyświetlenia np. ekranu podsumowania co dany użytkownik nauczył się podczas danej sesji.
 
-== Powtórki
+### 4.4. Powtórki
+
 Po tym jak użytkownik przerobi daną fiszkę jako lekcja staje się ona dostępna jako powtórka.
 Każdy set definiuje fazy znajomości danej fiszki - najpierw użytkownik zaczyna od najniższej fazy (np. begginer).
 Każde udane powtórzenie danej fiszki zwiększa poziom o 1 (numeryczna wartość reprezentująca znajomośc danej fiszki).
 Każda faza ma swoje zdefiniowane widełki (np. set może zdefiniować drugą fazę, intermidiate od poziomu > 3 - użytkownik osiągnie fazę intermidiate po 3 udanych powtórzeniach fiszki).
 Każde nieudane powtórzenie fiszki obniża poziom. Każdy set definuje dla każdej fazy, jaka jest w niej utrata poziomu (np. złe powtórzenie fiszki, w której użytkownik ma fazę Begginer może obniżyc poziom o 1, natomiast złe powtórzenie fiszki na fazie Guru może obniżyć poziom o 3)
 Fiszek nie powtarza się też kiedy chcę - każda powtórka ustawia czas, za który najwcześniej użytkownik powinien powtórzyć daną fiszkę.
-Im wyższa faza danego użytkownika, tym dłuższe okresy między kiedy należy zrobić następną powtórkę (np. powtórzenie fiszki na poziomie Begginer może ustawić powtórkę na dostepną za godzinę a powótrzenie fiszki na poziomie Guru na za dwa tygodnie).   
+Im wyższa faza danego użytkownika, tym dłuższe okresy między kiedy należy zrobić następną powtórkę (np. powtórzenie fiszki na poziomie Begginer może ustawić powtórkę na dostepną za godzinę a powótrzenie fiszki na poziomie Guru na za dwa tygodnie).
 
 Powtórki mogą zawierać też funkcjonalność incentyw. Każda fiszka może mieć jakieś incentywy - odpowiedzi bliskie lub związane z poprawną, które nie są jednak wymaganą odpowiedzią.
-Wtedy zamiast liczyć się jako nieudana próba odpowiedzenia użytkownik otrzyma podpowiedź związaną z daną incentywą.   
+Wtedy zamiast liczyć się jako nieudana próba odpowiedzenia użytkownik otrzyma podpowiedź związaną z daną incentywą.
 
 OpenSRS definiuje różne endpointy do obsługi powtórek zdefiniowne w pliku `Lesson.java`:
+
 - '/api/{set}/review/start' - Ustawia nowe cookie sesji powtórek, które będzie użyte do grupowania elementów powtórzonych w tej sesji (jeśli użytkownik powtórzy więcej niż jedną fiszkę podczas jednego posiedzenia będą pogrupowane tym cookie).
 - '/api/{set}/review/queue' - Daje dostęp do kolejki dostępnych dla użytkownika powtórek (tych, których czas między powtórkami już upłynoł). Same UI setu definiuje jak zaprezentować użytkownikowi tą kolejkę.
 - '/api/{set}/review/lastSession' - Daje informacje zwrotne o ostatnio zakończonej sesji - może zostać wykorzystny do wyświetlenia np. ekranu podsumowania co dany użytkownik powtórzył podczas danej sesji.
-- '/api/{set}/review/progress' - 
+- '/api/{set}/review/progress' -
 
-= Definiowanie nowych zestawów
+## 5. Definiowanie nowych zestawów
 
 Tworzenie własnych zestawów ("set'ów"), zgodnie z założeniami projektu jest bardzo proste. Dla OpenSRS'a, zestawem fiszek jest każdy folder wewnątrz folderu `sets`, którego nazwa kończy się sufixem `.set`. Wewnątrz tego folderu powinny znajdować się pliki `config.XML`, `content.XML` oraz folder `files`.
 
 Aby stworzyć nowy set, należy więc zacząć od stworzenia nowego folderu w folderze `sets`.
 
-== Pisanie `config.XML`
+### 5.1. Pisanie `config.XML`
 
 Następnym etapem jest utworzenie pliku `config.XML`, w którym zdefiniowane są metadata o zestawie. Każdy plik `config.XML` składa się z pojedyńczego objektu `SRSConfig`, w którym następnie zdefiniowane są:
 
@@ -383,21 +311,21 @@ Następnym etapem jest utworzenie pliku `config.XML`, w którym zdefiniowane są
 
 Przykładowy plik `config.XML` wygląda następująco:
 
-=== Fazy
+#### 5.1.1. Fazy
 
 W systemie OpenSRS, faza ("phase") to konkretny poziom poznania danej fiszki. Pojedyńcza powtórka nosi nazwę etapu ("stage"). OpenSRS pozwala nadać fazom przyjazne dla użytkownika nazwy - do tego właśnie służy objekt `<phases>`.
 Wewnątrz niego powinny znaleźć się jedynie objekty `<phase>`, zawierające atrybuty `number` oraz `fromStage`. Atrybut `number` określa numer danej fazy, `fromStage` informuje od którego etapu dana faza się rozpoczyna. Wewnątrz tego objektu zapisana powinna być nazwa fazy.
 
-=== Kary
+#### 5.1.2. Kary
 
-Sekcja kar zawiera informacje o ile etapów użytkownik "spada" po podaniu złej odpowiedzi, w zależności od obecnego etapu. Sekcja ta składa się z objektu `<penalties>` zawierającego subobjekty `<stage>` z atrybutami `number`.
+Sekcja kar zawiera informacje o ile etapów użytkownik "spada" po podaniu złej odpowiedzi, w zależności od obecnego etapu. Sekcja ta składa się z objektu `<penalties>` zawierającego subobjekty `<stage>` z atrybutami `number`.
 Wewnątrz objektów stage zawarta jest informacja ile etapów należy odjąć dla danego przedmiotu po błędnej odpowiedzi na pytanie, zakładając, że użytkownik zna dany objekt na etapie odczytanym z atrybutu `number.`
 
-=== Przerwy
+#### 5.1.3. Przerwy
 
 Analogicznie do sekcji kar, informacje o przerwach zakodowane są przy pomocy objektu `<timings>`, wewnątrz którego znajdują się objekty `<stage>` o formacie identycznym do tych wewnątrz sekcji kar. Wewnątrz każdego objektu `<stage>` zawarta jest liczba godzin opóźnienia.
 
-=== Aliasy
+#### 5.1.4. Aliasy
 
 Aliasy pozwalają na przekierowanie poszczególnych URI na konkretne pliki z folderu `files` danego zestawu. Zapisane są jako objekt `<bindings>` zawierający objekty `<bind>`.
 
@@ -407,8 +335,7 @@ Każdy typ `<bind>` składa się z atrybutów `source`, `target` oraz `type`.
 - target zawiera nazwę pliku docelowego
 - type informuje system OpenSRS czy `source` jest wyrażeniem regularnym, czy zwykłą regułą. (Możliwe wartości: `literal`, `regex`. Domyślna: `literal`)
 
-
-=== Przykładowy plik
+#### 5.1.5. Przykładowy plik
 
 ```xml
 <?xml version="1.0"?>
@@ -434,7 +361,7 @@ Każdy typ `<bind>` składa się z atrybutów `source`, `target` oraz `type`.
 </SRSConfig>
 ```
 
-== Pisanie `content.XML`
+### 5.2. Pisanie `content.XML`
 
 Plik `content.XML` zawiera informacje o fiszkach. Jest to plik o znacznie prostrzym formacie, składający się jedynie z root-objektu `<SRSData>`, zawierającego wiele `<SRSObject>`.
 Każdy objekt `<SRSObject>` reprezentuje jedną fiszkę.
@@ -446,10 +373,10 @@ Każdy `<SRSObject>` zawiera następujące wartości:
 - Objekt `<query>` - jest to "przednia strona" fiszki - frontend powinien wyświetlić to zapytanie użytkownikowi
 - Objekt `<dependencies>` - zawiera subobjekty `<dependsOn>`. W każdym z nich powinno znaleźć się ID fiszki, która musi zostać odblokowana, aby można było nauczyć się fiszki reprezentowanej przez obecny `<SRSObject>`
 - Objekt `<level>` - zawiera numer "poziomu", do którego fiszka należy. Poziomy pozwalają na łatwe sprawdzenie jak wiele fiszek dany użytkownik zna. Pozwala też w łatwy sposób grupować materiał do poznania (fiszki z kolejnego poziomu odblokowywują się tylko po poznaniu wszystkich z poziomu obecnego)
-- Objekt `<reviewable>` - zawiera objekty `<param>` oraz `<coerce>`. Objekty `<param>` opisują konkretną cechę danej fiszki, która ma być sprawdzona - zawierają atrybut `name`, oraz żądaną odpowiedź, jako zawartość. Wiele objektów `<param>` z taką samą wartością `name` traktowane jest jako alternatywa. Objekty `<coerce>` to podpowiedzi. Zawierają atrybut `for`, w którym zapisana jest błędna odpowiedź. W zawartości natomiast zapisana jest treść podpowiedzi.
+- Objekt `<reviewable>` - zawiera objekty `<param>` oraz `<coerce>`. Objekty `<param>` opisują konkretną cechę danej fiszki, która ma być sprawdzona - zawierają atrybut `name`, oraz żądaną odpowiedź, jako zawartość. Wiele objektów `<param>` z taką samą wartością `name` traktowane jest jako alternatywa. Objekty `<coerce>` to podpowiedzi. Zawierają atrybut `for`, w którym zapisana jest błędna odpowiedź. W zawartości natomiast zapisana jest treść podpowiedzi.
 - Objekt `<data>` - JSON, który zostanie przekazany frontend'owi bezpośrednio. Sam system OpenSRS nie sprawdza go.
 
-=== Przykładowy plik
+#### 5.2.1. Przykładowy plik
 
 ```xml
 <?xml version="1.0" ?>
@@ -482,13 +409,13 @@ Każdy `<SRSObject>` zawiera następujące wartości:
 </SRSData>
 ```
 
-== Tworzenie frontendu
+### 5.3. Tworzenie frontendu
 
 Każdy zestaw powinien sam zdefiniować frontend. W tym celu użyć musi on endpointów, które dokładnie opisane były we wcześniejszej części dokumentacji, oraz pliku `osrs.js`, który stanowi prostą bibliotekę dla kodu frontend'ów.
 
 Zawartość folderu `files` dostępna jest dla klientów pod adresem `http://<adres>/<nazwa zbioru>/ ... pliki`. Jeżeli plik nie istnieje w folderze `files` danego zbioru, zostanie od odczytany z folderu `common` w CWD serwera.
 
-= Uruchamianie projektu
+## 6. Uruchamianie projektu
 
 Projekt OpenSRS został napisany w IDE NetBeans, jednak może być uruchomiony za pomocą systemu Maven.
 Aby projekt uruchomił się poprawnie, w folderze z którego zostanie uruchomiony musi znajdować się folder `sets` z poprawną strukturą zbiorów OpenSRS.
@@ -500,15 +427,11 @@ $ java -cp "target/OpenSRSMVN-1.0-SNAPSHOT.jar:$(printf %s: target/dependency/*.
 
 Po wykonaniu powyższych komend, uruchomiony zostanie serwer lokalny na `http://0.0.0.0:9998`, a pliki JavaDoc wygenerowane zostaną w folderze `target/reports/apidocs`.
 
+Alternatywnie, do projektu dołączone są pliki Docker'a - `docker-compose.yml` oraz `Dockerfile`. Pliki te także mogą zostać wykorzystane aby uruchomić serwer OpenSRS.
 
-= Podsumowanie
+## 7. Podsumowanie
+
 OpenSRS to interaktywny system fiszek wspierający adaptywne czasy powtórzeń na podstawie znajomości użytkownika, definiowanie fiszek które wymagają znajomości innych fiszek, grupowanie ich po typach oraz dodawanie incentyw dla bliskich odpowiedzi.
 Cechuje się uniwersalnością - może wspierać wielu użytkowników i wiele zestawów na raz. Każdy zestaw definiuje nie tylko własne fiszki ale ich grupy, fazy i interfejs graficzny.
 Cały projekt działa na serwerze Autumn który też jest niezależny od reszty projektu i może być wykorzystany do innych celów.
 
-
-= Możliwe sposoby rozwoju aplikacji
-
-- Łatwiejszy system edycji treści - obecnie można to robić jedynie przez edycję plików XML set'ów.
-- Możliwość resetu haseł, a co za tym idzie wysyłanie e-maili.
-- Przepisanie na system ORM, np. Hibernate.
