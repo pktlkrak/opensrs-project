@@ -1,0 +1,84 @@
+<header>
+                    <h1>
+                        <a id="levelLink" class="level-icon" href="/level/1">1</a>
+                        <span class="vocabulary-icon" lang="ja" id="queryIcon">{trs:Fetching}...</span>
+                        <span data-insertValue="literalName"></span>
+                    </h1>
+                    <div class="page-list remove-margin-bottom">
+                        <ul>
+                            <li class="page-list-header"><span>Go to</span></li>
+                            <li><a href="#meaning" data-insertValue="meaningName">{trs:Meaning}</a></li>
+                            <li><a href="#amalgamations" data-onlyif="radicals">{trs:Found in Kanji}</a></li>
+                            <li><a href="#reading" data-onlyif="vocabulary|kanji">{trs:Reading}</a></li>
+                            <li><a href="#context" data-onlyif="vocabulary">{trs:Context}</a></li>
+                            <li><a href="#components" data-insertValue="compositionName"
+                                    data-onlyif="vocabulary">{trs:Kanji Composition}</a></li>
+                        </ul>
+                    </div>
+                </header>
+
+                <section data-onlyif="kanji" data-onlyif-setid="components">
+                    <h2>{trs:Radical Composition}</h2>
+                    <ul class="single-character-grid multi-character-grid-extra-styling-767px">
+
+                    </ul>
+                </section>
+
+                <section id="meaning" class="remove-margin-bottom">
+                    <h2 data-insertValue="meaningName">{trs:Meaning}</h2>
+                    <span id="meanings">
+                        <!--Data goes here-->
+                    </span>
+                    <h3 data-insertValue="mnemonicName">{trs:Explanation}</h3>
+                    <section class="mnemonic-content mnemonic-content--new">
+                        <p data-compacted="mainMnemonic"></p>
+                    </section>
+                </section>
+
+                <section data-onlyif="radicals" data-onlyif-setid="amalgamations">
+                    <h2 data-insertValue="amalgamationsName">{trs:Found In Kanji}</h2>
+                    <ul class="single-character-grid multi-character-grid-extra-styling-767px">
+
+                    </ul>
+                </section>
+
+
+                <section class="vocabulary-reading" data-onlyif="vocabulary" data-onlyif-setid="reading">
+                    <h2>{trs:Reading}</h2>
+                    <div>
+                        <div class="readings-component" data-reactroot="">
+                        </div>
+                    </div>
+                    <h3>{trs:Explanation}</h3>
+                    <section class="mnemonic-content mnemonic-content--new">
+                        <p data-compacted="vocabReadingMnemonic"></p>
+                    </section>
+                </section>
+
+                <section data-onlyif="kanji" data-onlyif-setid="reading">
+                    <h2>{trs:Readings}</h2>
+                    <div class="row row--collapsed" id="kanjiReadings">
+
+                    </div>
+                    <h3>{trs:Mnemonic}</h3>
+                    <section class="mnemonic-content mnemonic-content--new">
+                        <p data-compacted="kanjiReadingMnemonic"></p>
+                    </section>
+                </section>
+
+                <section data-onlyif="kanji" data-onlyif-setid="amalgamations">
+                    <h2>{trs:Found In Vocabulary}</h2>
+                      <ul class="multi-character-grid multi-character-grid-extra-styling">
+                      </ul>
+                  </section>
+
+                <section id="context" class="context-sentence" data-onlyif="vocabulary">
+                    <h2>{trs:Context}</h2>
+                    <h3>{trs:Context Sentences}</h3>
+                </section>
+
+                <section data-onlyif="vocabulary" data-onlyif-setid="components">
+                    <h2>{trs:Kanji Composition}</h2>
+                    <ul class="single-character-grid multi-character-grid-extra-styling-767px">
+                    </ul>
+                  </section>

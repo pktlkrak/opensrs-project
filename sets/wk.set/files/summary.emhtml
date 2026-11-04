@@ -62,12 +62,12 @@
         <nav>
           <a title="Back to dashboard" id="back-dashboard" href="index.html">&nbsp;</a>
           <div id="start-session">
-            <a title="Start review session" href="/review/start" id="actionLink">Start Session</a><span id="review-queue-count"
+            <a title="Start review session" href="/review/start" id="actionLink">{trs:Start Session}</a><span id="review-queue-count"
               title="Reviews in queue" data-insertValue="amountQueued"></span>
           </div>
         </nav>
         <h1>
-          <i class="icon-check-sign"></i> <span data-insertValue="type"></span> Summary
+          <i class="icon-check-sign"></i> <span data-insertValue="type"></span> {trs.partial:Summary}
         </h1>
       </header>
     </div>
@@ -78,81 +78,78 @@
         <div class="pure-u-1-4">
           <div id="review-stats-answered-correctly">
             <div class="review-stats-value" data-insertValue="percentageCorrect"></div>
-            <div class="review-stats-type">Answered Correctly</div>
+            <div class="review-stats-type">{trs:Answered Correctly}</div>
           </div>
         </div>
         <div class="pure-u-1-4">
           <div id="review-stats-radicals">
             <div class="review-stats-value" data-insertValue="radicalsCorrect"></div>
-            <div class="review-stats-total">out of <span data-insertValue="radicalsTotal"></span></div>
-            <div class="review-stats-type">Radicals</div>
+            <div class="review-stats-total">{trs:out of} <span data-insertValue="radicalsTotal"></span></div>
+            <div class="review-stats-type">{trs.g:Radicals}</div>
           </div>
         </div>
         <div class="pure-u-1-4">
           <div id="review-stats-kanji">
             <div class="review-stats-value" data-insertValue="kanjiCorrect"></div>
-            <div class="review-stats-total">out of <span data-insertValue="kanjiTotal"></span></div>
-            <div class="review-stats-type">Kanji</div>
+            <div class="review-stats-total">{trs:out of} <span data-insertValue="kanjiTotal"></span></div>
+            <div class="review-stats-type">{trs.g:Kanji}</div>
           </div>
         </div>
         <div class="pure-u-1-4">
           <div id="review-stats-vocabulary">
             <div class="review-stats-value" data-insertValue="vocabCorrect"></div>
-            <div class="review-stats-total">out of <span data-insertValue="vocabTotal"></span></div>
-            <div class="review-stats-type">Vocabulary</div>
+            <div class="review-stats-total">{trs:out of} <span data-insertValue="vocabTotal"></span></div>
+            <div class="review-stats-type">{trs.g:Vocabulary}</div>
           </div>
         </div>
       </div>
     </div>
     <div class="pure-g-r">
       <div id="incorrect" class="pure-u-1">
-        <h2><strong data-insertValue="overallIncorrectCount"></strong> Answered Incorrectly</h2>
+        <h2><strong data-insertValue="overallIncorrectCount"></strong> {trs:Answered Incorrectly}</h2>
         <div class="master">
-          <h3><span><strong title="Items in this group"  data-insertValue="incorrectmasterAmount"></strong> Master</span></h3>
+          <h3><span><strong title="Items in this group"  data-insertValue="incorrectmasterAmount"></strong> {trs:Master}</span></h3>
           <ul></ul>
         </div>
         <div class="guru">
-          <h3><span><strong title="Items in this group"  data-insertValue="incorrectguruAmount"></strong> Guru</span></h3>
+          <h3><span><strong title="Items in this group"  data-insertValue="incorrectguruAmount"></strong> {trs:Guru}</span></h3>
           <ul></ul>
         </div>
         <div class="apprentice">
-          <h3><span><strong title="Items in this group"  data-insertValue="incorrectapprenticeAmount"></strong> Apprentice</span></h3>
+          <h3><span><strong title="Items in this group"  data-insertValue="incorrectapprenticeAmount"></strong> {trs:Apprentice}</span></h3>
           <ul></ul>
         </div>
       </div>
     </div>
     <div class="pure-g-r">
       <div id="correct" class="pure-u-1">
-        <h2><strong data-insertValue="overallCorrectCount"></strong> Answered Correctly</h2>
+        <h2><strong data-insertValue="overallCorrectCount"></strong> {trs:Answered Correctly}</h2>
         <div class="burned">
-          <h3><span><strong title="Items in this group" data-insertValue="correctburnedAmount"></strong> Burned</span></h3>
+          <h3><span><strong title="Items in this group" data-insertValue="correctburnedAmount"></strong> {trs:Burned}</span></h3>
           <ul></ul>
         </div>
         <div class="enlightened">
-          <h3><span><strong title="Items in this group" data-insertValue="correctenlightenedAmount"></strong> Enlightened</span></h3>
+          <h3><span><strong title="Items in this group" data-insertValue="correctenlightenedAmount"></strong> {trs:Enlightened}</span></h3>
           <ul></ul>
         </div>
         <div class="master">
-          <h3><span><strong title="Items in this group" data-insertValue="correctmasterAmount"></strong> Master</span></h3>
+          <h3><span><strong title="Items in this group" data-insertValue="correctmasterAmount"></strong> {trs:Master}</span></h3>
           <ul></ul>
         </div>
         <div class="guru">
-          <h3><span><strong title="Items in this group" data-insertValue="correctguruAmount"></strong> Guru</span></h3>
+          <h3><span><strong title="Items in this group" data-insertValue="correctguruAmount"></strong> {trs:Guru}</span></h3>
           <ul></ul>
         </div>
         <div class="apprentice">
-          <h3><span><strong title="Items in this group" data-insertValue="correctapprenticeAmount"></strong> Apprentice</span></h3>
+          <h3><span><strong title="Items in this group" data-insertValue="correctapprenticeAmount"></strong> {trs:Apprentice}</span></h3>
           <ul></ul>
         </div>
       </div>
     </div>
     <div class="pure-g-r">
       <footer class="pure-u-1">
-        <div id="last-session-date">
-          Your last session started <time></time>
-        </div>
         <div id="copyright">
-          Copyright © Tofugu LLC, <span lang="ja">よ</span> (Modified to use OpenSRS)
+          {trs:Copyright} © Tofugu LLC, <span lang="ja">よ</span> {trs:(Modified to use OpenSRS)}
         </div>
       </footer>
     </div>
@@ -160,7 +157,7 @@
   <div id="lessons-summary">
     <div class="pure-g-r">
       <div id="radicals" class="pure-u-1">
-        <h2><strong data-insertValue="radicalsTotal">0</strong> Radicals</h2>
+        <h2><strong data-insertValue="radicalsTotal">0</strong> {trs:Radicals}</h2>
         <div style="display: none;">
           <ul></ul>
         </div>
@@ -168,7 +165,7 @@
     </div>
     <div class="pure-g-r">
       <div id="kanji" class="pure-u-1">
-        <h2><strong data-insertValue="kanjiTotal">0</strong> Kanji</h2>
+        <h2><strong data-insertValue="kanjiTotal">0</strong> {trs:Kanji}</h2>
         <div style="display: none;">
           <ul></ul>
         </div>
@@ -176,7 +173,7 @@
     </div>
     <div class="pure-g-r">
       <div id="vocabulary" class="pure-u-1">
-        <h2><strong data-insertValue="vocabTotal">0</strong> Vocabulary</h2>
+        <h2><strong data-insertValue="vocabTotal">0</strong> {trs:Vocabulary}</h2>
         <div style="display: none;">
           <ul></ul>
         </div>
@@ -184,11 +181,8 @@
     </div>
     <div class="pure-g-r">
       <footer class="pure-u-1">
-        <div id="last-session-date">
-          Your last session activity was <time datetime="2021-08-27T12:39:00.286585Z">about an hour ago</time>
-        </div>
         <div id="copyright">
-          Copyright © Tofugu LLC, <span lang="ja">よ</span>
+          {trs:Copyright} © Tofugu LLC, <span lang="ja">よ</span>
         </div>
       </footer>
     </div>
@@ -206,7 +200,7 @@
 
       //First, check if we're in lesson summary of review summary mode
       const isLessonSummary = window.location.href.includes("lesson");
-      fillIn("type", isLessonSummary ? "Lessons" : "Reviews");
+      fillIn("type", isLessonSummary ? "{trs.summary:Lessons}" : "{trs.summary:Reviews}");
 
       const queued = await (isLessonSummary ? OSRS.getLessonsQueue() : OSRS.getReviewsQueue());
       const queuedAmount = Object.keys(queued.count).map(n => queued.count[n]).reduce((a, b) => a + b, 0);
@@ -274,7 +268,7 @@
         fillIn("overallCorrectCount", overallCorrectCount);
         fillIn("overallIncorrectCount", allCount - overallCorrectCount);
 
-        fillIn("percentageCorrect", Math.ceil((100 * overallCorrectCount) / allCount));
+        fillIn("percentageCorrect", Math.ceil((100 * overallCorrectCount) / (allCount || 1)));
 
         const phaseNames = ["apprentice", "guru", "master", "enlightened", "burned"];
         const incorrectSection = document.querySelector("#incorrect"),

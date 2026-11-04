@@ -1,0 +1,69 @@
+{
+    "Lessons": "Lekcje",
+    "Reviews": "Powtórki",
+    "Fetching": "Ładowanie",
+
+    "Levels": "Poziomy",
+    "Level": "Poziom",
+
+    "Radicals": "Radykały",
+    "Kanji": "Kanji",
+    "Vocabulary": "Słownictwo",
+
+    "Pleasant": "Przyjemne",
+    "Painful": "Bolesne",
+    "Death": "Śmierć",
+    "Hell": "Piekło",
+    "Paradise": "Raj",
+    "Reality": "Rzeczywistość",
+
+    "PLEASANT": "PRZYJEMNE",
+
+    "Sign Out": "Wyloguj",
+    "App": "Aplikacja",
+    "Profile": "Profil",
+    "Settings": "Ustawienia",
+    "Help": "Pomoc",
+    "Contact Us": "Kontakt",
+    "Community": "Społeczność",
+    "Account": "Konto",
+
+    "OpenSRS requires JavaScript to function properly": "OpenSRS wymaga JavaScript'a aby poprawnie funkcjonować",
+
+
+
+
+    "(Modified to use OpenSRS)": "(Zmodyfikowane na potrzeby OpenSRS)",
+    "Start Session": "Rozpocznij Sesję",
+    "Summary": "Podsumowanie",
+    "Answered Correctly": "Poprawnych Odpowiedzi",
+    "Answered Incorrectly": "Niepoprawnych Odpowiedzi",
+    "out of": "z",
+    ".g.Radicals": "Radykałów",
+    ".g.Vocabulary": "Słownictwa",
+    "Copyright": "",
+    ".partial.Summary": "",
+    ".summary.Lessons": "Podsumowanie lekcji",
+    ".summary.Reviews": "Podsumowanie powtórki",
+
+    "Burned": "Spalone",
+    "Enlightened": "Oświecone",
+    "Master": "Mistrzowskie",
+    "Guru": "Guru",
+    "Apprentice": "Początkujące",
+
+    "Meaning": "Znaczenie",
+    "Found in Kanji": "Występuje w Kanji",
+    "Found in Vocabulary": "Występuje w słowach",
+    "Reading": "Czytanie",
+    "Context": "Kontekst",
+    "Kanji Composition": "Składa się z kanji",
+    "Radical Composition": "Składa się z radykałów",
+    "Explanation": "Wyjaśnienie",
+    "Readings": "Czytanie",
+    "Context Sentences": "Przykładowe zdania",
+    "Mnemonic": "Technika pamięciowa",
+
+    "kanji passed": "kanji zaliczone",
+    "of": "z"
+}

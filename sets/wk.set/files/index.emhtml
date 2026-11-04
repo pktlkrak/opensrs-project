@@ -52,40 +52,40 @@
                 <ul>
                   <li>
                     <a class="lessons-and-reviews__button lessons-and-reviews__lessons-button dark-filter-exclude" href="lesson">
-                      Lessons <span data-insertValue="lessonsAmount">Fetching...</span>
+                      {trs:Lessons} <span data-insertValue="lessonsAmount">{trs:Fetching}...</span>
                     </a> </li>
                   <li>
                     <a class="lessons-and-reviews__button lessons-and-reviews__reviews-button dark-filter-exclude" href="review">
-                      Reviews <span data-insertValue="reviewsAmount">Fetching...</span>
+                      {trs:Reviews} <span data-insertValue="reviewsAmount">{trs:Fetching}...</span>
                     </a> </li>
                 </ul>
               </section>
               <section class="dashboard-progress">
                 <div>
                   <div class="progress-component">
-                    <h1 class="text-xl leading-normal font-medium text-dark-gray m-0">Level <span
-                        data-insertValue="level"></span> Progress</h1>
+                    <h1 class="text-xl leading-normal font-medium text-dark-gray m-0">{trs:Level} <span
+                        data-insertValue="level"></span> {trs:Progress}</h1>
                     <div class="-mx-6 mb-3 p-3 relative">
                       <div class="progress-bar w-full h-9 boxshadow-inset relative bg-gray-300">
                         <div id="mainKanjiProgress" class="progress-bar__progress bg-pink-gradient left-0 absolute"
                           style="width: 0%; min-width: 36px;"></div>
                         <div id="mainKanjiProgressLabel" class="progress-bar__label font-sans absolute"
                           style="display: inline-block; padding-left: 10px;"><span
-                            data-insertValue="passedKanji"></span> of <span data-insertValue="allKanji"></span>
-                          <span class="progress-bar__extra-label">kanji passed</span></div>
+                            data-insertValue="passedKanji"></span> {trs:of} <span data-insertValue="allKanji"></span>
+                          <span class="progress-bar__extra-label">{trs:kanji passed}</span></div>
                       </div>
                     </div>
                     <div class="rounded bg-white p-3 -mx-3 mt-3">
                       <h2
                         class="border-gray-100 border-solid border-0 border-b text-sm text-black text-left leading-none tracking-normal font-bold mt-0 pb-2 mb-2">
-                        Radicals</h2>
+                        {trs:Radicals}</h2>
                       <div class="progress-entries" id="radicalsList">
                       </div>
                     </div>
                     <div class="rounded bg-white p-3 -mx-3 mt-3">
                       <h2
                         class="border-gray-100 border-solid border-0 border-b text-sm text-black text-left leading-none tracking-normal font-bold mt-0 pb-2 mb-2">
-                        Kanji</h2>
+                        {trs:Kanji}</h2>
                       <div class="progress-entries" id="kanjiList">
                       </div>
                     </div>
@@ -100,82 +100,29 @@
             <section class="srs-progress mb-30">
               <ul>
                 <li id="apprentice" rel="popover-srs" title="<div class='srs-logo apprentice'></div>">
-                  <span>Fetching...</span>
-                  Apprentice
+                  <span>{trs:Fetching}...</span>
+                  {trs:Apprentice}
                 </li>
                 <li id="guru" rel="popover-srs" title="<div class='srs-logo guru'></div>">
-                  <span>Fetching...</span>
-                  Guru
+                  <span>{trs:Fetching}...</span>
+                  {trs:Guru}
                 </li>
                 <li id="master" rel="popover-srs" title="<div class='srs-logo master'></div>">
-                  <span>Fetching...</span>
-                  Master
+                  <span>{trs:Fetching}...</span>
+                  {trs:Master}
                 </li>
                 <li id="enlightened" rel="popover-srs" title="<div class='srs-logo enlightened'></div>">
-                  <span>Fetching...</span>
-                  Enlightened
+                  <span>{trs:Fetching}...</span>
+                  {trs:Enlightened}
                 </li>
                 <li id="burned" rel="popover-srs" title="<div class='srs-logo burned'></div>">
-                  <span>Fetching...</span>
-                  Burned
+                  <span>{trs:Fetching}...</span>
+                  {trs:Burned}
                 </li>
               </ul>
             </section>
 
-            <div class="row">
-              <div class="span4">
-                <section class="recent-unlocks kotoba-table-list dashboard-sub-section">
-                  <h3 class="small-caps">New Unlocks In The Last 30 Days</h3>
-                  <table>
-                    <tbody>
-                      <tr class="none-available">
-                        <td>
-                          <div><i class="icon-code"></i></div>I am not implementing this yet.
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <div class="see-more">
-                    <a class="small-caps" href="/recent-unlocks">
-                      <!--See More Unlocks...--></a>
-                  </div>
-                </section>
-              </div><!-- span4 -->
-              <div class="span4">
-                <section class="low-percentage kotoba-table-list dashboard-sub-section">
-                  <h3 class="small-caps">Critical Condition Items</h3>
-                  <table>
-                    <tbody>
-                      <tr class="none-available">
-                        <td>
-                          <div><i class="icon-code"></i></div>I am not implementing this yet.
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <div class="see-more">
-                    <a class="small-caps" href="/"></a>
-                  </div>
-                </section>
-              </div><!-- span4 -->
-              <div class="span4">
-                <section class="recent-retired kotoba-table-list dashboard-sub-section">
-                  <h3 class="small-caps">Burned Items In The Last 30 Days</h3>
-                  <table>
-                    <tbody>
-                      <tr class="none-available">
-                        <td>
-                          <div><i class="icon-code"></i></div>I am not implementing this yet.
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <div class="see-more">
-                    <a class="small-caps" href="/"></a>
-                  </div>
-                </section>
-              </div><!-- span4 -->
-            </div><!-- row -->
+
           </div><!-- span12 -->
         </div><!-- row -->
       </div><!-- container -->
@@ -191,10 +138,10 @@
         <div class="span12">
           <ul>
             <li>
-              <a href="/about">About</a>
+              <a href="/about">{trs:About}</a>
             </li>
             <li>
-              Copyright © Tofugu LLC, <span lang="ja">よ</span> (Modified to use OpenSRS)
+              {trs:Copyright} © Tofugu LLC, <span lang="ja">よ</span> {trs:(Modified to use OpenSRS)}
             </li>
           </ul>
         </div>

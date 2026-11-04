@@ -26,6 +26,7 @@ import opensrs.database.Filter;
 import opensrs.database.FilterChain;
 import opensrs.database.Filters;
 import opensrs.dataobjects.Review;
+import opensrs.filetransformers.FileTransformers;
 import opensrs.sets.GlobalStore;
 import opensrs.sets.Set;
 import org.autumn.State;
@@ -47,7 +48,8 @@ public class Misc {
         try {
             extMap = java.nio.file.Files.readAllLines(new File("mappings").toPath())
                     .stream()
-                    .map(n -> n.split(" "))
+                    .map(n -> n.split(" ", 2))
+                    .filter(e -> e.length == 2)
                     .collect(Collectors.toMap(n -> n[0], n -> n[1]));
         } catch (IOException ex) {
             Log.handleException("Files", ex);
@@ -56,47 +58,6 @@ public class Misc {
 
     public Misc(Database database) {
         this.database = database;
-    }
-    
-    /**
-     * A scaffold for a more complex file transformer system in the future
-     * Right now it only supports the "embedText" transformer.
-     * 
-     * The embedText transformer imports files w/ relative paths to their set / common folder
-     * @param is Source input stream
-     * @param transformerName Name of the transformer
-     * @return Readable input stream passed through the transformer
-     */
-    private InputStreamLength applyTransformer(Set set, InputStreamLength is, String transformerName) throws IOException {
-        if(transformerName.equals("embedText")) {
-            ByteArrayOutputStream rootBaos = new ByteArrayOutputStream();
-            Utils.copyStream(is.getInputStream(), rootBaos, 4096);
-            String asString = rootBaos.toString("utf-8");
-            Pattern p = Pattern.compile("(?<!\\<)\\<~ *embed *([^~]+) *~\\>");
-            Matcher stringMatcher = p.matcher(asString);
-            StringBuilder out = new StringBuilder();
-            while(stringMatcher.find()) {
-                String fileName = stringMatcher.group(1).strip();
-                InputStreamLength fullFile;
-                if(set != null) {
-                    fullFile = set.getFile(fileName);
-                } else {
-                    fullFile = GlobalStore.getCommonFile(fileName);
-                }
-
-                ByteArrayOutputStream subBaos = new ByteArrayOutputStream();
-                Utils.copyStream(fullFile.getInputStream(), subBaos, 4096);
-
-                stringMatcher.appendReplacement(out, subBaos.toString("UTF-8"));
-            }
-
-            stringMatcher.appendTail(out);
-
-            byte[] bytes = out.toString().getBytes("UTF-8");
-            return new InputStreamLength(new ByteArrayInputStream(bytes), bytes.length);
-        } else {
-            throw new RuntimeException("Invalid transformer " + transformerName);
-        }
     }
 
     /**
@@ -152,9 +113,9 @@ public class Misc {
             String contentType = extMap.get(extension);
             if(contentType.contains("~")) {
                 String[] ctSteps = contentType.split(Pattern.quote("~"));
-                contentType = ctSteps[0];
+                contentType = ctSteps[0].strip();
                 for(int i = 1; i < ctSteps.length; i++) {
-                    toRead = applyTransformer(thisSet, toRead, ctSteps[i]);
+                    toRead = FileTransformers.apply(ctSteps[i].strip(), path, thisSet, toRead);
                 }
             }
             state.setHeader("Content-Type", contentType);

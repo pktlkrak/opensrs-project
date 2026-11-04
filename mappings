@@ -6,4 +6,5 @@ jpeg image/jpeg
 gif image/gif
 css text/css
 js application/javascript
-emhtml text/html~embedText
+emhtml text/html ~ embedText ~ translate! {set}/{locale}/{any}! en,pl
+

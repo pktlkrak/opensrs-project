@@ -29,9 +29,17 @@
         <bind source="rawinfo.html" target="NONE"/>
         
         <bind source="index.html" target="index.emhtml"/>
-        <bind source="dashboard" target="index.emhtml"/>
-        <bind source="review" target="summary.emhtml"/>
-        <bind source="lesson" target="summary.emhtml"/>
+
+        <bind source="pl/index.html" target="index.emhtml"/>
+        <bind source="pl/dashboard" target="index.emhtml"/>
+        <bind source="pl/review" target="summary.emhtml"/>
+        <bind source="pl/lesson" target="summary.emhtml"/>
+
+        <bind source="en/index.html" target="index.emhtml"/>
+        <bind source="en/dashboard" target="index.emhtml"/>
+        <bind source="en/review" target="summary.emhtml"/>
+        <bind source="en/lesson" target="summary.emhtml"/>
+
         <bind type="regex" source="(vocabulary|kanji|radical)/[^/]*" target="info.emhtml"/>
         <bind type="regex" source=".*/assets/(.*)" target="assets/$1"/>
         <bind source="reviewactivity" target="activity.emhtml"/>
