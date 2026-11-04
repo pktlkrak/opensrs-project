@@ -33,33 +33,38 @@ public class TranslationFileTransformer implements FileTransformer {
     @Override
     public InputStreamLength apply(String arguments, String path, Set set, InputStreamLength is) throws IOException {
         String args[] = arguments.split("!");
+        InputStreamLength translationFileInput = null;
         if (args.length != 2) {
             throw new IOException("Invalid translation transformer argumetns - expected 'format (w/ locale)!allow1,allow2,...'");
         }
 
-        String format = args[0].trim();
-        String allowed[] = args[1].trim().toLowerCase().split(",");
+        try {
+            String format = args[0].trim();
+            String allowed[] = args[1].trim().toLowerCase().split(",");
 
-        Map<String, String> formatMatch = Utils.parse(format, path);
-        if (!formatMatch.containsKey("locale")) {
-            return is;
-        }
-        String locale = formatMatch.get("locale").toLowerCase();
-        boolean found = false;
-
-        for (String entry : allowed) {
-            if (locale.equals(entry)) {
-                found = true;
-                break;
+            Map<String, String> formatMatch = Utils.parse(format, path);
+            if (!formatMatch.containsKey("locale")) {
+                return is;
             }
-        }
+            String locale = formatMatch.get("locale").toLowerCase();
+            boolean found = false;
 
-        if (!found) {
-            return is; // If no locale found, send as-is
+            for (String entry : allowed) {
+                if (locale.equals(entry)) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                return is; // If no locale found, send as-is
+            }
+            translationFileInput = set == null
+                    ? GlobalStore.getCommonFile("translations." + locale + ".json")
+                    : set.getFile("translations." + locale + ".json");
+        }catch(StringIndexOutOfBoundsException ex) {
+            
         }
-        InputStreamLength translationFileInput = set == null
-                ? GlobalStore.getCommonFile("translations." + locale + ".json")
-                : set.getFile("translations." + locale + ".json");
 
         JsonNode node = translationFileInput == null ?
                 opensrs.Utils.MAPPER.createObjectNode() :
@@ -69,7 +74,7 @@ public class TranslationFileTransformer implements FileTransformer {
             ByteArrayOutputStream rootBaos = new ByteArrayOutputStream();
             Utils.copyStream(is.getInputStream(), rootBaos, 4096);
             String asString = rootBaos.toString("utf-8");
-            Pattern p = Pattern.compile("\\{trs(\\..*)?:(.*)\\}");
+            Pattern p = Pattern.compile("\\{trs(\\..*)?:([^\\}]*)\\}");
             Matcher stringMatcher = p.matcher(asString);
             StringBuilder out = new StringBuilder();
             while (stringMatcher.find()) {
@@ -90,7 +95,6 @@ public class TranslationFileTransformer implements FileTransformer {
 
             byte[] bytes = out.toString().getBytes("UTF-8");
             return new InputStreamLength(new ByteArrayInputStream(bytes), bytes.length);
-
         } else {
             // Fall through to original contents.
             return is;
