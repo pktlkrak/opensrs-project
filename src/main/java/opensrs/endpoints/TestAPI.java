@@ -9,7 +9,6 @@ import org.autumn.State;
 import org.autumn.annotations.Endpoint;
 import org.autumn.annotations.FromExtra;
 import org.autumn.annotations.Route;
-import org.autumn.annotations.FromQuery;
 import org.autumn.annotations.Middleware;
 
 /**

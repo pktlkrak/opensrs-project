@@ -127,13 +127,14 @@ public abstract class Set {
         Utils.asStream(timings.getChildNodes()).forEach(n -> config.timings.put(Integer.valueOf(n.getAttribute("number")), Integer.valueOf(n.getTextContent())));
         Utils.asStream(bindings.getChildNodes()).forEach(n -> {
             String type = n.getAttribute("type");
+            SRSConfig.BindingType bType = n.getTagName().equals("redirect") ? SRSConfig.BindingType.REDIRECT : SRSConfig.BindingType.TRANSFER;
             switch(type){
                 case "":
                 case "literal":
-                    config.pageBindings.put(n.getAttribute("source"), n.getAttribute("target"));
+                    config.pageBindings.put(n.getAttribute("source"), new SRSConfig.Binding(n.getAttribute("target"), bType));
                     break;
                 case "regex":
-                    config.regexPageBindings.put(Pattern.compile(n.getAttribute("source")), n.getAttribute("target"));
+                    config.regexPageBindings.put(Pattern.compile(n.getAttribute("source")), new SRSConfig.Binding(n.getAttribute("target"), bType));
                     break;
             }
         });
@@ -168,6 +169,37 @@ public abstract class Set {
      * @see Set
      */
     public class SRSConfig {
+        
+        public static enum BindingType {
+            REDIRECT, TRANSFER
+        }
+        
+        public static class Binding {
+            private String target;
+            private BindingType type;
+
+            public String getTarget() {
+                return target;
+            }
+
+            public void setTarget(String target) {
+                this.target = target;
+            }
+
+            public BindingType getType() {
+                return type;
+            }
+
+            public void setType(BindingType type) {
+                this.type = type;
+            }
+
+            public Binding(String target, BindingType type) {
+                this.target = target;
+                this.type = type;
+            }
+            
+        }
 
         /**
          * How big is the penalty based on the current stage
@@ -192,14 +224,14 @@ public abstract class Set {
         private Map<Integer, String> phaseNames = new HashMap<>();
         
         /**
-         * Aliases of a certain set file to a page adress.
+         * Aliases of a certain set file to a page address.
          */
-        private Map<String, String> pageBindings = new HashMap<>();
+        private Map<String, Binding> pageBindings = new HashMap<>();
         
         /**
-         * Aliases of a certain set file to a page adress with regex (eg. a certain flashcard). 
+         * Aliases of a certain set file to a page address with regex (eg. a certain flashcard). 
          */
-        private Map<Pattern, String> regexPageBindings = new HashMap<>();
+        private Map<Pattern, Binding> regexPageBindings = new HashMap<>();
 
         private int getValueOfHighestToKey(Map<Integer, Integer> map, int key, int defaultV) {
             return map
@@ -228,16 +260,17 @@ public abstract class Set {
             return getValueOfHighestToKey(phases, currentStage, 1);
         }
 
-        public String getBinding(String source) {
-            String response = pageBindings.get(source);
+        public Binding getBinding(String source) {
+            Binding response = pageBindings.get(source);
             if(response == null){
                 //Try the regexes
                 for(Pattern pattern : regexPageBindings.keySet()){
                     Matcher m = pattern.matcher(source);
                     if(!m.matches()) continue;
-                    response = m.replaceAll(regexPageBindings.get(pattern));
+                    Binding found = regexPageBindings.get(pattern);
+                    response = new Binding(m.replaceAll(found.getTarget()), found.getType());
                 }
-                if(response == null) return source;
+                if(response == null) return new Binding(source, BindingType.TRANSFER);
             }
             return response;
         }

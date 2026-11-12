@@ -29,6 +29,8 @@ import opensrs.dataobjects.Review;
 import opensrs.filetransformers.FileTransformers;
 import opensrs.sets.GlobalStore;
 import opensrs.sets.Set;
+import opensrs.sets.Set.SRSConfig.Binding;
+import opensrs.sets.Set.SRSConfig.BindingType;
 import org.autumn.State;
 import org.autumn.annotations.Endpoint;
 import org.autumn.annotations.FromCookie;
@@ -36,7 +38,7 @@ import org.autumn.annotations.FromPath;
 import tools.jackson.databind.node.ArrayNode;
 
 /**
- * Miscelanious endpoints.
+ * Miscellaneous endpoints.
  * @author piotr
  */
 public class Misc {
@@ -94,7 +96,14 @@ public class Misc {
             }
             thisSet = GlobalStore.getSet(pathTokens[0]);
             String subPath = Arrays.asList(pathTokens).stream().skip(1).collect(Collectors.joining("/"));
-            subPath = thisSet.config.getBinding(subPath);
+            Binding setBinding = thisSet.config.getBinding(subPath);
+            if(setBinding.getType() == BindingType.REDIRECT) {
+                state.setHeader("Location", setBinding.getTarget());
+                state.sendResponseHeaders(302);
+                return;
+            } else {
+                subPath = setBinding.getTarget();
+            }
             lastSubPath = subPath;
             toRead = thisSet.getFile(subPath);
         } else {
