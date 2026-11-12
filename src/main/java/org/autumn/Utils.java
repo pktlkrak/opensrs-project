@@ -126,6 +126,17 @@ public class Utils {
         }
     }
     
+    public static void copyStreamLimited(InputStream i, OutputStream o, int bufferSize, long max) throws IOException {
+        byte buffer[] = new byte[bufferSize];
+        int read;
+        long total = 0;
+        while ((read = i.read(buffer, 0, (int) Math.min(bufferSize, max - total))) != -1) {
+            o.write(Arrays.copyOf(buffer, read));
+            total += read;
+            if(total >= max) return;
+        }
+    }
+    
     public static <T> Comparator<T> hierarchicalSort(Comparator<T>... funcs) {
         return (a, b) -> {
             for(Comparator<T> f : funcs) {

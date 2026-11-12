@@ -106,7 +106,9 @@ CREATE TABLE public.userdata (
     uid integer NOT NULL,
     name text,
     hash text,
-    salt text
+    salt text,
+    image bytea default null,
+    image_type text default null
 );
 
 

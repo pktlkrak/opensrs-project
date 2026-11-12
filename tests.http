@@ -1,4 +1,4 @@
-@host = http://localhost:8080
+@host = http://localhost:9998
 
 POST {{host}}/register
 Content-Type: application/x-www-form-urlencoded
@@ -19,3 +19,14 @@ username=alice&password=secret2
 
 ###
 POST {{host}}/management/initSetForUser/wk.set/0
+
+
+### Get a picture:
+GET {{host}}/api/user/pic
+
+### Set the picture
+
+POST {{host}}/api/user/pic
+Content-Type: image/png
+
+< profile.png

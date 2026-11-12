@@ -55,6 +55,20 @@ public abstract class Database {
      * @param user  the {@link User} we want to create
      */
     public abstract void updateUser(User user);
+    
+    /**
+     * Assigns an image to the user
+     * @param uid       the user's ID
+     * @param image     the image's bytes and content type
+     */
+    public abstract void updateUserImage(int uid, User.Image image);
+   
+    /**
+     
+     * @param uid       the user's ID
+     * @return          the given user's image (or null)
+     */
+    public abstract User.Image getUserImage(int uid);
 
     /**
      * Fetches the list of all the results that meet the specified filters.

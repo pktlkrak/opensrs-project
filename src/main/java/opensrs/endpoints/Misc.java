@@ -11,7 +11,10 @@ import tools.jackson.databind.node.ObjectNode;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,6 +29,7 @@ import opensrs.database.Filter;
 import opensrs.database.FilterChain;
 import opensrs.database.Filters;
 import opensrs.dataobjects.Review;
+import opensrs.dataobjects.User;
 import opensrs.filetransformers.FileTransformers;
 import opensrs.sets.GlobalStore;
 import opensrs.sets.Set;
@@ -42,6 +46,8 @@ import tools.jackson.databind.node.ArrayNode;
  * @author piotr
  */
 public class Misc {
+    
+    public static final int MAX_IMAGE_LENGTH = 10_000_000; // ~10MiB
 
     private static Map<String, String> extMap;
     private final Database database;
@@ -152,6 +158,64 @@ public class Misc {
         rootNode.put("username", uid == -1 ? null : SessionHolder.getNameOfUser(session));
         rootNode.put("uid", uid);
         state.sendString(opensrs.Utils.MAPPER.writeValueAsString(rootNode), "application/json; charset=utf-8");
+    }
+
+    /**
+     * The endpoint for retrieving the user's picture
+     * @param state     Autumn State.
+     * @param session   Current session.
+     * @throws IOException 
+     */
+    @Endpoint(value = "/api/user/pic", allowedMethods = { "GET" })
+    public void userPicture(
+            State state,
+            @FromCookie( value = "session", optional = true) String session
+    ) throws IOException {
+        int uid = SessionHolder.getUID(session);
+        User.Image userImage = database.getUserImage(uid);
+        if(userImage == null) {
+            state.sendString("Not found", "text/plain", 404);
+        } else {
+            state.setOutputLength(userImage.image.length);
+            state.setHeader("Content-Type", userImage.contentType);
+            state.sendResponseHeaders(200);
+            OutputStream os = state.getOutput();
+            os.write(userImage.image);
+            os.flush();
+        }
+    }
+
+    /**
+     * The endpoint for setting the user's picture
+     * @param state     Autumn State.
+     * @param session   Current session.
+     * @throws IOException 
+     */
+    @Endpoint(value = "/api/user/pic", allowedMethods = { "POST" })
+    public void setUserPicture(
+            State state,
+            @FromCookie( value = "session", optional = true) String session
+    ) throws IOException {
+        int uid = SessionHolder.getUID(session);
+        if(uid == -1) {
+            state.sendString("Unauthorized", "text/plain", 403);
+        } else {
+            List<String> length = state.getInboundHeaders().getOrDefault("Content-Length", new LinkedList<>());
+            List<String> contentTypes = state.getInboundHeaders().getOrDefault("Content-Type", new LinkedList<>());
+            if(length.size() != 1 || contentTypes.size() != 1) {
+                state.sendString("Invalid request", "text/plain", 400);
+            } else {
+                long longLength = Long.parseLong(length.getFirst());
+                if(longLength >= MAX_IMAGE_LENGTH) {
+                    state.sendString("Image too long", "text/plain", 400);
+                } else {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    Utils.copyStreamLimited(state.getInput(), baos, 4096, longLength);
+                    database.updateUserImage(uid, new User.Image(baos.toByteArray(), contentTypes.getFirst()));
+                    state.sendString("OK", "text/plain", 200);
+                }
+            }
+        }
     }
 
     /**
