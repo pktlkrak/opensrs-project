@@ -11,6 +11,12 @@ Content-Type: application/x-www-form-urlencoded
 
 name=alice&password=secret1
 
+### Login (default)
+POST {{host}}/login
+Content-Type: application/x-www-form-urlencoded
+
+name=root&password=P@ssword
+
 ### Change own password
 POST {{host}}/management/changepw
 Content-Type: application/x-www-form-urlencoded

@@ -392,61 +392,11 @@
             <li class="sitemap__section">
               <button class="sitemap__section-header sitemap__section-header--account" data-navigation-section-toggle
                 data-expanded="false" aria-expanded="false" aria-controls="sitemap__account" type="button" tabindex="0">
-                <div class="sitemap__avatar user-avatar-default"
-                  style="background-image: url(assets/bg_avatar.png?s=200x200&amp;timestamp=08252021&amp;d=assets/bg_avatar.png);">
+                <div class="user-avatar-default">
+                  <img src="/api/user/pic" id="user-image-avatar-main" onerror="document.querySelector('#user-image-avatar-main').src = 'assets/bg_avatar.png'">
                 </div>
                 <span class="font-sans" lang="en">Account</span>
               </button>
-              <div id="#sitemap__account" class="sitemap__expandable-chunk sitemap__expandable-chunk--account"
-                data-navigation-section-content data-expanded="false">
-                <ul class="sitemap__pages">
-                  <li class="user-summary">
-                    <div class="flag">
-                      <div class="flag__asset">
-                        <div class="user-summary__avatar user-avatar-default" role="img" aria-label="Your avatar"
-                          alt="Your avatar"
-                          style="background-image: url(assets/bg_avatar.png?s=200x200&amp;timestamp=08252021&amp;d=assets/bg_avatar.png);">
-                        </div>
-                      </div>
-                      <div class="flag__item">
-                        <p class="user-summary__username" data-insertValue="username">Fetching...</p>
-                        <ul class="user-summary__attributes">
-                          <li class="font-sans user-summary__attribute">
-                            <a title="View level 3" href="/level/3">{trs:Level} <span data-insertValue="level">?</span></a>
-                          </li>
-                          <li class="font-sans user-summary__attribute">
-                            <a title="View subscriptions" href="/account/subscription">
-                              Free
-                            </a> </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </li>
-                  <li class="sitemap__page">
-                    <a href="/users/justtesting123">{trs:Profile}</a>
-                  </li>
-                  <li class="sitemap__section sitemap__section--subsection">
-                    <h3 class="sitemap__section-header sitemap__section-header--subsection">{trs:Settings}</h3>
-                    <ul class="sitemap__pages">
-                      <li class="sitemap__page">
-                        <a href="/settings/app">{trs:App}</a>
-                      </li>
-                      <li class="sitemap__page">
-                        <a href="/settings/account">{trs:Account}</a>
-                      </li>
-                      <li class="sitemap__page">
-                        <a href="/settings/profile">{trs:Profile}</a>
-                      </li>
-                    </ul>
-                  </li>
-                  <li class="sitemap__page">
-                    <a rel="nofollow" href="/logout">{trs:Sign Out}</a>
-                  </li>
-                  <li class="sitemap__page sitemap__page--community">
-                    <a href="https://www.wanikani.com/community">{trs:Community}</a>
-                  </li>
-                </ul>
-              </div>
             </li>
           </ul>
         </nav>
