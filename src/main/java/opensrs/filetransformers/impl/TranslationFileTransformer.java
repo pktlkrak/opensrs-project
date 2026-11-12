@@ -74,7 +74,7 @@ public class TranslationFileTransformer implements FileTransformer {
             ByteArrayOutputStream rootBaos = new ByteArrayOutputStream();
             Utils.copyStream(is.getInputStream(), rootBaos, 4096);
             String asString = rootBaos.toString("utf-8");
-            Pattern p = Pattern.compile("\\{trs(\\..*)?:([^\\}]*)\\}");
+            Pattern p = Pattern.compile("\\{trs(\\.[^:]*)?:([^\\}]*)\\}");
             Matcher stringMatcher = p.matcher(asString);
             StringBuilder out = new StringBuilder();
             while (stringMatcher.find()) {
