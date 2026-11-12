@@ -31,7 +31,7 @@ public class EmbeddingFileTransformer implements FileTransformer {
         ByteArrayOutputStream rootBaos = new ByteArrayOutputStream();
         Utils.copyStream(is.getInputStream(), rootBaos, 4096);
         String asString = rootBaos.toString("utf-8");
-        Pattern p = Pattern.compile("(?<!\\<)\\<~ *embed *([^~]+) *~\\>");
+        Pattern p = Pattern.compile("\\{embed:[\\s]*(.*)\\}");
         Matcher stringMatcher = p.matcher(asString);
         StringBuilder out = new StringBuilder();
         while (stringMatcher.find()) {

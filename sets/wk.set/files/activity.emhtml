@@ -50,7 +50,7 @@
     <script src="assets/explodemodules.js"></script>
     <link href="assets/explode.css" rel="stylesheet" type="text/css">
 <body>
-  <~ embed modules/toggle-dark.html ~>
+  {embed:modules/toggle-dark.html}
 
     <div id="loading" style="display: none;"></div>
 
@@ -186,7 +186,7 @@
                     reaccessing this tab.
                 </div>
 
-                <~ embed modules/kana-chart.html ~>
+                {embed:modules/kana-chart.html}
 
                 <div id="item-info">
                     <!--<div class="pure-g-r">

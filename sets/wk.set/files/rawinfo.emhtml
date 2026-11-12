@@ -302,7 +302,7 @@
                                     class="icon-circle-arrow-right"></i></a></li>-->
                     </ul>
                 </nav>
-                <~embed modules/info-body.emhtml~>
+                {embed:modules/info-body.emhtml}
             </div>
         </div>
     </div>

@@ -56,10 +56,10 @@
 </head>
 
 <body>
-  <~ embed modules/toggle-dark.html ~>
+  {embed:modules/toggle-dark.html}
 
     <div class="footer-adjustment">
-        <~ embed modules/global-header.html ~>
+        {embed:modules/global-header.html}
 
         <div class="container individual-item standard">
             <div class="row">
@@ -72,7 +72,7 @@
                                         class="icon-circle-arrow-right"></i></a></li>-->
                         </ul>
                     </nav>
-                    <~embed modules/info-body.emhtml~>
+                    {embed:modules/info-body.emhtml}
                 </div>
             </div>
         </div>

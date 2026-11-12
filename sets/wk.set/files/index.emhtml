@@ -38,10 +38,10 @@
 </head>
 
 <body>
-  <~ embed modules/toggle-dark.html ~>
+  {embed:modules/toggle-dark.html}
 
   <div class="footer-adjustment">
-    <~ embed modules/global-header.html ~>
+    {embed:modules/global-header.html}
 
     <div class="dashboard">
       <div class="container">
