@@ -1,0 +1,28 @@
+services:
+    db:
+        container_name: postgres
+        image: postgres:latest
+        ports:
+        - "${POSTGRES_PORT:-5433}:5432"
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: ${POSTGRES_USER}
+            PGUSER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        networks:
+        - app-network
+        volumes:
+        - ./docker/db:/docker-entrypoint-initdb.d
+
+    pgadmin-wdpai:
+        image: dpage/pgadmin4:latest
+        environment:
+            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+        ports:
+        - "${PGADMIN_PORT:-5050}:80"
+        networks:
+        - app-network
+
+networks:
+    app-network:
