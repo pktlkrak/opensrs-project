@@ -1,0 +1,238 @@
+(async () => {
+                const fillIn = (n, v) => document.querySelectorAll(`[data-insertValue='${n}']`).forEach(n => n
+                    .innerText = v);
+                const capitalizeFirstLetter = e => e.substring(0, 1).toUpperCase() + e.substring(1);
+                const doOnlyIfs = type => {
+                    const objects = document.querySelectorAll("[data-onlyif]");
+                    for (let object of objects) {
+                        const content = object.getAttribute("data-onlyif");
+                        const setid = object.getAttribute("data-onlyif-setid");
+                        if (!content.includes(type)) {
+                            object.remove();
+                        } else if (setid) {
+                            object.id = setid;
+                        }
+                    }
+                }
+
+                const createTile = (family, query, infos, locked) => {
+                    const liRoot = document.createElement("li");
+                    liRoot.classList.add(family + "-item");
+                    liRoot.classList.add("character-item");
+                    if (locked) liRoot.classList.add("locked");
+
+                    const spanBadge = document.createElement("span");
+                    spanBadge.className = "item-badge";
+                    spanBadge.lang = "ja";
+                    liRoot.appendChild(spanBadge);
+
+                    const link = document.createElement("a");
+                    link.href = `/${OSRS.getCurrentSetName()}/${family}/${query}`;
+
+                    const characterSpan = document.createElement("span");
+                    characterSpan.className = "character";
+                    characterSpan.lang = "ja";
+                    characterSpan.innerText = query;
+
+                    const ul = document.createElement("ul");
+                    infos.forEach(n => {
+                        const a = document.createElement("li");
+                        a.innerText = n;
+                        ul.appendChild(a);
+                    })
+
+                    liRoot.append(spanBadge);
+                    link.appendChild(characterSpan);
+                    link.appendChild(ul);
+                    liRoot.append(link);
+                    return liRoot;
+                };
+
+                const fillAndExplode = (name, compacted) => {
+                    const target = document.querySelector(`[data-compacted='${name}']`);
+                    explode(target, compacted)
+                };
+
+                const createHint = hint => {
+                    const hintField = document.createElement("aside");
+                    hintField.className = "additional-info";
+                    hintField.innerHTML = '<h3><i class="icon-question-sign"></i> Hints</h3>';
+                    const p = document.createElement("p");
+                    explode(p, hint);
+                    hintField.appendChild(p);
+                    return hintField;
+                }
+
+                const pathElements = new URL(window.location.href).pathname.split("/");
+                const family = decodeURIComponent(pathElements[3]),
+                    query = decodeURIComponent(pathElements[4]);
+
+                if(window.location.search.includes("raw")){
+                    document.body.outerHTML = document.querySelector("#masterContent").outerHTML;
+                }
+                document.title = `OpenSRS / ${capitalizeFirstLetter(family)} / ${capitalizeFirstLetter(query)}`;
+                const itemInfo = (await OSRS.getInfoByFamily(family, query))[0];
+                Object.defineProperty(window, "item", {value: itemInfo, writable: false});
+                if (!itemInfo) {
+                    OSRS.redirectToSetHome();
+                }
+                doOnlyIfs(family);
+
+                const link = document.querySelector("#levelLink");
+                link.href = `/${OSRS.getCurrentSetName()}/${family}/${itemInfo.level}`;
+                link.innerText = itemInfo.level;
+
+                fillIn("meaningName", {
+                    radical: 'Name',
+                    kanji: 'Meaning',
+                    vocabulary: 'Meaning'
+                } [family]);
+
+                fillIn("mnemonicName", {
+                    radical: 'Mnemonic',
+                    kanji: 'Explanation',
+                    vocabulary: 'Explanation'
+                } [family]);
+
+                fillIn("compositionName", {
+                    kanji: "Radical Combination",
+                    vocabulary: "Kanji Composition"
+                } [family]);
+
+                const queryElement = document.querySelector("#queryIcon");
+                queryElement.innerText = itemInfo.query;
+                queryElement.className = ({
+                    radical: 'radical'
+                } [family] ?? family) + "-icon";
+
+                fillIn("literalName", capitalizeFirstLetter(itemInfo.reviewable[{
+                    radical: 'name',
+                    kanji: 'meaning',
+                    vocabulary: 'meaning'
+                } [family]][0]));
+
+                fillAndExplode("mainMnemonic", itemInfo.clientData.mnemonic);
+
+                if (itemInfo.clientData.hints) {
+                    document.querySelector("#meaning > .mnemonic-content").appendChild(createHint(itemInfo.clientData.hints));
+                }
+
+                const meanings = document.querySelector("#meanings");
+                for (const type of Object.keys(itemInfo.clientData.meanings)) {
+                    const meaning = itemInfo.clientData.meanings[type];
+                    const element = document.createElement("div");
+                    element.className = "alternative-meaning";
+                    const head = document.createElement("h2");
+                    head.innerText = type;
+                    element.appendChild(head);
+                    const content = document.createElement("p");
+                    content.innerText = meaning;
+                    element.appendChild(content);
+                    meanings.appendChild(element);
+                }
+
+                if(itemInfo.dependencies.length){
+                    const components = document.querySelector("#components ul");
+                    function getInfos(n){
+                        if(n.family == "radical"){
+                            return [capitalizeFirstLetter(n.reviewable['name'][0])];
+                        }else{
+                            return [
+                                wanakana.toHiragana(n.reviewable['reading'][0]),
+                                capitalizeFirstLetter(n.reviewable['meaning'][0]),
+                            ];
+                        }
+                    }
+                    itemInfo.dependencies.forEach(n => {
+                        components.appendChild(createTile(n.family, n.query, getInfos(n), false));
+                    });
+
+                }
+
+                if(family === "radical" || family == "kanji"){
+                    const foundInKanji = document.querySelector("#amalgamations ul");
+                    itemInfo.itemsDependent.forEach(dep => foundInKanji.appendChild(createTile(dep.family, dep
+                        .query, [wanakana.toHiragana(dep.reviewable['reading'][0]),
+                            capitalizeFirstLetter(dep.reviewable['meaning'][0])
+                        ], !dep.phase)));
+                }
+
+                if (family == "kanji") { //Specific parameters
+                    const kanjiReadings = document.querySelector("#kanjiReadings");
+                    for(let reading of itemInfo.clientData.kanjiReadings.readings){
+                        const div = document.createElement("div");
+                        div.className = "span4 " + (reading.primary ? "" : "muted-content");
+                        const h3 = document.createElement("h3");
+                        h3.innerText = reading.name;
+                        div.appendChild(h3);
+                        const p = document.createElement("p");
+                        p.lang = "ja";
+                        p.innerText = reading.reading;
+                        div.appendChild(p);
+                        kanjiReadings.appendChild(div);
+                    }
+                    fillAndExplode("kanjiReadingMnemonic", itemInfo.clientData.kanjiReadings.mnemonic);
+                    if (itemInfo.clientData.readings.hints) {
+                        document.querySelector("#reading > .mnemonic-content").appendChild(createHint(itemInfo.clientData.readings.hints));
+                    }
+                }else if(family == "vocabulary"){
+                    const contexts = document.querySelector("#context");
+                    for(const sentence of itemInfo.clientData.contextSentences){
+                        const div = document.createElement("div");
+                        div.className = "context-sentence-group";
+                        let p = document.createElement("p");
+                        p.lang = "ja";
+                        p.innerText = sentence.ja;
+                        div.appendChild(p);
+                        p = document.createElement("p");
+                        p.innerText = sentence.en;
+                        div.appendChild(p)
+                        contexts.appendChild(div);
+                    }
+
+                    let i = 0;
+                    const readingsList = document.querySelector("#reading .readings-component");
+
+                    const sanitize = e => e.toLowerCase().replace(/\s/g, '');
+
+
+                    for(const reading of itemInfo.clientData.vocabReadings.readings){
+                        const audios = itemInfo.clientData.vocabReadings.pronunciationAudios.filter(n => n.pronunciation === reading.reading);
+                        const group = document.createElement("pronunciation-group");
+                        const p = document.createElement("p");
+                        p.lang = "ja";
+                        p.innerText = reading.reading;
+                        const ul = document.createElement("ul");
+                        for(let audio of audios){
+                            const li = document.createElement("li");
+                            const span = document.createElement("span");
+                            span.className = "audio-player";
+                            const audioNode = document.createElement("audio");
+                            audioNode.controls = true;
+                            const source = document.createElement("source");
+                            source.src = `/${OSRS.getCurrentSetName()}/assets/audio/${audio.file}`;
+                            audioNode.appendChild(source);
+                            span.appendChild(audioNode);
+                            li.appendChild(span);
+
+                            const label = document.createElement("label");
+                            label.for = `${sanitize(audio.voiceActorName)}-${sanitize(audio.voiceDescription)}-${sanitize(audio.gender)}-${i++}`;
+                            const spanName = document.createElement("span");
+                            const spanDesc = document.createElement("span");
+                            spanName.innerText = audio.voiceActorName;
+                            spanDesc.innerText = `(${audio.voiceDescription}, ${audio.gender})`;
+                            label.appendChild(spanName);
+                            label.appendChild(spanDesc);
+                            li.appendChild(label);
+                            ul.appendChild(li);
+                        }
+                        group.appendChild(p);
+                        group.appendChild(ul);
+
+                        readingsList.appendChild(group);
+                    }
+
+                    fillAndExplode("vocabReadingMnemonic", itemInfo.clientData.vocabReadings.mnemonic);
+                }
+
+            })();

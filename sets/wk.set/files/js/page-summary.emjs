@@ -1,0 +1,112 @@
+(async () => {
+    const fillIn = (n, v) => document.querySelectorAll(`[data-insertValue='${n}']`).forEach(n => n.innerText = v);
+
+    const user = await OSRS.getUser();
+    if (user.uid == -1) {
+    OSRS.redirectToLogin();
+    reutrn;
+    }
+
+    //First, check if we're in lesson summary of review summary mode
+    const isLessonSummary = window.location.href.includes("lesson");
+    fillIn("type", isLessonSummary ? "{trs.summary:Lessons}" : "{trs.summary:Reviews}");
+
+    const queued = await (isLessonSummary ? OSRS.getLessonsQueue() : OSRS.getReviewsQueue());
+    const queuedAmount = Object.keys(queued.count).map(n => queued.count[n]).reduce((a, b) => a + b, 0);
+    fillIn("amountQueued", queuedAmount);
+
+    const lastSession = await (isLessonSummary ? OSRS.getLastSessionLessonsDone() : OSRS
+    .getLastSessionReviewsDone());
+
+    const getOfFamily = (arr, family) => arr.filter(n => n.family === family);
+    const getCountOf = (arr, family) => getOfFamily(arr, family).length;
+    const base = `/${OSRS.getCurrentSetName()}`
+
+    const createTileElement = (type, query) => {
+    const element = document.createElement("li");
+    element.className = type;
+    const link = document.createElement("a");
+    link.href = `${base}/${type}/${query}`
+    link.innerText = query;
+    element.appendChild(link);
+    return element;
+    };
+
+    if (isLessonSummary) {
+    document.querySelector("#actionLink").href = "lessonactivity";
+    document.querySelector("#reviews-summary").style.display = "none";
+    const radicals = getOfFamily(lastSession, "radical"),
+            kanji = getOfFamily(lastSession, "kanji"),
+            vocab = getOfFamily(lastSession, "vocabulary");
+    fillIn("radicalsTotal", radicals.length);
+    fillIn("kanjiTotal", kanji.length);
+    fillIn("vocabTotal", vocab.length);
+
+    const lists = {
+        radical: document.querySelector("#radicals div ul"),
+        kanji: document.querySelector("#kanji div ul"),
+        vocabulary: document.querySelector("#vocabulary div ul")
+    }
+
+    for(let sessionElement of lastSession){
+        lists[sessionElement.family].parentNode.style.display = "";
+        lists[sessionElement.family].appendChild(createTileElement(sessionElement.family, sessionElement.query));
+    }
+    } else {
+    document.querySelector("#actionLink").href = "reviewactivity";
+    document.querySelector("#lessons-summary").style.display = "none";
+    const correctRadicals = getOfFamily(lastSession.correct, "radical"),
+            correctKanji = getOfFamily(lastSession.correct, "kanji"),
+            correctVocab = getOfFamily(lastSession.correct, "vocabulary"),
+            incorrectRadicals = getOfFamily(lastSession.incorrect, "radical"),
+            incorrectKanji = getOfFamily(lastSession.incorrect, "kanji"),
+            incorrectVocab = getOfFamily(lastSession.incorrect, "vocabulary");
+
+    fillIn("radicalsTotal", correctRadicals.length + incorrectRadicals.length);
+    fillIn("radicalsCorrect", correctRadicals.length);
+
+    fillIn("kanjiTotal", correctKanji.length + incorrectKanji.length);
+    fillIn("kanjiCorrect", correctKanji.length);
+
+    fillIn("vocabTotal", correctVocab.length + incorrectVocab.length);
+    fillIn("vocabCorrect", correctVocab.length);
+
+    const overallCorrectCount = correctVocab.length + correctKanji.length + correctRadicals.length;
+    const allCount = correctVocab.length + correctKanji.length + correctRadicals.length + incorrectVocab.length + incorrectKanji.length + incorrectRadicals.length;
+
+    fillIn("overallCorrectCount", overallCorrectCount);
+    fillIn("overallIncorrectCount", allCount - overallCorrectCount);
+
+    fillIn("percentageCorrect", Math.ceil((100 * overallCorrectCount) / (allCount || 1)));
+
+    const phaseNames = ["apprentice", "guru", "master", "enlightened", "burned"];
+    const incorrectSection = document.querySelector("#incorrect"),
+            correctSection = document.querySelector("#correct");
+
+    let incorrectAmounts = Array(phaseNames.length).fill(0);
+    let correctAmounts = Array(phaseNames.length).fill(0);
+
+    for(let correctItem of lastSession.correct){
+        correctSection.style.display = "block";
+        ++correctAmounts[correctItem.srsPhase - 1];
+        const wrapper = correctSection.getElementsByClassName(phaseNames[correctItem.srsPhase-1])[0];
+        wrapper.classList.add("active");
+        wrapper.querySelector("ul").appendChild(createTileElement(correctItem.family, correctItem.query));
+    }
+
+    for(let incorrectItem of lastSession.incorrect){
+        incorrectSection.style.display = "block";
+        ++incorrectAmounts[incorrectItem.srsPhase - 1];
+        const wrapper = incorrectSection.getElementsByClassName(phaseNames[incorrectItem.srsPhase-1])[0];
+        wrapper.classList.add("active");
+        wrapper.querySelector("ul").appendChild(createTileElement(incorrectItem.family, incorrectItem.query));
+    }
+
+    for(let i = 0; i<correctAmounts.length; i++){
+        fillIn(`correct${phaseNames[i]}Amount`, correctAmounts[i]);
+    }
+    for(let i = 0; i<incorrectAmounts.length; i++){
+        fillIn(`incorrect${phaseNames[i]}Amount`, incorrectAmounts[i]);
+    }
+    }
+})();

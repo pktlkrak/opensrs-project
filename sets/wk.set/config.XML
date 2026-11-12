@@ -42,6 +42,7 @@
 
         <bind type="regex" source="(vocabulary|kanji|radical)/[^/]*" target="info.emhtml"/>
         <bind type="regex" source=".*/assets/(.*)" target="assets/$1"/>
+        <bind type="regex" source=".*/js/(.*)" target="js/$1"/>
         <bind source="reviewactivity" target="activity.emhtml"/>
         <bind source="lessonactivity" target="activity.emhtml"/>
 

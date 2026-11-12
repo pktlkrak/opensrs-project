@@ -7,4 +7,4 @@ gif image/gif
 css text/css
 js application/javascript
 emhtml text/html ~ embedText ~ translate! {set}/{locale}/{any}! en,pl
-
+emjs application/javascript ~ embedText ~ translate! {set}/{locale}/{any}! en,pl
