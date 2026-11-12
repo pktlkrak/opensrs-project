@@ -65,7 +65,7 @@
 
                 const pathElements = new URL(window.location.href).pathname.split("/");
                 const family = decodeURIComponent(pathElements[3]),
-                    query = decodeURIComponent(pathElements[4]);
+                    query = decodeURIComponent(Array(pathElements.length - 3).fill(0).map((_, i) => pathElements[i + 4]).filter(Boolean).join('/'));
 
                 if(window.location.search.includes("raw")){
                     document.body.outerHTML = document.querySelector("#masterContent").outerHTML;
@@ -100,7 +100,16 @@
                 } [family]);
 
                 const queryElement = document.querySelector("#queryIcon");
-                queryElement.innerText = itemInfo.query;
+                if (itemInfo.query.includes("images/")) {
+                    queryElement.innerText = '';
+                    const img = document.createElement("img");
+                    img.src = `/${OSRS.getCurrentSetName()}/${itemInfo.query}`;
+                    img.alt = itemInfo.query;
+                    queryElement.appendChild(img);
+                } else {
+                    queryElement.innerText = itemInfo.query;
+                }
+
                 queryElement.className = ({
                     radical: 'radical'
                 } [family] ?? family) + "-icon";

@@ -40,7 +40,8 @@
         <bind source="en/review" target="summary.emhtml"/>
         <bind source="en/lesson" target="summary.emhtml"/>
 
-        <bind type="regex" source="(pl|en)/(vocabulary|kanji|radical)/[^/]*" target="info.emhtml"/>
+        <bind type="regex" source="(pl|en)/(vocabulary|kanji|radical)/.*" target="info.emhtml"/>
+        <bind type="regex" source="(pl|en)/images/([^/]*)" target="images/$2"/>
         <bind type="regex" source=".*/assets/(.*)" target="assets/$1"/>
         <bind type="regex" source=".*/js/(.*)" target="js/$1"/>
         <bind source="reviewactivity" target="activity.emhtml"/>

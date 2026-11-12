@@ -61,18 +61,18 @@ $(document).ready(function () {
         const root = document.createElement("div");
         root.className = "progress-entry relative rounded-tr rounded-tl";
         const link = document.createElement("a");
-        link.href = `/${OSRS.getCurrentSetName()}/${n.family}/${n.query}`;
+        link.href = `${n.family}/${n.query}`;
         link.lang = "ja";
         link.className = `${n.family}-icon` + (n.rawStage === 0 && currentLesson.queue.filter(m => m.id === n.id).length === 0 ? ` ${n.family}-icon--locked` : ``);
         if (n.query.includes("images/")) {
-        const img = document.createElement("img");
-        img.src = n.query;
-        img.alt = n.query;
-        link.appendChild(img);
+            const img = document.createElement("img");
+            img.src = n.query;
+            img.alt = n.query;
+            link.appendChild(img);
         } else {
-        const s = document.createElement("span");
-        s.innerText = n.query;
-        link.appendChild(s);
+            const s = document.createElement("span");
+            s.innerText = n.query;
+            link.appendChild(s);
         }
         const stage = Math.min(5, n.rawStage);
         const progressBar = document.createElement("div");
