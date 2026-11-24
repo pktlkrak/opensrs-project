@@ -13,16 +13,5 @@ services:
         - app-network
         volumes:
         - ./docker/db:/docker-entrypoint-initdb.d
-
-    pgadmin-wdpai:
-        image: dpage/pgadmin4:latest
-        environment:
-            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-        ports:
-        - "${PGADMIN_PORT:-5050}:80"
-        networks:
-        - app-network
-
 networks:
     app-network:
