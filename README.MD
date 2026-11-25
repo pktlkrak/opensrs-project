@@ -193,6 +193,52 @@ Gdzie `DataType` to objekt, który powinien zostać zapisany w bazie.
 
 Ponieważ system jest skonstruowany na zasanie niemutowalnego ledger'a, funkcja służąca do kasowania objektów nie powinna być zaimplementowana.
 
+#### 3.3.1. Diagram ER
+
+```mermaid
+erDiagram
+    userdata {
+        integer uid PK "identity"
+        text name
+        text hash
+        text salt
+    }
+
+    userimages {
+        integer imgid PK "identity"
+        integer uid FK "not null"
+        bytea image "not null"
+        text image_type "not null"
+    }
+
+    reviews {
+        integer id PK "identity"
+        integer uid FK
+        integer set_code
+        integer item_suid
+        bigint queued_date
+        bigint unlock_date
+        integer srs_weight
+        integer review_session_id
+        integer type
+    }
+
+    results {
+        integer id PK "identity"
+        integer uid FK
+        integer set_code
+        integer review_id FK "indexed"
+        integer item_suid
+        integer item_param
+        integer tries_amount
+    }
+
+    userdata ||..|| userimages : ""
+    userdata |o..o{ reviews : ""
+    userdata |o..o{ results : ""
+    reviews ||..o{ results : ""
+```
+
 ### 3.4. Klasy pomocnicze
 
 #### 3.4.1. Filtry
