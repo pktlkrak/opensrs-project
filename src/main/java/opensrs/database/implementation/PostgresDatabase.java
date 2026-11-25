@@ -249,6 +249,22 @@ public class PostgresDatabase extends Database {
             return 1;
         }
     }
+    
+    private <R extends GenericParameter> String buildSQLForFiltering(Filter<R> filter, Object[] inlineParams, int inlineParamsOffset) {
+        int i = inlineParamsOffset;
+        StringBuilder sqlForFiltering = new StringBuilder();
+        if (filter != null && (filter instanceof FilterChain ? ((FilterChain) filter).getFilters().size() > 0 : true)) {
+            if (filter instanceof FilterChain) {
+                FiltersIntermediate fi = parseFilters((FilterChain<R>) filter, inlineParams, i);
+
+                sqlForFiltering.append(fi.outputSQL);
+            } else {
+                sqlForFiltering.append(getFilterString(filter));
+                inlineParams[i++] = filter.getValue();
+            }
+        }
+        return sqlForFiltering.toString();
+    }
 
     private <T extends DataObject<R>, R extends GenericParameter> List<T> fetch(Class<R> parameterClass, Filter<R> filter, int limit, String tableName, Sorter<R> sorter, Supplier<T> factory, Function<R, String> nameMapper, String groupBy) { 
         StringBuilder SQL = new StringBuilder("SELECT ");
@@ -262,20 +278,8 @@ public class PostgresDatabase extends Database {
             SQL.delete(SQL.length() - 2, SQL.length());
             SQL.append(" FROM ").append(tableName).append(" ");
  
-            StringBuilder sqlForFiltering = new StringBuilder();
- 
-            int i = 0;
             Object array[] = new Object[getTotalFiltersAmount(filter)];
-            if (filter != null && (filter instanceof FilterChain ? ((FilterChain) filter).getFilters().size() > 0 : true)) {
-                if (filter instanceof FilterChain) {
-                    FiltersIntermediate fi = parseFilters((FilterChain<R>) filter, array, i);
- 
-                    sqlForFiltering.append(fi.outputSQL);
-                } else {
-                    sqlForFiltering.append(getFilterString(filter));
-                    array[i++] = filter.getValue();
-                }
-            }
+            String sqlForFiltering = buildSQLForFiltering(filter, array, 0);
             if (sqlForFiltering.length() != 0) {
                 SQL.append(" WHERE ").append(sqlForFiltering);
             }
@@ -434,16 +438,9 @@ public class PostgresDatabase extends Database {
                 array[arrayI++] = update.getNewValue();
             }
             sql.delete(sql.length() - 2, sql.length());
-            if (filter != null && (filter instanceof FilterChain ? ((FilterChain) filter).getFilters().size() > 0 : true)) {
-                if (filter instanceof FilterChain) {
-                    FiltersIntermediate fi = parseFilters((FilterChain) filter, array, arrayI);
-
-                    sql.append(" where ").append(fi.outputSQL);
-                    arrayI = fi.currentArrayPointer;
-                } else {
-                    sql.append(" where ").append(getFilterString(filter));
-                    array[arrayI++] = filter.getValue();
-                }
+            String sqlForFiltering = buildSQLForFiltering(filter, array, updates.length);
+            if (sqlForFiltering.length() != 0) {
+                sql.append(" WHERE ").append(sqlForFiltering);
             }
 
             //And now the fetch statement....
@@ -486,5 +483,32 @@ public class PostgresDatabase extends Database {
     @Override
     public List<Result> updateResults(Filter<Result.Parameter> filter, Update<Result.Parameter>... updates) {
         return update(Result.Parameter.class, filter, "RESULTS", Result::new, updates);
+    }
+    
+    private <T extends DataObject, R extends GenericParameter> void delete(Filter<R> filter, String tableName) {
+        try {
+            StringBuilder sql = new StringBuilder("delete from  ");
+            sql.append(tableName);
+            Object array[] = new Object[getTotalFiltersAmount(filter)];
+            String sqlForFiltering = buildSQLForFiltering(filter, array, 0);
+            if (sqlForFiltering.length() != 0) {
+                sql.append(" WHERE ").append(sqlForFiltering);
+            }
+
+            //And now the fetch statement....
+            query(sql.toString(), array);
+        } catch (SQLException ex) {
+            Log.handleException(TAG, ex);
+        }
+    }
+    
+    @Override
+    public void deleteReviews(Filter<Review.Parameter> filter) {
+        delete(filter, "REVIEWS");
+    }
+    
+    @Override
+    public void deleteResults(Filter<Result.Parameter> filter) {
+        delete(filter, "RESULTS");
     }
 }

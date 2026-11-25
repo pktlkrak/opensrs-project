@@ -163,6 +163,18 @@ public abstract class Database {
     public abstract List<SRSObjectState> fetchState(Filter<SRSObjectState.Parameter> filter, int limit);
     
     /**
+     * Deletes reviews which match the filters
+     * @param filter    determines the criteria that need to be met by the instanced of SRSObjectState.
+     */
+    public abstract void deleteReviews(Filter<Review.Parameter> filter);
+       
+    /**
+     * Deletes results which match the filters
+     * @param filter    determines the criteria that need to be met by the instanced of SRSObjectState.
+     */
+    public abstract void deleteResults(Filter<Result.Parameter> filter);
+
+    /**
      * Closes the database
      */
     public abstract void close();
