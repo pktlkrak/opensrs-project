@@ -20,6 +20,7 @@
         getLessonsQueue: () => req(`/api/${osrs.getCurrentSetName()}/lesson/queue`),
         getReviewsQueue: () => req(`/api/${osrs.getCurrentSetName()}/review/queue`),
         getUser: () => req(`/api/user`),
+        getSets: () => req(`/api/sets`),
         redirectToLogin: () => window.location.href = `/login.html?redir=${encodeURIComponent(window.location.href)}`,
         getLastSessionLessonsDone: () => req(`/api/${osrs.getCurrentSetName()}/lesson/lastSession`),
         getLastSessionReviewsDone: () => req(`/api/${osrs.getCurrentSetName()}/review/lastSession`),

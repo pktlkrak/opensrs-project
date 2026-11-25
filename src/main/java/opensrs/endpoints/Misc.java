@@ -237,18 +237,34 @@ public class Misc {
                 .toString()
         );
     }
-    
+
     /**
      * Endpoint that returns the list of all available sets.
+     *
      * @param state Autumn State
-     * @throws IOException 
+     * @throws IOException
      */
     @Endpoint("/api/sets")
     public void listSets(
-            State state
+            State state,
+            @FromCookie(value = "session", optional = true) String session
     ) throws IOException {
         ArrayNode an = opensrs.Utils.MAPPER.createArrayNode();
-        for(String string : GlobalStore.getAvailableSets()) an.add(string);
+        int uid = SessionHolder.getUID(session);
+        for (String setName : GlobalStore.getAvailableSets()) {
+            ObjectNode on = opensrs.Utils.MAPPER.createObjectNode();
+            on.put("name", GlobalStore.getSet(setName).config.getName());
+            on.put("id", setName);
+            if (uid != -1) {
+                Review rev = database.fetchReview(
+                        new FilterChain<>(FilterChain.Junction.AND, List.of(
+                                new Filter<>(Review.Parameter.SET_CODE, Filters.EqOnly.EQUAL, setName.hashCode()),
+                                new Filter<>(Review.Parameter.UID, Filters.EqOnly.EQUAL, uid)
+                        )), null);
+                on.put("unlocked", rev != null);
+            }
+            an.add(on);
+        }
         state.sendJSON(opensrs.Utils.MAPPER.writeValueAsString(an));
     }
     

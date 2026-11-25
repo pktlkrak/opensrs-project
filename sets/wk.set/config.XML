@@ -1,5 +1,6 @@
 <?xml version="1.0"?>  
 <SRSConfig>
+    <name>WaniKani Mirror</name>
     <phases>
         <phase number="1" fromStage="1">Apprentice</phase>
         <phase number="2" fromStage="5">Guru</phase> <!--Unlock depending-on happens here-->

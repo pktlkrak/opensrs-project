@@ -109,6 +109,7 @@ public abstract class Set {
     private void parseConfig(Document document) {
         Element srsConfigRoot = (Element) document.getElementsByTagName("SRSConfig").item(0);
 
+        Element setName = (Element) srsConfigRoot.getElementsByTagName("name").item(0);
         Element phases = (Element) srsConfigRoot.getElementsByTagName("phases").item(0);
         Element penalties = (Element) srsConfigRoot.getElementsByTagName("penalties").item(0);
         Element timings = (Element) srsConfigRoot.getElementsByTagName("timings").item(0);
@@ -116,6 +117,7 @@ public abstract class Set {
 
         //Parse the phases
         config = new SRSConfig();
+        config.name = setName.getTextContent();
         Utils.asStream(phases.getChildNodes()).forEach(n -> {
             int number = Integer.parseInt(n.getAttribute("number"));
             int fromStage = Integer.parseInt(n.getAttribute("fromStage"));
@@ -163,13 +165,13 @@ public abstract class Set {
 
     /**
      * The configuration of an SRS set
-     * <p> It is used to define diffrent parameters of the Set,
+     * <p> It is used to define different parameters of the Set,
      * like the harshness of the penalties
      * It is used in {@link Set} </p>
      * @see Set
      */
     public class SRSConfig {
-        
+                
         public static enum BindingType {
             REDIRECT, TRANSFER
         }
@@ -200,6 +202,8 @@ public abstract class Set {
             }
             
         }
+        
+        private String name;
 
         /**
          * How big is the penalty based on the current stage
@@ -273,6 +277,10 @@ public abstract class Set {
                 if(response == null) return new Binding(source, BindingType.TRANSFER);
             }
             return response;
+        }
+        
+        public String getName() {
+            return name;
         }
     }
 }
