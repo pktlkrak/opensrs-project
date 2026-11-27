@@ -42,11 +42,15 @@ public class TranslationFileTransformer implements FileTransformer {
             String format = args[0].trim();
             String allowed[] = args[1].trim().toLowerCase().split(",");
 
-            Map<String, String> formatMatch = Utils.parse(format, path);
-            if (!formatMatch.containsKey("locale")) {
-                return is;
+            String locale = null;
+            for(String validFormat : format.split(Pattern.quote("|"))) {
+                Map<String, String> formatMatch = Utils.parse(validFormat, path);
+                if (formatMatch.containsKey("locale")) {
+                    locale = formatMatch.get("locale").toLowerCase();
+                    break;
+                }
             }
-            String locale = formatMatch.get("locale").toLowerCase();
+            if(locale == null) return is;
             boolean found = false;
 
             for (String entry : allowed) {

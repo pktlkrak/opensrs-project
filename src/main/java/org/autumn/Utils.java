@@ -41,6 +41,7 @@ public class Utils {
 
                 String inInputTextMatch = input.substring(inputIndex, inInputTextMatchEnd);
                 retVal.put(format.substring(formatIndex+1, formatNameEnd), inInputTextMatch);
+                if(retVal.isEmpty()) return null;
                 formatIndex = formatNameEnd + 1;
                 inputIndex = inInputTextMatchEnd;
             } else {

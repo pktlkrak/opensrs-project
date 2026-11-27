@@ -43,6 +43,7 @@ import tools.jackson.databind.node.ArrayNode;
 
 /**
  * Miscellaneous endpoints.
+ *
  * @author piotr
  */
 public class Misc {
@@ -51,7 +52,7 @@ public class Misc {
 
     private static Map<String, String> extMap;
     private final Database database;
-
+    
     static {
         try {
             extMap = java.nio.file.Files.readAllLines(new File("mappings").toPath())
@@ -63,16 +64,17 @@ public class Misc {
             Log.handleException("Files", ex);
         }
     }
-
+    
     public Misc(Database database) {
         this.database = database;
     }
 
     /**
      * Endpoint for accessing static paths.
+     *
      * @param state Autumn State
-     * @param path  Path the generic endpoint is trying to access.
-     * @throws IOException 
+     * @param path Path the generic endpoint is trying to access.
+     * @throws IOException
      */
     @Endpoint("/{path}")
     public void access(
@@ -103,7 +105,7 @@ public class Misc {
             thisSet = GlobalStore.getSet(pathTokens[0]);
             String subPath = Arrays.asList(pathTokens).stream().skip(1).collect(Collectors.joining("/"));
             Binding setBinding = thisSet.config.getBinding(subPath);
-            if(setBinding.getType() == BindingType.REDIRECT) {
+            if (setBinding.getType() == BindingType.REDIRECT) {
                 state.setHeader("Location", setBinding.getTarget());
                 state.sendResponseHeaders(302);
                 return;
@@ -113,6 +115,7 @@ public class Misc {
             lastSubPath = subPath;
             toRead = thisSet.getFile(subPath);
         } else {
+            // TODO: Add global bindings here, so that things can be remapped.
             toRead = GlobalStore.getCommonFile(path);
             thisSet = null;
         }
@@ -126,16 +129,16 @@ public class Misc {
         }
         if (extMap.containsKey(extension)) {
             String contentType = extMap.get(extension);
-            if(contentType.contains("~")) {
+            if (contentType.contains("~")) {
                 String[] ctSteps = contentType.split(Pattern.quote("~"));
                 contentType = ctSteps[0].strip();
-                for(int i = 1; i < ctSteps.length; i++) {
+                for (int i = 1; i < ctSteps.length; i++) {
                     toRead = FileTransformers.apply(ctSteps[i].strip(), path, thisSet, toRead);
                 }
             }
             state.setHeader("Content-Type", contentType);
         }
-
+        
         state.setOutputLength((int) toRead.getLength());
         state.sendResponseHeaders(200);
         Utils.copyStream(toRead.getInputStream(), state.getOutput(), 4096);
@@ -143,14 +146,15 @@ public class Misc {
 
     /**
      * The endpoint for information about the currently logged in user.
-     * @param state     Autumn State.
-     * @param session   Current session.
-     * @throws IOException 
+     *
+     * @param state Autumn State.
+     * @param session Current session.
+     * @throws IOException
      */
     @Endpoint("/api/user")
     public void user(
             State state,
-            @FromCookie( value = "session", optional = true) String session
+            @FromCookie(value = "session", optional = true) String session
     ) throws IOException {
         state.setHeader("Cache-Control", "no-store");
         int uid = SessionHolder.getUID(session);
@@ -162,18 +166,19 @@ public class Misc {
 
     /**
      * The endpoint for retrieving the user's picture
-     * @param state     Autumn State.
-     * @param session   Current session.
-     * @throws IOException 
+     *
+     * @param state Autumn State.
+     * @param session Current session.
+     * @throws IOException
      */
-    @Endpoint(value = "/api/user/pic", allowedMethods = { "GET" })
+    @Endpoint(value = "/api/user/pic", allowedMethods = {"GET"})
     public void userPicture(
             State state,
-            @FromCookie( value = "session", optional = true) String session
+            @FromCookie(value = "session", optional = true) String session
     ) throws IOException {
         int uid = SessionHolder.getUID(session);
         User.Image userImage = database.getUserImage(uid);
-        if(userImage == null) {
+        if (userImage == null) {
             state.sendString("Not found", "text/plain", 404);
         } else {
             state.setOutputLength(userImage.image.length);
@@ -187,26 +192,27 @@ public class Misc {
 
     /**
      * The endpoint for setting the user's picture
-     * @param state     Autumn State.
-     * @param session   Current session.
-     * @throws IOException 
+     *
+     * @param state Autumn State.
+     * @param session Current session.
+     * @throws IOException
      */
-    @Endpoint(value = "/api/user/pic", allowedMethods = { "POST" })
+    @Endpoint(value = "/api/user/pic", allowedMethods = {"POST"})
     public void setUserPicture(
             State state,
-            @FromCookie( value = "session", optional = true) String session
+            @FromCookie(value = "session", optional = true) String session
     ) throws IOException {
         int uid = SessionHolder.getUID(session);
-        if(uid == -1) {
+        if (uid == -1) {
             state.sendString("Unauthorized", "text/plain", 403);
         } else {
             List<String> length = state.getInboundHeaders().getOrDefault("Content-Length", new LinkedList<>());
             List<String> contentTypes = state.getInboundHeaders().getOrDefault("Content-Type", new LinkedList<>());
-            if(length.size() != 1 || contentTypes.size() != 1) {
+            if (length.size() != 1 || contentTypes.size() != 1) {
                 state.sendString("Invalid request", "text/plain", 400);
             } else {
                 long longLength = Long.parseLong(length.getFirst());
-                if(longLength >= MAX_IMAGE_LENGTH) {
+                if (longLength >= MAX_IMAGE_LENGTH) {
                     state.sendString("Image too long", "text/plain", 400);
                 } else {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -220,9 +226,12 @@ public class Misc {
 
     /**
      * Endpoint for the about section.
-     * <p>It displays generic info: The version of the system and how many sets are Loaded.</p>
+     * <p>
+     * It displays generic info: The version of the system and how many sets are
+     * Loaded.</p>
+     *
      * @param state Autumn State.
-     * @throws IOException 
+     * @throws IOException
      */
     @Endpoint("/about")
     public void about(
@@ -267,23 +276,26 @@ public class Misc {
         }
         state.sendJSON(opensrs.Utils.MAPPER.writeValueAsString(an));
     }
-    
+
     /**
      * Endpoint for the user to register for a certain Set.
-     * <p>Not every user might want to use every available Set so the users first need to register for the sets they actually want to study.</p>
-     * @param state     Autumn State.
-     * @param set       The set to register for.
-     * @param seskey    The session key.
-     * @throws IOException 
+     * <p>
+     * Not every user might want to use every available Set so the users first
+     * need to register for the sets they actually want to study.</p>
+     *
+     * @param state Autumn State.
+     * @param set The set to register for.
+     * @param seskey The session key.
+     * @throws IOException
      */
-    @Endpoint(value = "/api/{set}/register", allowedMethods = { "POST" })
+    @Endpoint(value = "/api/{set}/register", allowedMethods = {"POST"})
     public void registerUserForSet(
             State state,
             @FromPath("set") String set,
             @FromCookie("session") String seskey
     ) throws IOException {
         int uid = SessionHolder.getUID(seskey);
-        if(uid == -1) {
+        if (uid == -1) {
             state.sendString("Not logged in!", "text/plain", 403);
             return;
         }
@@ -291,21 +303,21 @@ public class Misc {
                 new Filter<>(Review.Parameter.UID, Filters.EqOnly.EQUAL, uid),
                 new Filter<>(Review.Parameter.SET_CODE, Filters.EqOnly.EQUAL, set.hashCode()))
         ), null);
-        if(rev == null) {
+        if (rev == null) {
             database.createReviews(GlobalStore.getSet(set)
-                .stream()
-                .filter(n -> n.getLevel() == 1 && n.getDependencies().isEmpty())
-                .map(n -> {
-                    Review r = Review.create();
-                    r.setUid(uid);
-                    r.setSetCode(set.hashCode());
-                    r.setType(Review.TYPE_LESSON);
-                    r.setQueuedDate(System.currentTimeMillis());
-                    r.setUnlockDate(-2);
-                    r.setItemSUID(n.getId());
-                    return r;
-                })
-                .toArray(Review[]::new));
+                    .stream()
+                    .filter(n -> n.getLevel() == 1 && n.getDependencies().isEmpty())
+                    .map(n -> {
+                        Review r = Review.create();
+                        r.setUid(uid);
+                        r.setSetCode(set.hashCode());
+                        r.setType(Review.TYPE_LESSON);
+                        r.setQueuedDate(System.currentTimeMillis());
+                        r.setUnlockDate(-2);
+                        r.setItemSUID(n.getId());
+                        return r;
+                    })
+                    .toArray(Review[]::new));
             state.sendString("OK", "text/plain");
         } else {
             state.sendString("Already registered!", "text/plain", 400);

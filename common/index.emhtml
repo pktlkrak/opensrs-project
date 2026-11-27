@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="core-ui/osrs-common.css">
+        <script src="osrs.js"></script>
+        <script defer src="core-ui/osrs-index.js"></script>
+        <title>OSRS</title>
+    </head>
+
+    <body>
+        <h1 class="osrs-title">{trs:Welcome to OSRS!}</h1>
+        <button class="user-thing user-thing-login" onclick="OSRS.redirectToLogin()">
+            <img src="core-ui/res/user-regular-full.svg" width="32" height="32">
+            <span>Log In</span>
+        </button>
+        <button class="user-thing user-thing-logged-in hidden">
+            <img width="32" height="32">
+            <span></span>
+        </button>
+        <h3>The following learning resources are available:</h3>
+        <ul id="main-sets-list">
+
+        </ul>
+    </body>
+</html>

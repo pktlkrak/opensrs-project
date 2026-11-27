@@ -13,7 +13,7 @@ import opensrs.database.ParameterType;
 
 /**
  * {@link DataObject} for representing the current state of an SRS object.
- * <p>This is used to acces the identifying parameters of the object and the current weight (level) of the object.</p>
+ * <p>This is used to access the identifying parameters of the object and the current weight (level) of the object.</p>
  * @author piotr
  */
 public class SRSObjectState extends DataObject<SRSObjectState.Parameter>{

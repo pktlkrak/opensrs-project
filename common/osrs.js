@@ -13,7 +13,7 @@
         }
         return output.substring(0, output.length - 1);
     };
-    const req = (url, content) => new Promise((ok, fail) => fetch(url, content === undefined ? undefined : {method: "POST", body: content, headers: {"Content-Type": "application/x-www-form-urlencoded"}}).then(n => n.json()).then(ok).catch(fail));
+    const req = (url, content) => new Promise((ok, fail) => fetch("http://localhost:9998" + url, content === undefined ? undefined : {method: "POST", body: content, headers: {"Content-Type": "application/x-www-form-urlencoded"}}).then(n => n.json()).then(ok).catch(fail));
     const osrs = {
         getCurrentSetName: () => new URL(window.location.href).pathname.split("/")[1],
         getUserStatus: () => req(`/api/${osrs.getCurrentSetName()}/progress/phases`),
