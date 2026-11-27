@@ -24,30 +24,48 @@
         <!--After stage 8, item gets burned - it won't be reviewed anymore-->
     </timings>
     <bindings>
-        <bind source="activity.html" target="NONE"/>
-        <bind source="info.html" target="NONE"/>
-        <bind source="summary.html" target="NONE"/>
-        <bind source="rawinfo.html" target="NONE"/>
+        <root>en/dashboard</root>
+        <routing>
+            <bind type="regex" source=".*/assets/(.*)" target="assets/$1"/>
+            <bind type="regex" source=".*/js/(.*)" target="js/$1"/>
 
-        <redirect source="index.html" target="pl/index.html" />
+            <bind source="activity.html" target="NONE"/>
+            <bind source="info.html" target="NONE"/>
+            <bind source="summary.html" target="NONE"/>
+            <bind source="rawinfo.html" target="NONE"/>
 
-        <bind source="pl/index.html" target="index.emhtml"/>
-        <bind source="pl/dashboard" target="index.emhtml"/>
-        <bind source="pl/review" target="summary.emhtml"/>
-        <bind source="pl/lesson" target="summary.emhtml"/>
+            <bind source="pl/index.html" target="index.emhtml"/>
+            <bind source="pl/dashboard" target="index.emhtml"/>
+            <bind source="pl/review" target="summary.emhtml"/>
+            <bind source="pl/lesson" target="summary.emhtml"/>
 
-        <bind source="en/index.html" target="index.emhtml"/>
-        <bind source="en/dashboard" target="index.emhtml"/>
-        <bind source="en/review" target="summary.emhtml"/>
-        <bind source="en/lesson" target="summary.emhtml"/>
+            <bind source="en/index.html" target="index.emhtml"/>
+            <bind source="en/dashboard" target="index.emhtml"/>
+            <bind source="en/review" target="summary.emhtml"/>
+            <bind source="en/lesson" target="summary.emhtml"/>
 
-        <bind type="regex" source="(pl|en)/(vocabulary|kanji|radical)/.*" target="info.emhtml"/>
-        <bind type="regex" source="(pl|en)/images/([^/]*)" target="images/$2"/>
-        <bind type="regex" source=".*/assets/(.*)" target="assets/$1"/>
-        <bind type="regex" source=".*/js/(.*)" target="js/$1"/>
-        <bind source="reviewactivity" target="activity.emhtml"/>
-        <bind source="lessonactivity" target="activity.emhtml"/>
+            <bind type="regex" source="(pl|en)/(vocabulary|kanji|radical)/.*" target="info.emhtml" tag="translate-lang-$1"/>
+            <bind type="regex" source="(pl|en)/images/([^/]*)" target="images/$2"/>
+            <bind source="en/reviewactivity" target="activity.emhtml"/>
+            <bind source="en/lessonactivity" target="activity.emhtml"/>
+            <bind source="pl/reviewactivity" target="activity.emhtml"/>
+            <bind source="pl/lessonactivity" target="activity.emhtml"/>
 
-        <bind type="regex" source="modules/.*" target="NONE"/>
+            <bind type="regex" source="modules/.*" target="NONE"/>
+        </routing>
+        <mappings>
+            <apply tag="translate-lang-pl" urlmatch="^pl/.*"/>
+            <apply tag="translate-lang-en" urlmatch="^en/.*"/>
+            <mime localextension=".emhtml" tag="embed translate-set">text/html</mime>
+            <mime localextension=".emjs" tag="embed translate-set">application/javascript</mime>
+        </mappings>
+
+        <transformers>
+            <layer apply="EmbedText" tag="embed" />
+            <layer apply="Translate" tag="translate-set">
+                <locale>pl</locale>
+                <locale>en</locale>
+            </layer>
+        </transformers>
     </bindings>
 </SRSConfig>

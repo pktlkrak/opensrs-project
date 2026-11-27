@@ -9,6 +9,7 @@ import opensrs.database.Database;
 import opensrs.database.implementation.PostgresDatabase;
 import opensrs.dataobjects.User;
 import opensrs.filetransformers.FileTransformers;
+import opensrs.sets.GlobalStore;
 import org.autumn.Logger;
 import org.autumn.Server;
 
@@ -39,6 +40,7 @@ public class OpenSRS {
         Database database = new PostgresDatabase(dbHost, dbPort, db, username, password);
         
         FileTransformers.findTransformers();
+        GlobalStore.initialize();
         
         Server autumn = new Server("opensrs", new Logger(){
             @Override

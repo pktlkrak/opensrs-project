@@ -6,28 +6,33 @@ package opensrs.filetransformers.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import opensrs.InputStreamLength;
 import opensrs.filetransformers.FileTransformer;
+import opensrs.filetransformers.FileTransformerName;
 import opensrs.sets.GlobalStore;
 import opensrs.sets.Set;
 import org.autumn.Utils;
+import org.w3c.dom.Element;
 
 /**
  *
  * @author asivery
  */
+@FileTransformerName("EmbedText")
 public class EmbeddingFileTransformer implements FileTransformer {
 
-    @Override
-    public String getName() {
-        return "embedText";
+    private final Set set;
+    public EmbeddingFileTransformer(Set set, Element el) {
+        this.set = set;
     }
 
     @Override
-    public InputStreamLength apply(String args, String path, Set set, InputStreamLength is) throws IOException {
+    public InputStreamLength apply(String path, File sourceFile, java.util.Set<String> tags, InputStreamLength is) throws IOException {
         ByteArrayOutputStream rootBaos = new ByteArrayOutputStream();
         Utils.copyStream(is.getInputStream(), rootBaos, 4096);
         String asString = rootBaos.toString("utf-8");
@@ -36,7 +41,7 @@ public class EmbeddingFileTransformer implements FileTransformer {
         StringBuilder out = new StringBuilder();
         while (stringMatcher.find()) {
             String fileName = stringMatcher.group(1).strip();
-            InputStreamLength fullFile;
+            File fullFile;
             if (set != null) {
                 fullFile = set.getFile(fileName);
             } else {
@@ -44,7 +49,7 @@ public class EmbeddingFileTransformer implements FileTransformer {
             }
 
             ByteArrayOutputStream subBaos = new ByteArrayOutputStream();
-            Utils.copyStream(fullFile.getInputStream(), subBaos, 4096);
+            Utils.copyStream(new FileInputStream(fullFile), subBaos, 4096);
 
             stringMatcher.appendReplacement(out, subBaos.toString("UTF-8"));
         }

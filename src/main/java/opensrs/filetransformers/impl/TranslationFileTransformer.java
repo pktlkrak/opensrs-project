@@ -5,17 +5,26 @@
 package opensrs.filetransformers.impl;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import opensrs.InputStreamLength;
 import opensrs.filetransformers.FileTransformer;
+import opensrs.filetransformers.FileTransformerName;
 import opensrs.sets.GlobalStore;
 import opensrs.sets.Set;
 import org.autumn.Utils;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -23,85 +32,81 @@ import tools.jackson.databind.node.ObjectNode;
  *
  * @author piotr
  */
+ 
+@FileTransformerName("Translate")
 public class TranslationFileTransformer implements FileTransformer {
-
-    @Override
-    public String getName() {
-        return "translate";
+ 
+    private static final Pattern PLACEHOLDER = Pattern.compile("\\{trs(\\.[^:]*)?:([^\\}]*)\\}");
+ 
+    private final Set set;
+    private final java.util.Set<String> allowed = new HashSet<>();
+ 
+    public TranslationFileTransformer(Set set, Element decl) {
+        this.set = set;
+ 
+        NodeList localeNodes = decl.getElementsByTagName("locale");
+        for (int i = 0; i < localeNodes.getLength(); i++) {
+            allowed.add(localeNodes.item(i).getTextContent().trim().toLowerCase());
+        }
+ 
+        if (allowed.isEmpty()) {
+            throw new IllegalArgumentException("Invalid translation transformer - expected <locale>...</locale>");
+        }
     }
-
+ 
     @Override
-    public InputStreamLength apply(String arguments, String path, Set set, InputStreamLength is) throws IOException {
-        String args[] = arguments.split("!");
-        InputStreamLength translationFileInput = null;
-        if (args.length != 2) {
-            throw new IOException("Invalid translation transformer argumetns - expected 'format (w/ locale)!allow1,allow2,...'");
-        }
-
+    public InputStreamLength apply(String initialPath, File sourceFile, java.util.Set<String> tags, InputStreamLength is) throws IOException {
+        File translationFile = null;
         try {
-            String format = args[0].trim();
-            String allowed[] = args[1].trim().toLowerCase().split(",");
-
             String locale = null;
-            for(String validFormat : format.split(Pattern.quote("|"))) {
-                Map<String, String> formatMatch = Utils.parse(validFormat, path);
-                if (formatMatch.containsKey("locale")) {
-                    locale = formatMatch.get("locale").toLowerCase();
-                    break;
+            for (String tag : tags) {
+                if(tag.startsWith("translate-lang-")) {
+                    String destLang = tag.substring(("translate-lang-").length());
+                    if(allowed.contains(destLang)) {
+                        locale = destLang;
+                        break;
+                    }
                 }
             }
-            if(locale == null) return is;
-            boolean found = false;
-
-            for (String entry : allowed) {
-                if (locale.equals(entry)) {
-                    found = true;
-                    break;
-                }
+            if (locale == null) {
+                return is; // No allowed locale in path, send as-is
             }
-
-            if (!found) {
-                return is; // If no locale found, send as-is
-            }
-            translationFileInput = set == null
-                    ? GlobalStore.getCommonFile("translations." + locale + ".json")
-                    : set.getFile("translations." + locale + ".json");
-        }catch(StringIndexOutOfBoundsException ex) {
-            
+            String name = "translations." + locale + ".json";
+            translationFile = set == null ? GlobalStore.getCommonFile(name) : set.getFile(name);
+        } catch (StringIndexOutOfBoundsException ex) {
+            // Can't parse - replace placeholders.
         }
-
-        JsonNode node = translationFileInput == null ?
-                opensrs.Utils.MAPPER.createObjectNode() :
-                opensrs.Utils.MAPPER.readTree(translationFileInput.getInputStream());
-
-        if (node instanceof ObjectNode on) {
-            ByteArrayOutputStream rootBaos = new ByteArrayOutputStream();
-            Utils.copyStream(is.getInputStream(), rootBaos, 4096);
-            String asString = rootBaos.toString("utf-8");
-            Pattern p = Pattern.compile("\\{trs(\\.[^:]*)?:([^\\}]*)\\}");
-            Matcher stringMatcher = p.matcher(asString);
-            StringBuilder out = new StringBuilder();
-            while (stringMatcher.find()) {
-                String subkey = stringMatcher.group(1);
-                String key = stringMatcher.group(2).strip();
-                
-                Optional<String> resolved = Optional.empty();
-                if(subkey != null) {
-                    resolved = on.optional(subkey.strip() + "." + key).flatMap(e -> e.asStringOpt());
-                }
-                
-                resolved = resolved.or(() -> on.optional(key).flatMap(e -> e.asStringOpt()));
-
-                stringMatcher.appendReplacement(out, resolved.orElse(key));
-            }
-
-            stringMatcher.appendTail(out);
-
-            byte[] bytes = out.toString().getBytes("UTF-8");
-            return new InputStreamLength(new ByteArrayInputStream(bytes), bytes.length);
+ 
+        JsonNode node;
+        if (translationFile == null) {
+            node = opensrs.Utils.MAPPER.createObjectNode();
         } else {
-            // Fall through to original contents.
-            return is;
+            try (InputStream in = new FileInputStream(translationFile)) {
+                node = opensrs.Utils.MAPPER.readTree(in);
+            }
         }
+        if (!(node instanceof ObjectNode on)) {
+            return is; // Fall through to original contents.
+        }
+ 
+        String source = new String(is.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        Matcher matcher = PLACEHOLDER.matcher(source);
+        StringBuilder out = new StringBuilder();
+        while (matcher.find()) {
+            String subkey = matcher.group(1);
+            String key = matcher.group(2).strip();
+ 
+            Optional<String> resolved = Optional.empty();
+            if (subkey != null) {
+                resolved = on.optional(subkey.strip() + "." + key).flatMap(e -> e.asStringOpt());
+            }
+            resolved = resolved.or(() -> on.optional(key).flatMap(e -> e.asStringOpt()));
+ 
+            matcher.appendReplacement(out, Matcher.quoteReplacement(resolved.orElse(key)));
+        }
+        matcher.appendTail(out);
+ 
+        byte[] bytes = out.toString().getBytes(StandardCharsets.UTF_8);
+        return new InputStreamLength(new ByteArrayInputStream(bytes), bytes.length);
     }
 }

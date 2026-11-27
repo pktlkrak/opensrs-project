@@ -30,11 +30,10 @@ import opensrs.database.FilterChain;
 import opensrs.database.Filters;
 import opensrs.dataobjects.Review;
 import opensrs.dataobjects.User;
+import opensrs.filetransformers.Bindings;
 import opensrs.filetransformers.FileTransformers;
 import opensrs.sets.GlobalStore;
 import opensrs.sets.Set;
-import opensrs.sets.Set.SRSConfig.Binding;
-import opensrs.sets.Set.SRSConfig.BindingType;
 import org.autumn.State;
 import org.autumn.annotations.Endpoint;
 import org.autumn.annotations.FromCookie;
@@ -50,20 +49,7 @@ public class Misc {
     
     public static final int MAX_IMAGE_LENGTH = 10_000_000; // ~10MiB
 
-    private static Map<String, String> extMap;
     private final Database database;
-    
-    static {
-        try {
-            extMap = java.nio.file.Files.readAllLines(new File("mappings").toPath())
-                    .stream()
-                    .map(n -> n.split(" ", 2))
-                    .filter(e -> e.length == 2)
-                    .collect(Collectors.toMap(n -> n[0], n -> n[1]));
-        } catch (IOException ex) {
-            Log.handleException("Files", ex);
-        }
-    }
     
     public Misc(Database database) {
         this.database = database;
@@ -93,55 +79,46 @@ public class Misc {
         }
         path = path.split(Pattern.quote("?"))[0];
         String[] pathTokens = path.split("/");
-        InputStreamLength toRead;
         Set thisSet;
-        String lastSubPath = pathTokens[pathTokens.length - 1];
+        Bindings.BindingsOutput rebound;
         if (GlobalStore.hasSet(pathTokens[0])) {
-            if (pathTokens.length == 1) {
-                state.setHeader("Location", "index.html");
-                state.sendResponseHeaders(302);
-                return;
-            }
             thisSet = GlobalStore.getSet(pathTokens[0]);
-            String subPath = Arrays.asList(pathTokens).stream().skip(1).collect(Collectors.joining("/"));
-            Binding setBinding = thisSet.config.getBinding(subPath);
-            if (setBinding.getType() == BindingType.REDIRECT) {
-                state.setHeader("Location", setBinding.getTarget());
+            if (pathTokens.length == 1 || pathTokens.length == 0) {
+                state.setHeader("Location", thisSet.config.getBindings().getRoot());
                 state.sendResponseHeaders(302);
                 return;
-            } else {
-                subPath = setBinding.getTarget();
             }
-            lastSubPath = subPath;
-            toRead = thisSet.getFile(subPath);
+            String subPath = Arrays.asList(pathTokens).stream().skip(1).collect(Collectors.joining("/"));
+            rebound = thisSet.config.getBindings().process(subPath);
         } else {
-            // TODO: Add global bindings here, so that things can be remapped.
-            toRead = GlobalStore.getCommonFile(path);
+            if(path.equals("") || path.equals("/")) {
+                state.setHeader("Location", GlobalStore.getBindings().getRoot());
+                state.sendResponseHeaders(302);
+                return;
+            }
+            rebound = GlobalStore.getBindings().process(path);
             thisSet = null;
         }
-        if (toRead == null) {
+        if(rebound == null) {
             state.sendString("404 Not found", 404);
             return;
         }
-        String extension = lastSubPath;
-        if (extension.contains(".")) {
-            extension = extension.substring(extension.lastIndexOf(".") + 1);
+
+        if (rebound.getRedirectDestination() != null) {
+            state.setHeader("Location", rebound.getRedirectDestination());
+            state.sendResponseHeaders(302);
+            return;
         }
-        if (extMap.containsKey(extension)) {
-            String contentType = extMap.get(extension);
-            if (contentType.contains("~")) {
-                String[] ctSteps = contentType.split(Pattern.quote("~"));
-                contentType = ctSteps[0].strip();
-                for (int i = 1; i < ctSteps.length; i++) {
-                    toRead = FileTransformers.apply(ctSteps[i].strip(), path, thisSet, toRead);
-                }
-            }
-            state.setHeader("Content-Type", contentType);
+
+        String mimeType = rebound.getMimeType();
+        if(mimeType == null) mimeType = GlobalStore.getBindings().getMimeTypeFor(path, rebound);
+        if (mimeType != null) {
+            state.setHeader("Content-Type", mimeType);
         }
         
-        state.setOutputLength((int) toRead.getLength());
+        state.setOutputLength((int) rebound.getFileStream().getLength());
         state.sendResponseHeaders(200);
-        Utils.copyStream(toRead.getInputStream(), state.getOutput(), 4096);
+        Utils.copyStream(rebound.getFileStream().getInputStream(), state.getOutput(), 4096);
     }
 
     /**

@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 import opensrs.InputStreamLength;
 import opensrs.Log;
 import opensrs.Utils;
+import opensrs.filetransformers.Bindings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -52,16 +53,12 @@ public abstract class Set {
             final File fileRoot = new File(root, "files");
             Set set = new Set() {
                 @Override
-                public InputStreamLength getInternalFile(String name) {
+                public File getInternalFile(String name) {
                     File f = new File(fileRoot, name);
                     if (!f.isFile()) {
                         return null;
                     }
-                    try {
-                        return new InputStreamLength(new FileInputStream(f), f.length());
-                    } catch (IOException ex) {
-                        return null;
-                    }
+                    return f;
                 }
             };
             //Read config.XML and content.XML from the root
@@ -127,19 +124,7 @@ public abstract class Set {
         });
         Utils.asStream(penalties.getChildNodes()).forEach(n -> config.penalties.put(Integer.valueOf(n.getAttribute("number")), Integer.valueOf(n.getTextContent())));
         Utils.asStream(timings.getChildNodes()).forEach(n -> config.timings.put(Integer.valueOf(n.getAttribute("number")), Integer.valueOf(n.getTextContent())));
-        Utils.asStream(bindings.getChildNodes()).forEach(n -> {
-            String type = n.getAttribute("type");
-            SRSConfig.BindingType bType = n.getTagName().equals("redirect") ? SRSConfig.BindingType.REDIRECT : SRSConfig.BindingType.TRANSFER;
-            switch(type){
-                case "":
-                case "literal":
-                    config.pageBindings.put(n.getAttribute("source"), new SRSConfig.Binding(n.getAttribute("target"), bType));
-                    break;
-                case "regex":
-                    config.regexPageBindings.put(Pattern.compile(n.getAttribute("source")), new SRSConfig.Binding(n.getAttribute("target"), bType));
-                    break;
-            }
-        });
+        config.bindings = new Bindings(this, bindings);
     }
 
     public Stream<SRSObject> stream() {
@@ -150,13 +135,13 @@ public abstract class Set {
         return srsObjects.get(id);
     }
 
-    protected abstract InputStreamLength getInternalFile(String name);
+    protected abstract File getInternalFile(String name);
 
-    public InputStreamLength getFile(String name) {
+    public File getFile(String name) {
         if (name.startsWith("/")) {
             name = name.substring(1);
         }
-        InputStreamLength thisSetss = getInternalFile(name);
+        File thisSetss = getInternalFile(name);
         if (thisSetss == null) {
             return GlobalStore.getCommonFile(name);
         }
@@ -171,39 +156,8 @@ public abstract class Set {
      * @see Set
      */
     public class SRSConfig {
-                
-        public static enum BindingType {
-            REDIRECT, TRANSFER
-        }
-        
-        public static class Binding {
-            private String target;
-            private BindingType type;
-
-            public String getTarget() {
-                return target;
-            }
-
-            public void setTarget(String target) {
-                this.target = target;
-            }
-
-            public BindingType getType() {
-                return type;
-            }
-
-            public void setType(BindingType type) {
-                this.type = type;
-            }
-
-            public Binding(String target, BindingType type) {
-                this.target = target;
-                this.type = type;
-            }
-            
-        }
-        
         private String name;
+        private Bindings bindings;
 
         /**
          * How big is the penalty based on the current stage
@@ -227,15 +181,6 @@ public abstract class Set {
          */
         private Map<Integer, String> phaseNames = new HashMap<>();
         
-        /**
-         * Aliases of a certain set file to a page address.
-         */
-        private Map<String, Binding> pageBindings = new HashMap<>();
-        
-        /**
-         * Aliases of a certain set file to a page address with regex (eg. a certain flashcard). 
-         */
-        private Map<Pattern, Binding> regexPageBindings = new HashMap<>();
 
         private int getValueOfHighestToKey(Map<Integer, Integer> map, int key, int defaultV) {
             return map
@@ -264,23 +209,12 @@ public abstract class Set {
             return getValueOfHighestToKey(phases, currentStage, 1);
         }
 
-        public Binding getBinding(String source) {
-            Binding response = pageBindings.get(source);
-            if(response == null){
-                //Try the regexes
-                for(Pattern pattern : regexPageBindings.keySet()){
-                    Matcher m = pattern.matcher(source);
-                    if(!m.matches()) continue;
-                    Binding found = regexPageBindings.get(pattern);
-                    response = new Binding(m.replaceAll(found.getTarget()), found.getType());
-                }
-                if(response == null) return new Binding(source, BindingType.TRANSFER);
-            }
-            return response;
-        }
-        
         public String getName() {
             return name;
+        }
+        
+        public Bindings getBindings() {
+            return bindings;
         }
     }
 }

@@ -5,6 +5,7 @@
 package opensrs.filetransformers;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +17,7 @@ import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.scanners.MethodAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
+import org.w3c.dom.Element;
 
 /**
  *
@@ -23,7 +25,7 @@ import org.reflections.scanners.TypeAnnotationsScanner;
  */
 public class FileTransformers {
     private static final String TAG = "FileTransformers";
-    private static final Map<String, FileTransformer> AVAILABLE_TRANSFORMERS = new HashMap<>();
+    private static final Map<String, Constructor<? extends FileTransformer>> AVAILABLE_TRANSFORMERS = new HashMap<>();
     
     public static void findTransformers() throws NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         Reflections base = new Reflections("opensrs",
@@ -32,25 +34,24 @@ public class FileTransformers {
                 new MethodAnnotationsScanner(),
                 new FieldAnnotationsScanner());
         for(Class<? extends FileTransformer> x : base.getSubTypesOf(FileTransformer.class)) {
-            FileTransformer transformer = x.getConstructor().newInstance();
-            AVAILABLE_TRANSFORMERS.put(transformer.getName(), transformer);
-            Log.log(Log.INFO, TAG, "Found transformer " + x.getName() + " (" + transformer.getName() + ")");
+            FileTransformerName nameDecl = x.getAnnotation(FileTransformerName.class);
+            if(nameDecl == null) {
+                Log.log(Log.ERROR, TAG, "Transformer " + x.getCanonicalName() + " is missing a @FileTransformerName() annotation!");
+                continue;
+            }
+            String name = nameDecl.value();
+            AVAILABLE_TRANSFORMERS.put(name, x.getDeclaredConstructor(Set.class, Element.class));
+            Log.log(Log.INFO, TAG, "Found transformer " + x.getName() + " (" + name + ")");
         }
     }
     
-    // Transformer invocation: transformerName
-    // or                      transformerName!arg1/arg2...
-    public static InputStreamLength apply(String fullInvocation, String path, Set set, InputStreamLength is) throws IOException {
-        // The transformer name is just the first part of the invocation, before the first exclamation mark
-        int exclIndex = fullInvocation.indexOf('!');
-        String name, arguments = null;
-        if(exclIndex == -1) {
-            name = fullInvocation;
-        } else {
-            name = fullInvocation.substring(0, exclIndex);
-            arguments = fullInvocation.substring(exclIndex + 1);
+    public static FileTransformer initializeTransformer(String name, Set set, Element initializer) {
+        try {
+            Constructor <? extends FileTransformer> ftc = AVAILABLE_TRANSFORMERS.getOrDefault(name, null);
+            if(ftc == null) throw new RuntimeException("No such transformer: " + name);
+            return ftc.newInstance(set, initializer);
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            throw new RuntimeException(ex);
         }
-        if(!AVAILABLE_TRANSFORMERS.containsKey(name)) throw new RuntimeException(String.format("No such transformer: %s", name));
-        return AVAILABLE_TRANSFORMERS.get(name).apply(arguments, path, set, is);
     }
 }

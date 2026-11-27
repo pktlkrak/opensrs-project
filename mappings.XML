@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<bindings>
+    <root>en/index.html</root>
+    <transformers>
+        <layer tag="translate-root" apply="Translate">
+            <locale>pl</locale>
+            <locale>en</locale>
+        </layer>
+    </transformers>
+
+    <mappings>
+        <mime localextension="html">text/html</mime>
+        <mime localextension="png">image/png</mime>
+        <mime localextension="htm">test/html</mime>
+        <mime localextension="jpg">image/jpeg</mime>
+        <mime localextension="jpeg">image/jpeg</mime>
+        <mime localextension="gif">image/gif</mime>
+        <mime localextension="css">text/css</mime>
+        <mime localextension="svg">image/svg+xml</mime>
+        <mime localextension="js">application/javascript</mime>
+    </mappings>
+
+    <routing>
+        <bind target="$2.html" type="regex" source="(pl|en)/([^/]+).html" tag="translate-root translate-lang-$1" />
+    </routing>
+</bindings>
