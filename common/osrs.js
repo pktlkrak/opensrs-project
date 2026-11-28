@@ -14,7 +14,7 @@
         return output.substring(0, output.length - 1);
     };
     const get = (url, content) => new Promise((ok, fail) => fetch("http://localhost:9998" + url, content === undefined ? undefined : {method: "POST", body: content, headers: {"Content-Type": "application/x-www-form-urlencoded"}}).then(n => n.json()).then(ok).catch(fail));
-    const post = url => fetch("http://localhost:9998" + url, {method: "POST"}).then(n => n.ok ? n.text() : n.text().then(t => Promise.reject(new Error(t))));
+    const post = (url, body) => fetch("http://localhost:9998" + url, {method: "POST", body, headers: {"Content-Type": "application/x-www-form-urlencoded"}}).then(n => n.ok ? n.text() : n.text().then(t => Promise.reject(new Error(t))));
     const osrs = {
         getCurrentSetName: () => new URL(window.location.href).pathname.split("/")[1],
         getUserStatus: () => get(`/api/${osrs.getCurrentSetName()}/progress/phases`),
@@ -24,6 +24,10 @@
         getSets: () => get(`/api/sets`),
         initSetFor: (uid, set) => post(`/management/initSetForUser/${set}/${uid}`),
         dropSetFor: (uid, set) => post(`/management/dropSetForUser/${set}/${uid}`),
+        changePassword: (username, current, password) => post(`/management/changepw`, `username=${encodeURIComponent(username)}&current=${encodeURIComponent(current)}&password=${encodeURIComponent(password)}`),
+        listImages: after => get(`/api/images/list?after=${after}`),
+        uploadImage: file => fetch("http://localhost:9998/api/images/upload", {method: "POST", body: file, headers: {"Content-Type": file.type}}).then(n => n.ok ? n.json() : n.text().then(t => Promise.reject(new Error(t)))),
+        assignImage: (set, imageId) => post(`/api/user/assignimage?set=${encodeURIComponent(set)}&imageid=${imageId}`),
         redirectToLogin: () => window.location.href = `/${(window.location.pathname.match(/^\/(pl|en)\//) || [null, "en"])[1]}/login.html?redir=${encodeURIComponent(window.location.href)}`,
         getLastSessionLessonsDone: () => get(`/api/${osrs.getCurrentSetName()}/lesson/lastSession`),
         getLastSessionReviewsDone: () => get(`/api/${osrs.getCurrentSetName()}/review/lastSession`),

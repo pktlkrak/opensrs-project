@@ -17,18 +17,21 @@
 
     <body>
         <h1 class="osrs-title">{trs:Log In}</h1>
-        <form class="login-form" action="/login" method="POST">
-            <input name="redirect" type="hidden">
-            <label>{trs:Username:}
-                <input name="name" type="text" autocomplete="username" required>
-            </label>
-            <label>{trs:Password:}
-                <input name="password" type="password" autocomplete="current-password" required>
-            </label>
-            <button class="user-thing" type="submit">
-                <img src="/core-ui/res/user-regular-full.svg" width="32" height="32">
-                <span>{trs:Log In}</span>
-            </button>
+        <form action="/login" method="POST">
+            <fieldset class="login-form">
+                <legend>{trs:Account}</legend>
+                <input name="redirect" type="hidden">
+                <label>{trs:Username:}
+                    <input name="name" type="text" autocomplete="username" required>
+                </label>
+                <label>{trs:Password:}
+                    <input name="password" type="password" autocomplete="current-password" required>
+                </label>
+                <button class="user-thing" type="submit">
+                    <img src="/core-ui/res/user-regular-full.svg" width="32" height="32">
+                    <span>{trs:Log In}</span>
+                </button>
+            </fieldset>
         </form>
     </body>
 </html>

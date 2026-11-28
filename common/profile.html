@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>OSRS</title>
+        <link rel="stylesheet" href="core-ui/osrs-common.css">
+        <script src="/osrs.js"></script>
+        <script defer src="core-ui/profile.js"></script>
+    </head>
+
+    <body>
+        <a class="user-thing" href="/logout">
+            <img src="/core-ui/res/right-from-bracket-solid-full.svg" width="24" height="24">
+            <span>{trs:Log Out}</span>
+        </a>
+        <h3>{trs:User:} <span id="profile-username"></span> ({trs:ID:} <span id="profile-uid"></span>)</h3>
+
+        <fieldset>
+            <legend>{trs:Change password}</legend>
+            <form id="password-form" class="profile-form">
+                <label>{trs:Current password:}
+                    <input name="current" type="password" autocomplete="current-password" required>
+                </label>
+                <label>{trs:New password:}
+                    <input name="password" type="password" autocomplete="new-password" required>
+                </label>
+                <label>{trs:Repeat the new password:}
+                    <input name="repeat" type="password" autocomplete="new-password" required>
+                </label>
+                <span id="password-status"></span>
+                <button class="user-thing" type="submit">
+                    <span>{trs:Confirm}</span>
+                </button>
+            </form>
+        </fieldset>
+
+        <fieldset>
+            <legend>{trs:User picture}</legend>
+            <table class="profile-table">
+                <tr>
+                    <td>
+                        <p class="profile-hint">{trs:Click on a set to change your profile picture for it.}</p>
+                        <ul id="main-sets-list"></ul>
+                    </td>
+                    <td>
+                        <fieldset id="image-picker" class="hidden">
+                            <legend>{trs:Choose a picture}</legend>
+                            <div id="image-tiles" class="image-tiles"></div>
+                            <button id="load-more-images" class="user-thing hidden" type="button">
+                                <span>{trs:Load more}</span>
+                            </button>
+                            <div id="drop-zone" class="drop-zone">
+                                <p>{trs:Drop an image here, or}</p>
+                                <label class="user-thing">
+                                    <span>{trs:Upload}</span>
+                                    <input id="image-upload" type="file" accept="image/*" hidden>
+                                </label>
+                            </div>
+                        </fieldset>
+                    </td>
+                </tr>
+            </table>
+        </fieldset>
+    </body>
+</html>

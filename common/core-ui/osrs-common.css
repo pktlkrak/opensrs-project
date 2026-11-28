@@ -1,6 +1,7 @@
 :root {
-    background: #010024;
-    background: linear-gradient(16deg,rgba(1, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%);
+    background: #b4c4df;
+    background: linear-gradient(16deg, #9fb4d9 0%, #b9cbe8 45%, #cfe6f2 100%);
+    color: #10131a;
     width: 100%;
     min-height: 100vh;
 
@@ -16,19 +17,17 @@
     top: 18px;
     right: 18px;
     background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 20px;
-    border: 2px solid gray;
+    color: #10131a;
+    border: 2px solid rgba(16, 19, 26, 0.35);
     min-width: 130px;
+    width: fit-content;
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
-    padding: 2px 10px;
+    padding: 6px 14px;
     font-weight: bold;
-}
-
-.user-thing img {
-    border-radius: 100px;
+    text-decoration: none;
 }
 
 .hidden {
@@ -37,29 +36,34 @@
 
 #main-sets-list {
     list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(16, 19, 26, 0.35);
 }
 
 #main-sets-list li {
-    width: 100%;
     height: 32px;
+    padding: 6px 8px;
 }
 
 #main-sets-list li:not(:last-of-type) {
-    border-bottom: 2px solid black;
+    border-bottom: 1px solid rgba(16, 19, 26, 0.25);
 }
 
 #main-sets-list a {
-    color: black;
+    color: #10131a;
 }
 
 #main-sets-list button {
-    background-color: rgba(255, 255, 255, 0.4);
-    border: none;
+    background-color: rgba(16, 19, 26, 0.08);
+    border: 1px solid rgba(16, 19, 26, 0.35);
     display: flex;
     justify-content: center;
     align-items: center;
     width: 20px;
     height: 20px;
+    flex-shrink: 0;
 }
 
 #main-sets-list li {
@@ -75,29 +79,128 @@
     width: 260px;
     max-width: calc(100% - 44px);
     margin: 0 auto;
-    padding: 20px;
-    background-color: rgba(255, 255, 255, 0.8);
-    border: 2px solid gray;
-    border-radius: 20px;
+    padding: 20px 24px 24px;
+    background-color: rgba(255, 255, 255, 0.55);
+    border: 2px solid rgba(16, 19, 26, 0.35);
 }
 
-.login-form .user-thing {
+.login-form .user-thing,
+.profile-form .user-thing,
+.profile-table .user-thing {
     position: static;
     align-self: center;
 }
 
-.login-form label {
+.login-form label,
+.profile-form label {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
 
-.login-form input {
+.login-form input,
+.profile-form input {
     font-size: 16px;
+    padding: 8px 10px;
+    color: #10131a;
+    background-color: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(16, 19, 26, 0.4);
 }
 
 #main-sets-list a {
     overflow-wrap: anywhere;
+}
+
+#main-sets-list li.selected {
+    background-color: rgba(70, 105, 170, 0.22);
+}
+
+.profile-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.profile-table td {
+    width: 50%;
+    padding: 0 8px;
+    vertical-align: top;
+}
+
+.image-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.image-tiles img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.drop-zone {
+    margin-top: 14px;
+    padding: 16px;
+    text-align: center;
+    border: 2px dashed rgba(16, 19, 26, 0.35);
+}
+
+.profile-table .user-thing {
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.drop-zone.drag-over {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.page-caption {
+    color: #2b3445;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.page-caption a {
+    color: inherit;
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 320px;
+}
+
+.profile-form .user-thing {
+    align-self: flex-start;
+}
+
+.profile-hint {
+    margin: 0 0 12px;
+}
+
+#password-status {
+    color: #2b3445;
+}
+
+body {
+    margin: 0;
+    padding: 20px 24px;
+}
+
+fieldset {
+    min-width: 0;
+    margin: 0 0 24px;
+    padding: 16px 20px 20px;
+    border: 2px solid rgba(16, 19, 26, 0.35);
+}
+
+legend {
+    padding: 0 8px;
+    font-weight: bold;
 }
 
 @media (max-width: 600px) {
@@ -106,8 +209,12 @@
         margin-left: auto;
     }
 
-    #main-sets-list {
-        padding-left: 0;
+    body {
+        padding: 16px;
+    }
+
+    fieldset {
+        padding: 12px 14px 16px;
     }
 
     #main-sets-list li {
@@ -119,5 +226,15 @@
     #main-sets-list button {
         width: 36px;
         height: 36px;
+    }
+
+    .profile-table td {
+        display: block;
+        width: auto;
+        padding: 0;
+    }
+
+    .profile-table td + td {
+        padding-top: 16px;
     }
 }

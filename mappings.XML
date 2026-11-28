@@ -11,6 +11,7 @@
     <mappings>
         <!-- Do not leave placeholders - fallback to english strings -->
         <mime localextension="html" tag="translate-root translate-lang-default-en">text/html</mime>
+        <mime localextension="js" tag="translate-root translate-lang-default-en">application/javascript</mime>
 
         <mime localextension="png">image/png</mime>
         <mime localextension="htm">test/html</mime>
@@ -19,10 +20,9 @@
         <mime localextension="gif">image/gif</mime>
         <mime localextension="css">text/css</mime>
         <mime localextension="svg">image/svg+xml</mime>
-        <mime localextension="js">application/javascript</mime>
     </mappings>
 
     <routing>
-        <bind target="$2.$3" type="regex" source="^(pl|en)/([^\.]+).(html|js)" tag="translate-root translate-lang-$1" />
+        <bind target="$2.$3" type="regex" source="^(pl|en)/([^\.]+).(html|js|css)" tag="translate-lang-$1" />
     </routing>
 </bindings>
