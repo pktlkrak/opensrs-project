@@ -56,8 +56,8 @@
         <mappings>
             <apply tag="translate-lang-pl" urlmatch="^pl/.*"/>
             <apply tag="translate-lang-en" urlmatch="^en/.*"/>
-            <mime localextension=".emhtml" tag="embed translate-set">text/html</mime>
-            <mime localextension=".emjs" tag="embed translate-set">application/javascript</mime>
+            <mime localextension=".emhtml" tag="embed translate-set translate-lang-default-en">text/html</mime>
+            <mime localextension=".emjs" tag="embed translate-set translate-lang-default-en">application/javascript</mime>
         </mappings>
 
         <transformers>

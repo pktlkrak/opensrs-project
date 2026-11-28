@@ -59,8 +59,11 @@ public class TranslationFileTransformer implements FileTransformer {
         File translationFile = null;
         try {
             String locale = null;
+            String defaultLocale = null;
             for (String tag : tags) {
-                if(tag.startsWith("translate-lang-")) {
+                if(tag.startsWith("translate-lang-default-")) {
+                    defaultLocale = tag.substring(("translate-lang-default-").length());
+                } else if(tag.startsWith("translate-lang-")) {
                     String destLang = tag.substring(("translate-lang-").length());
                     if(allowed.contains(destLang)) {
                         locale = destLang;
@@ -69,7 +72,10 @@ public class TranslationFileTransformer implements FileTransformer {
                 }
             }
             if (locale == null) {
-                return is; // No allowed locale in path, send as-is
+                locale = defaultLocale;
+            }
+            if (locale == null) {
+                return is;
             }
             String name = "translations." + locale + ".json";
             translationFile = set == null ? GlobalStore.getCommonFile(name) : set.getFile(name);

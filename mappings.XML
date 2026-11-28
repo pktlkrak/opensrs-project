@@ -9,7 +9,9 @@
     </transformers>
 
     <mappings>
-        <mime localextension="html">text/html</mime>
+        <!-- Do not leave placeholders - fallback to english strings -->
+        <mime localextension="html" tag="translate-root translate-lang-default-en">text/html</mime>
+
         <mime localextension="png">image/png</mime>
         <mime localextension="htm">test/html</mime>
         <mime localextension="jpg">image/jpeg</mime>
