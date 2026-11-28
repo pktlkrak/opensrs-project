@@ -15,8 +15,16 @@
     };
     const get = (url, content) => new Promise((ok, fail) => fetch("http://localhost:9998" + url, content === undefined ? undefined : {method: "POST", body: content, headers: {"Content-Type": "application/x-www-form-urlencoded"}}).then(n => n.json()).then(ok).catch(fail));
     const post = (url, body) => fetch("http://localhost:9998" + url, {method: "POST", body, headers: {"Content-Type": "application/x-www-form-urlencoded"}}).then(n => n.ok ? n.text() : n.text().then(t => Promise.reject(new Error(t))));
+    const pageParts = new URL(window.location.href).pathname.split("/");
+    let currentLocale;
+    try {
+        currentLocale = pageParts[1].toLowerCase().endsWith(".set") ? pageParts[2] : pageParts[1];
+        if(currentLocale.length != 2) throw new Error();
+    } catch(ex) {
+        currentLocale = "en";
+    }
     const osrs = {
-        getCurrentSetName: () => new URL(window.location.href).pathname.split("/")[1],
+        getCurrentSetName: () => pageParts[1],
         getUserStatus: () => get(`/api/${osrs.getCurrentSetName()}/progress/phases`),
         getLessonsQueue: () => get(`/api/${osrs.getCurrentSetName()}/lesson/queue`),
         getReviewsQueue: () => get(`/api/${osrs.getCurrentSetName()}/review/queue`),
@@ -28,7 +36,9 @@
         listImages: after => get(`/api/images/list?after=${after}`),
         uploadImage: file => fetch("http://localhost:9998/api/images/upload", {method: "POST", body: file, headers: {"Content-Type": file.type}}).then(n => n.ok ? n.json() : n.text().then(t => Promise.reject(new Error(t)))),
         assignImage: (set, imageId) => post(`/api/user/assignimage?set=${encodeURIComponent(set)}&imageid=${imageId}`),
-        redirectToLogin: () => window.location.href = `/${(window.location.pathname.match(/^\/(pl|en)\//) || [null, "en"])[1]}/login.html?redir=${encodeURIComponent(window.location.href)}`,
+        redirectToLocalePage: (page) => window.location.href = `/${currentLocale}/${page}`,
+        redirectToLogin: () => OSRS.redirectToLocalePage(`login.html?redir=${encodeURIComponent(window.location.href)}`),
+        redirectToProfile: () => OSRS.redirectToLocalePage(`profile.html`),
         getLastSessionLessonsDone: () => get(`/api/${osrs.getCurrentSetName()}/lesson/lastSession`),
         getLastSessionReviewsDone: () => get(`/api/${osrs.getCurrentSetName()}/review/lastSession`),
         startNewReviewSession: () => get(`/api/${osrs.getCurrentSetName()}/review/start`),
