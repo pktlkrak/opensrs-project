@@ -21,6 +21,6 @@
     </mappings>
 
     <routing>
-        <bind target="$2.html" type="regex" source="(pl|en)/([^/]+).html" tag="translate-root translate-lang-$1" />
+        <bind target="$2.$3" type="regex" source="^(pl|en)/([^\.]+).(html|js)" tag="translate-root translate-lang-$1" />
     </routing>
 </bindings>

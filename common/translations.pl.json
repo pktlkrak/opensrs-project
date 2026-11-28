@@ -1,3 +1,12 @@
 {
-    "Welcome to OSRS!": "Witaj w systemie OSRS"
+    "Welcome to OSRS!": "Witaj w systemie OSRS",
+    "Log In": "Zaloguj się",
+    "The following learning resources are available:": "Dostępne są następujące materiały do nauki:",
+    "Username:": "Nazwa użytkownika:",
+    "Password:": "Hasło:",
+    "Reset progress": "Zresetuj postęp",
+    "Start learning": "Rozpocznij naukę",
+    "Are you sure you want to reset your progress in": "Czy na pewno chcesz zresetować swój postęp w",
+    "No sets loaded. Go install some!": "Brak wczytanych zestawów. Zainstaluj jakieś!",
+    "Failed to load sets:": "Nie udało się wczytać zestawów:"
 }

@@ -98,7 +98,7 @@ public class Management {
      * @param session The current session of the user.
      * @throws IOException
      */
-    @Endpoint(value = "/initSetForUser/{set}/{user}", allowedMethods = {"POST"})
+    @Endpoint(value = "/dropSetForUser/{set}/{user}", allowedMethods = {"POST"})
     public void dropSetForUser(
             State state,
             @FromPath("set") String set,

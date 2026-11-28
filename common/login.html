@@ -1,29 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenSRS - Login</title>
-    <script>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>OSRS</title>
+        <link rel="stylesheet" href="/core-ui/osrs-common.css">
+        <script>
         window.onload = () => {
             const redir = new URL(window.location.href).searchParams.get("redir");
             const elem = document.querySelector("input[name='redirect']");
             if(!redir) elem.remove();
             else elem.value = redir;
         }
-    </script>
-</head>
-<body>
-    <form action="/login" method="POST" onsubmit="submit">
-        <input name="redirect" type="text" hidden>
-        <label>Username: 
-            <input name="name" type="text">
-        </label>
-        <label>Password: 
-            <input name="password" type="password">
-        </label>
-        <input value="Login" type="submit">
-    </form>
-</body>
+        </script>
+    </head>
+
+    <body>
+        <h1 class="osrs-title">{trs:Log In}</h1>
+        <form class="login-form" action="/login" method="POST">
+            <input name="redirect" type="hidden">
+            <label>{trs:Username:}
+                <input name="name" type="text" autocomplete="username" required>
+            </label>
+            <label>{trs:Password:}
+                <input name="password" type="password" autocomplete="current-password" required>
+            </label>
+            <button class="user-thing" type="submit">
+                <img src="/core-ui/res/user-regular-full.svg" width="32" height="32">
+                <span>{trs:Log In}</span>
+            </button>
+        </form>
+    </body>
 </html>
