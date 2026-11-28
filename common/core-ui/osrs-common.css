@@ -73,6 +73,7 @@
     flex-direction: column;
     gap: 10px;
     width: 260px;
+    max-width: calc(100% - 44px);
     margin: 0 auto;
     padding: 20px;
     background-color: rgba(255, 255, 255, 0.8);
@@ -83,4 +84,40 @@
 .login-form .user-thing {
     position: static;
     align-self: center;
+}
+
+.login-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.login-form input {
+    font-size: 16px;
+}
+
+#main-sets-list a {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+    body > .user-thing {
+        position: static;
+        margin-left: auto;
+    }
+
+    #main-sets-list {
+        padding-left: 0;
+    }
+
+    #main-sets-list li {
+        height: auto;
+        min-height: 44px;
+        gap: 8px;
+    }
+
+    #main-sets-list button {
+        width: 36px;
+        height: 36px;
+    }
 }
