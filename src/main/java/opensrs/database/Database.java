@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import opensrs.dataobjects.Image;
 import opensrs.dataobjects.SRSObjectState;
 import opensrs.dataobjects.Result;
 import opensrs.dataobjects.Review;
@@ -57,18 +58,69 @@ public abstract class Database {
     public abstract void updateUser(User user);
     
     /**
-     * Assigns an image to the user
-     * @param uid       the user's ID
-     * @param image     the image's bytes and content type
+     * Stores a new image along with its contents.
+     * @param image     the image
+     * @param contents  the image's contents
      */
-    public abstract void updateUserImage(int uid, User.Image image);
-   
+    public abstract void createImage(Image image, byte[] contents);
+
     /**
-     
-     * @param uid       the user's ID
-     * @return          the given user's image (or null)
+     * Gets the contents of an image.
+     * @param imageId   the image's ID
+     * @return          the contents, or null when the image doesn't exist
      */
-    public abstract User.Image getUserImage(int uid);
+    public abstract byte[] getImageContents(int imageId);
+
+    /**
+     * Lists images ordered by ID.
+     * @param after     the number of images to skip
+     * @param limit     the maximum number of images returned
+     * @return          the images, or null on failure
+     */
+    public abstract List<Image> listImages(int after, int limit);
+
+    /**
+     * Fetches the images that meet the specified filters.
+     * @param filter    the criteria the images have to meet
+     * @param sorter    the order of the images
+     * @param limit     the maximum number of images returned
+     * @return          the images, or null on failure
+     */
+    public abstract List<Image> fetchImages(Filter<Image.Parameter> filter, Sorter<Image.Parameter> sorter, int limit);
+
+    /**
+     * Fetches the first image that meets the specified filters.
+     * @param filter    the criteria the image has to meet
+     * @param sorter    the order of the images
+     * @return          the image, or null when none matches
+     */
+    public Image fetchImage(Filter<Image.Parameter> filter, Sorter<Image.Parameter> sorter) {
+        return fetchImages(filter, sorter, 1).stream().findFirst().orElse(null);
+    }
+
+    /**
+     * Assigns an image to the user in a set, replacing the previous one.
+     * @param uid       the user's ID
+     * @param setCode   the set's code
+     * @param imageId   the image's ID
+     * @return          false when the user or image doesn't exist
+     */
+    public abstract boolean assignUserImage(int uid, int setCode, int imageId);
+
+    /**
+     * Gets the image assigned to the user in a set.
+     * @param uid       the user's ID
+     * @param setCode   the set's code
+     * @return          the image, or null when none is assigned
+     */
+    public abstract Image getUserImage(int uid, int setCode);
+
+    /**
+     * Gets the first image assigned to the user in any set.
+     * @param uid       the user's ID
+     * @return          the image, or null when none is assigned
+     */
+    public abstract Image getUserImage(int uid);
 
     /**
      * Fetches the list of all the results that meet the specified filters.

@@ -6,14 +6,11 @@
 package opensrs.endpoints;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import tools.jackson.databind.node.ObjectNode;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -29,7 +26,7 @@ import opensrs.database.Filter;
 import opensrs.database.FilterChain;
 import opensrs.database.Filters;
 import opensrs.dataobjects.Review;
-import opensrs.dataobjects.User;
+import opensrs.dataobjects.Image;
 import opensrs.filetransformers.Bindings;
 import opensrs.filetransformers.FileTransformers;
 import opensrs.sets.GlobalStore;
@@ -38,6 +35,7 @@ import org.autumn.State;
 import org.autumn.annotations.Endpoint;
 import org.autumn.annotations.FromCookie;
 import org.autumn.annotations.FromPath;
+import org.autumn.annotations.FromQuery;
 import tools.jackson.databind.node.ArrayNode;
 
 /**
@@ -47,8 +45,6 @@ import tools.jackson.databind.node.ArrayNode;
  */
 public class Misc {
     
-    public static final int MAX_IMAGE_LENGTH = 10_000_000; // ~10MiB
-
     private final Database database;
     
     public Misc(Database database) {
@@ -142,62 +138,71 @@ public class Misc {
     }
 
     /**
-     * The endpoint for retrieving the user's picture
+     * The endpoint for retrieving the user's picture in a set, or the first one assigned when no set is given
      *
      * @param state Autumn State.
+     * @param set The set (optional).
      * @param session Current session.
      * @throws IOException
      */
     @Endpoint(value = "/api/user/pic", allowedMethods = {"GET"})
     public void userPicture(
             State state,
+            @FromQuery(value = "set", optional = true) String set,
             @FromCookie(value = "session", optional = true) String session
     ) throws IOException {
+        state.setHeader("Cache-Control", "no-store");
         int uid = SessionHolder.getUID(session);
-        User.Image userImage = database.getUserImage(uid);
-        if (userImage == null) {
+        Image userImage = null;
+        if (uid != -1) {
+            userImage = set == null || set.isEmpty()
+                    ? database.getUserImage(uid)
+                    : database.getUserImage(uid, set.hashCode());
+        }
+        byte[] contents = userImage == null ? null : database.getImageContents(userImage.getId());
+        if (contents == null) {
             state.sendString("Not found", "text/plain", 404);
         } else {
-            state.setOutputLength(userImage.image.length);
-            state.setHeader("Content-Type", userImage.contentType);
-            state.sendResponseHeaders(200);
-            OutputStream os = state.getOutput();
-            os.write(userImage.image);
-            os.flush();
+            Images.sendImage(state, userImage, contents);
         }
     }
 
     /**
-     * The endpoint for setting the user's picture
+     * The endpoint for assigning an uploaded image to the user in a set
      *
      * @param state Autumn State.
+     * @param set The set.
+     * @param imageId The image's ID.
      * @param session Current session.
      * @throws IOException
      */
-    @Endpoint(value = "/api/user/pic", allowedMethods = {"POST"})
-    public void setUserPicture(
+    @Endpoint(value = "/api/user/assignimage", allowedMethods = {"POST"})
+    public void assignUserImage(
             State state,
+            @FromQuery("set") String set,
+            @FromQuery("imageid") String imageId,
             @FromCookie(value = "session", optional = true) String session
     ) throws IOException {
         int uid = SessionHolder.getUID(session);
         if (uid == -1) {
             state.sendString("Unauthorized", "text/plain", 403);
+            return;
+        }
+        if (!GlobalStore.hasSet(set)) {
+            state.sendString("No such set", "text/plain", 404);
+            return;
+        }
+        int id;
+        try {
+            id = Integer.parseInt(imageId);
+        } catch (NumberFormatException ex) {
+            state.sendString("Invalid image ID", "text/plain", 400);
+            return;
+        }
+        if (database.assignUserImage(uid, set.hashCode(), id)) {
+            state.sendString("OK", "text/plain", 200);
         } else {
-            List<String> length = state.getInboundHeaders().getOrDefault("Content-Length", new LinkedList<>());
-            List<String> contentTypes = state.getInboundHeaders().getOrDefault("Content-Type", new LinkedList<>());
-            if (length.size() != 1 || contentTypes.size() != 1) {
-                state.sendString("Invalid request", "text/plain", 400);
-            } else {
-                long longLength = Long.parseLong(length.getFirst());
-                if (longLength >= MAX_IMAGE_LENGTH) {
-                    state.sendString("Image too long", "text/plain", 400);
-                } else {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    Utils.copyStreamLimited(state.getInput(), baos, 4096, longLength);
-                    database.updateUserImage(uid, new User.Image(baos.toByteArray(), contentTypes.getFirst()));
-                    state.sendString("OK", "text/plain", 200);
-                }
-            }
+            state.sendString("No such image", "text/plain", 404);
         }
     }
 

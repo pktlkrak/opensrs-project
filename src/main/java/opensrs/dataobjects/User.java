@@ -19,16 +19,6 @@ import opensrs.database.ParameterType;
  */
 public class User extends DataObject<User.Parameter> {
     
-    public static class Image {
-        public byte[] image;
-        public String contentType;
-        
-        public Image(byte[] image, String contentType) {
-            this.contentType = contentType;
-            this.image = image;
-        }
-    }
-    
     public static User fromPassword(String username, String password) {
         User newUser = new User();
         newUser.setName(username);

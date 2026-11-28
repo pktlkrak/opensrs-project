@@ -27,12 +27,24 @@ username=alice&password=secret2
 POST {{host}}/management/initSetForUser/wk.set/0
 
 
-### Get a picture:
-GET {{host}}/api/user/pic
-
-### Set the picture
-
-POST {{host}}/api/user/pic
+### 
+POST {{host}}/api/images/upload
 Content-Type: image/png
 
 < profile.png
+
+###
+
+GET {{host}}/api/images/list
+
+### Get an image by its ID
+GET {{host}}/api/images/1
+
+### 
+POST {{host}}/api/user/assignimage?set=wk.set&imageid=1
+
+### Get the picture assigned in a set
+GET {{host}}/api/user/pic?set=wk.set
+
+### Get the first assigned picture
+GET {{host}}/api/user/pic

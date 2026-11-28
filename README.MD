@@ -205,10 +205,19 @@ erDiagram
     }
 
     userimages {
-        integer imgid PK "identity"
-        integer uid FK "not null"
-        bytea image "not null"
+        integer image_id PK "identity"
         text image_type "not null"
+    }
+
+    imageblobs {
+        integer image_id PK, FK
+        bytea image "not null"
+    }
+
+    j_users_images {
+        integer uid PK, FK
+        integer set_code PK
+        integer image_id FK "not null"
     }
 
     reviews {
@@ -233,7 +242,9 @@ erDiagram
         integer tries_amount
     }
 
-    userdata ||..|| userimages : ""
+    userimages ||--|| imageblobs : ""
+    userdata ||--o{ j_users_images : ""
+    userimages ||..o{ j_users_images : ""
     userdata |o..o{ reviews : ""
     userdata |o..o{ results : ""
     reviews ||..o{ results : ""
