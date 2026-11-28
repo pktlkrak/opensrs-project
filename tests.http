@@ -21,7 +21,7 @@ name=root&password=P@ssword
 POST {{host}}/management/changepw
 Content-Type: application/x-www-form-urlencoded
 
-username=alice&password=secret2
+username=alice&current=secret1&password=secret2
 
 ###
 POST {{host}}/management/initSetForUser/wk.set/0

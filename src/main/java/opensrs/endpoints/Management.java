@@ -190,6 +190,7 @@ public class Management {
      * @param session The session for which we check the user status.
      * @param username The name of the user whose password is to be changed.
      * @param password The new password
+     * @param current The current password, required when changing one's own
      * @throws IOException
      */
     @Endpoint(value = "/changepw", allowedMethods = {"POST"})
@@ -197,13 +198,16 @@ public class Management {
             State state,
             @FromCookie("session") String session,
             @FromBody("username") String username,
-            @FromBody("password") String password
+            @FromBody("password") String password,
+            @FromBody(value = "current", optional = true) String current
     ) throws IOException {
         state.setHeader("Cache-Control", "no-store");
         int uid = SessionHolder.getUID(session);
         User userToChange = database.getUserByName(username);
         if (userToChange == null) {
             state.sendString("Not found", 404);
+        } else if (uid == userToChange.getUid() && (current == null || !SessionHolder.isCorrectPassword(database, username, current))) {
+            state.sendString("Wrong password.", 403);
         } else if (uid == 0 || uid == userToChange.getUid()) {
             int orgUid = userToChange.getUid();
             userToChange = User.fromPassword(username, password);
